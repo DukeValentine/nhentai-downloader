@@ -1,38 +1,41 @@
 import shutil
 import requests
-from doujinshi import Doujinshi
-import constant
-from constant import urls
 import bs4
 import os
 import errno
 import multiprocessing
 from functools import partial
 
+from doujinshi import Doujinshi
+import constant
+from logger import logger
+
+
 def get_doujinshi_data (doujinshi_id):
     try:
         if not doujinshi_id or not isinstance(doujinshi_id,str):
-            raise Exception('Bad id format')
+            raise TypeError('Bad id format')
         
-    except Exception as error:
-        print(repr(error))
+    except TypeError as error:
+        logger.error('Bad id format')
         return None
+        
         
     else:
         doujinshi = Doujinshi(doujinshi_id)
         
         try:
-            resp = requests.get(urls['API_URL'] + doujinshi.main_id)
+            resp = requests.get(constant.urls['API_URL'] + doujinshi.main_id)
             
             if resp.status_code is not 200:
                 
                 raise Exception("Couldn't get doujinshi id [%s]" % doujinshi_id)
             
         except Exception as error:
-            print("Doujinshi id[{0}] not found. Nhentai responded with {1}" .format(doujinshi_id,resp.status_code))
+            logger.error("Doujinshi id[{0}] not found. Nhentai responded with {1}" .format(doujinshi_id,resp.status_code))
             
         else:
-            print("Getting info from doujinshi id[%s]" % doujinshi_id)
+            logger.info("Getting info from doujinshi id[%s]" % doujinshi_id)
             
             json_resp = resp.json()
             
@@ -74,7 +77,9 @@ def get_doujinshi_data (doujinshi_id):
 def download_worker (path,url):
     filename = url.split('/')[-1]
     fullpath = path + '/' + filename
-    print(fullpath)
+    
+    logger.info("Downloading {0}".format(filename))
+    #print(fullpath)
     
     req = requests.get(url, stream=True)
     
@@ -91,8 +96,8 @@ def image_pool_manager(threads,path,url_list):
     image_pool.join()
     
     
-def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()):
-    print("Getting page %d" % page)
+def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False):
+    logger.info("Getting page %d" % page)
                 
     fav_page = session.get(urls['FAV_URL'] + '?page=%d' % page).content
     
@@ -103,16 +108,25 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
     
     
 
-    print("{0} doujinshi founnd".format(len(fav_elem)) )
+    logger.info("{0} doujinshi founnd".format(len(fav_elem)) )
+    
+    id_list = []
     
     for id in fav_elem:
         id = id.get('data-id')
-        print(id)
+        
+        logger.info("Downloading doujinshi id[{0}]".format(id))
+                    
+        id_list.append(id)
+        
         fav_doujinshi = get_doujinshi_data(id)
         
         doujinshi_path = "{0}{1}".format(directory,fav_doujinshi.title)
         
-        print(doujinshi_path)
+        if debug:
+            logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
+        
+        
         url_list = []
         
         try:
@@ -123,7 +137,7 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
                 print(repr(error))
                 raise
             else:
-                print("Doujinshi folder already exists")
+                logger.warning("Doujinshi folder already exists")
         
         for index,ext in enumerate(fav_doujinshi.page_ext,1):
             url_list.append(urls['MEDIA_URL'] + fav_doujinshi.media_id + "/{0}".format(index) + ext)
@@ -136,7 +150,7 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
         image_pool.close()
         image_pool.join()
     
-    return len(fav_elem)
+    return id_list
 
 def fetch_id(id,directory):
 
