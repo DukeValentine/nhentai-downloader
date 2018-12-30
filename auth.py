@@ -1,14 +1,14 @@
 import requests
-from constant import urls
+import constant
 import bs4
+from logger import logger
 
 def login(username, password):
-   # print('username:' + username + ', ' + 'password:' + password)
     
     nh_session = requests.Session()
-    nh_session.headers.update({'Referer' : urls['LOGIN_URL']} )
+    nh_session.headers.update({'Referer' : constant.urls['LOGIN_URL']} )
     
-    login_page = nh_session.get(urls['LOGIN_URL']).content
+    login_page = nh_session.get(constant.urls['LOGIN_URL']).content
     login_html = bs4.BeautifulSoup(login_page, 'html.parser')
     
     csrf_token = login_html.find('input', attrs={"name":'csrfmiddlewaretoken'}).attrs['value']
@@ -24,7 +24,7 @@ def login(username, password):
    # print(login_info)
    
     try:
-     response = nh_session.post(urls['LOGIN_URL'], data=login_info)
+     response = nh_session.post(constant.urls['LOGIN_URL'], data=login_info)
      response_html = bs4.BeautifulSoup(response.text,'html.parser')
      
      if "Invalid username (or email) or password" in response.text:
@@ -35,5 +35,5 @@ def login(username, password):
         return None
         
     else:
-        print("Logged in successfully")
+        logger.info("Logged in successfully")
         return nh_session

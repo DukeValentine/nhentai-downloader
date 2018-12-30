@@ -99,7 +99,7 @@ def image_pool_manager(threads,path,url_list):
 def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False):
     logger.info("Getting page %d" % page)
                 
-    fav_page = session.get(urls['FAV_URL'] + '?page=%d' % page).content
+    fav_page = session.get(constant.urls['FAV_URL'] + '?page=%d' % page).content
     
 
     fav_html = bs4.BeautifulSoup(fav_page, 'html.parser')
@@ -121,16 +121,17 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
         
         fav_doujinshi = get_doujinshi_data(id)
         
-        doujinshi_path = "{0}{1}".format(directory,fav_doujinshi.title)
+        doujinshi_path = "{0}{1}".format(directory,fav_doujinshi.title.replace("/"," "))
         
         if debug:
             logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
+            logger.debug("Title:{0}\nExt:{1}".format(fav_doujinshi.title,fav_doujinshi.page_ext))
         
         
         url_list = []
         
         try:
-            os.makedirs("{0}{1}".format(directory,fav_doujinshi.title),0o755)
+            os.makedirs("{0}{1}".format(directory,fav_doujinshi.title.replace("/"," ")),0o755)
             
         except OSError as error:
             if error.errno != errno.EEXIST:
@@ -138,17 +139,19 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
                 raise
             else:
                 logger.warning("Doujinshi folder already exists")
+                
         
-        for index,ext in enumerate(fav_doujinshi.page_ext,1):
-            url_list.append(urls['MEDIA_URL'] + fav_doujinshi.media_id + "/{0}".format(index) + ext)
+        if download:
+            for index,ext in enumerate(fav_doujinshi.page_ext,1):
+                url_list.append(constant.urls['MEDIA_URL'] + fav_doujinshi.media_id + "/{0}".format(index) + ext)
+                
+                
             
-            
-        
-        image_pool = multiprocessing.Pool(threads)
-        func = partial(download_worker,doujinshi_path)
-        image_pool.map(func,url_list)
-        image_pool.close()
-        image_pool.join()
+            image_pool = multiprocessing.Pool(threads)
+            func = partial(download_worker,doujinshi_path)
+            image_pool.map(func,url_list)
+            image_pool.close()
+            image_pool.join()
     
     return id_list
 

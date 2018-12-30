@@ -10,6 +10,10 @@ import errno
 import shutil
 from functools import partial
 import cli
+from logger import logger
+import fetcher
+import auth
+
 
 LOGIN_URL = 'https://nhentai.net/login/'
 FAV_URL = 'https://nhentai.net/favorites/'
@@ -181,14 +185,13 @@ def main():
     if not tag:
         print('no tags')
         
-    if not options.download:
-        exit(1)
-
+    
 
     image_queue = multiprocessing.Manager().Queue()
 
 
-    nh_session = nhentai_login(login,password)
+    logger.info("Logging in...")
+    nh_session = auth.login(login,password)
 
     if(nh_session is None):
         exit(1)
@@ -199,54 +202,12 @@ def main():
         
     while True:
         
-        print("Getting page %d" % page_num)
+        logger.info("Getting page %d" % page_num)
                 
-        fav_page = nh_session.get(FAV_URL + '?page=%d' % page_num).content
-        
-
-        fav_html = bs4.BeautifulSoup(fav_page, 'html.parser')
-
-        fav_elem = fav_html.find_all('div' , class_ = 'gallery-favorite')
-        
-        
-
-        print("{0} doujinshi founnd".format(len(fav_elem)) )
-        
-        for id in fav_elem:
-            id = id.get('data-id')
-            print(id)
-            fav_doujinshi = get_doujinshi_data(id)
-            
-            doujinshi_path = "{0}{1}".format(directory,fav_doujinshi.title)
-            
-            print(doujinshi_path)
-            url_list = []
-            
-            try:
-                os.makedirs("{0}{1}".format(directory,fav_doujinshi.title),0o755)
-                
-            except OSError as error:
-                if error.errno != errno.EEXIST:
-                    print(repr(error))
-                    raise
-                else:
-                    print("Doujinshi folder already exists")
-            
-            for index,ext in enumerate(fav_doujinshi.page_ext,1):
-                url_list.append(MEDIA_URL + fav_doujinshi.media_id + "/{0}".format(index) + ext)
-                
-                
-            
-            image_pool = multiprocessing.Pool(7)
-            func = partial(download_worker,doujinshi_path)
-            image_pool.map(func,url_list)
-            image_pool.close()
-            image_pool.join()
-                #image_pool = multiprocessing.pool.Pool(7, download_worker, (image_queue,doujinshi_path,))
-            
+        id_list = fetcher.fetch_favorites(page_num,nh_session,options.dir,7,options.download,options.verbose)
         
         page_num = page_num + 1
-        if (not len(fav_elem)) or (page_num > page_max):
+        if (not len(id_list)) or (page_num > page_max):
             break
         
 
