@@ -1,0 +1,4 @@
+1. Separate the main module in multiple modules for better organization
+2. Use all commandline options
+3. Add proper logging
+4. Create setup.py file
