@@ -12,6 +12,10 @@ from logger import logger
 
 
 def get_doujinshi_data (doujinshi_id):
+    """
+    Creates Doujinshi object for the given id and populates its fields from the API url_list
+    ID must be a string
+    """
     try:
         if not doujinshi_id or not isinstance(doujinshi_id,str):
             raise TypeError('Bad id format')
@@ -97,6 +101,10 @@ def image_pool_manager(threads,path,url_list):
     
     
 def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False):
+    """
+    Fetch doujinshi information from given page of the favorites of the given session.
+    To download the found doujinshis, it is required to supply a true value to the download flag. Default behaviour is to just return list of ids
+    """
     logger.info("Getting page %d" % page)
                 
     fav_page = session.get(constant.urls['FAV_URL'] + '?page=%d' % page).content
@@ -131,7 +139,7 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
         url_list = []
         
         try:
-            os.makedirs("{0}{1}".format(directory,fav_doujinshi.title.replace("/"," ")),0o755)
+            os.makedirs(doujinshi_path,0o755)
             
         except OSError as error:
             if error.errno != errno.EEXIST:
@@ -155,8 +163,34 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
     
     return id_list
 
-def fetch_id(id,directory):
-
-    id_doujinshi = get_doujinshi_data(id)
+def fetch_id(id,directory,threads =None,download=False):
+    """
+    Fetch doujinshi information from given ids.
+    To download found doujinshi, the download flag must be given a true value. By default doujinshi are not downloaded
+    """
+    
+    for id_ in id:
+        id_doujinshi = get_doujinshi_data(id)
+        
+        if download:
+            url_list = []
+            doujinshi_path = "{0}{1}".format(directory,id_doujinshi.title.replace("/"," "))
+            
+            for index,ext in enumerate(id_doujinshi.page_ext,1):
+                url_list.append(constant.urls['MEDIA_URL'] + id_doujinshi.media_id + "/{0}".format(index) + ext)
+            
+            
+            try:
+                os.makedirs(doujinshi_path,0o755)
+            
+            except OSError as error:
+                if error.errno != errno.EEXIST:
+                    print(repr(error))
+                    raise
+            else:
+                logger.warning("Doujinshi folder already exists")
+                
+            image_pool_manager(threads,doujinshi_path,url_list)
+            
     
     
