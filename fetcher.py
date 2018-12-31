@@ -130,20 +130,16 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
         fav_doujinshi = get_doujinshi_data(id)
         
         
-        
-        
-        url_list = []
-        
         if download:
             doujinshi_path = "{0}{1}".format(directory,fav_doujinshi.title.replace("/"," "))
+            
+            url_list = fav_doujinshi.generate_url_list()
         
             if debug:
                 logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
                 logger.debug("Title:{0}".format(fav_doujinshi.title))
                 logger.debug("Pages:{0}".format(fav_doujinshi.pages))
             
-            for index,ext in enumerate(fav_doujinshi.page_ext,1):
-                url_list.append(constant.urls['MEDIA_URL'] + fav_doujinshi.media_id + "/{0}".format(index) + ext)
                 
             create_doujinshi_path(doujinshi_path)
                 
