@@ -129,43 +129,38 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
         
         fav_doujinshi = get_doujinshi_data(id)
         
-        doujinshi_path = "{0}{1}".format(directory,fav_doujinshi.title.replace("/"," "))
         
-        if debug:
-            logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
-            logger.debug("Title:{0}\nPages:{1}".format(fav_doujinshi.title,fav_doujinshi.pages))
         
         
         url_list = []
         
-        try:
-            os.makedirs(doujinshi_path,0o755)
-            
-        except OSError as error:
-            if error.errno != errno.EEXIST:
-                print(repr(error))
-                raise
-            else:
-                logger.warning("Doujinshi folder already exists")
-                
-        
         if download:
+            doujinshi_path = "{0}{1}".format(directory,fav_doujinshi.title.replace("/"," "))
+        
+            if debug:
+                logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
+                logger.debug("Title:{0}".format(fav_doujinshi.title))
+                logger.debug("Pages:{0}".format(fav_doujinshi.pages))
+            
             for index,ext in enumerate(fav_doujinshi.page_ext,1):
                 url_list.append(constant.urls['MEDIA_URL'] + fav_doujinshi.media_id + "/{0}".format(index) + ext)
                 
+            create_doujinshi_path(doujinshi_path)
                 
-            
-            image_pool = multiprocessing.Pool(threads)
-            func = partial(download_worker,doujinshi_path)
-            image_pool.map(func,url_list)
-            image_pool.close()
-            image_pool.join()
+            image_pool_manager(threads,doujinshi_path,url_list)
     
     return id_list
 
-def create_doujinshi_path(directory,doujinshi,debug=False):
-    
-    return 1
+def create_doujinshi_path(doujinshi_path,permissions=0o755):
+    try:
+        os.makedirs(doujinshi_path,0o755)
+            
+    except OSError as error:
+        if error.errno != errno.EEXIST:
+            print(repr(error))
+            raise
+        else:
+            logger.warning("Doujinshi folder already exists")
 
 def fetch_id(id,directory,threads =None,download=False,debug=False):
     """
@@ -191,21 +186,14 @@ def fetch_id(id,directory,threads =None,download=False,debug=False):
             
             if debug:
                 logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
-                logger.debug("Title:{0}\nPages:{1}".format(id_doujinshi.title,id_doujinshi.pages))
+                logger.debug("Title:{0}".format(id_doujinshi.title))
+                logger.debug("Pages:{0}".format(id_doujinshi.pages))
             
             for index,ext in enumerate(id_doujinshi.page_ext,1):
                 url_list.append(constant.urls['MEDIA_URL'] + id_doujinshi.media_id + "/{0}".format(index) + ext)
             
             
-            try:
-                os.makedirs(doujinshi_path,0o755)
-            
-            except OSError as error:
-                if error.errno != errno.EEXIST:
-                    print(repr(error))
-                    raise
-                else:
-                    logger.warning("Doujinshi folder already exists")
+            create_doujinshi_path(doujinshi_path)
                 
             image_pool_manager(threads,doujinshi_path,url_list)
             
