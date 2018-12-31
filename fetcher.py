@@ -133,7 +133,7 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
         
         if debug:
             logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
-            logger.debug("Title:{0}\nExt:{1}".format(fav_doujinshi.title,fav_doujinshi.page_ext))
+            logger.debug("Title:{0}\nPages:{1}".format(fav_doujinshi.title,fav_doujinshi.pages))
         
         
         url_list = []
@@ -163,18 +163,31 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
     
     return id_list
 
-def fetch_id(id,directory,threads =None,download=False):
+def fetch_id(id,directory,threads =None,download=False,debug=False):
     """
     Fetch doujinshi information from given ids.
     To download found doujinshi, the download flag must be given a true value. By default doujinshi are not downloaded
     """
+    id_list = []
     
-    for id_ in id:
-        id_doujinshi = get_doujinshi_data(id)
+    if isinstance(id,str):
+        id_list.append(id)
+        
+    else:
+        id_list = id
+    
+    for id_ in id_list:
+        id_doujinshi = get_doujinshi_data(id_)
+        
+        logger.info("Downloading doujinshi id[{0}]".format(id_))
         
         if download:
             url_list = []
             doujinshi_path = "{0}{1}".format(directory,id_doujinshi.title.replace("/"," "))
+            
+            if debug:
+                logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
+                logger.debug("Title:{0}\nPages:{1}".format(id_doujinshi.title,id_doujinshi.pages))
             
             for index,ext in enumerate(id_doujinshi.page_ext,1):
                 url_list.append(constant.urls['MEDIA_URL'] + id_doujinshi.media_id + "/{0}".format(index) + ext)
@@ -191,6 +204,11 @@ def fetch_id(id,directory,threads =None,download=False):
                 logger.warning("Doujinshi folder already exists")
                 
             image_pool_manager(threads,doujinshi_path,url_list)
+            
+if __name__ == '__main__':
+    
+    test_list = ["257565","257566","257525"]
+    fetch_id(test_list,os.path.join(os.getcwd(),'') + "id_test/",download=True,debug=True)
             
     
     
