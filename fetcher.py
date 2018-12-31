@@ -181,17 +181,13 @@ def fetch_id(id,directory,threads =None,download=False,debug=False):
         logger.info("Downloading doujinshi id[{0}]".format(id_))
         
         if download:
-            url_list = []
+            url_list = id_doujinshi.generate_url_list()
             doujinshi_path = "{0}{1}".format(directory,id_doujinshi.title.replace("/"," "))
             
             if debug:
                 logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
                 logger.debug("Title:{0}".format(id_doujinshi.title))
                 logger.debug("Pages:{0}".format(id_doujinshi.pages))
-            
-            for index,ext in enumerate(id_doujinshi.page_ext,1):
-                url_list.append(constant.urls['MEDIA_URL'] + id_doujinshi.media_id + "/{0}".format(index) + ext)
-            
             
             create_doujinshi_path(doujinshi_path)
                 

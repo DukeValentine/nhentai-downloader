@@ -1,3 +1,5 @@
+import constant
+
 class Doujinshi:
     
     ext = {
@@ -49,11 +51,12 @@ class Doujinshi:
     def get_path(self,directory):
         return ("{0}{1}".format(directory,self.title.replace("/"," ")))
     
-    def generate_url_list(self, media_url):
+    def generate_url_list(self):
+        
         url_list = []
         
         for index,ext in enumerate(self.page_ext,1):
-                url_list.append(media_url + self.media_id + "/{0}".format(index) + ext)
+                url_list.append(constant.urls['MEDIA_URL'] + self.media_id + "/{0}".format(index) + ext)
                 
         return url_list
     
