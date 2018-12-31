@@ -163,6 +163,10 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
     
     return id_list
 
+def create_doujinshi_path(directory,doujinshi,debug=False):
+    
+    return 1
+
 def fetch_id(id,directory,threads =None,download=False,debug=False):
     """
     Fetch doujinshi information from given ids.
@@ -200,8 +204,8 @@ def fetch_id(id,directory,threads =None,download=False,debug=False):
                 if error.errno != errno.EEXIST:
                     print(repr(error))
                     raise
-            else:
-                logger.warning("Doujinshi folder already exists")
+                else:
+                    logger.warning("Doujinshi folder already exists")
                 
             image_pool_manager(threads,doujinshi_path,url_list)
             

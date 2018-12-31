@@ -3,7 +3,7 @@ import constant
 import bs4
 from logger import logger
 
-def login(username, password):
+def login(username, password,debug=False):
     
     nh_session = requests.Session()
     nh_session.headers.update({'Referer' : constant.urls['LOGIN_URL']} )
@@ -20,6 +20,8 @@ def login(username, password):
     
     }
     
+    if debug:
+        logger.debug(login_info)
    # print(csrf_token)
    # print(login_info)
    

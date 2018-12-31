@@ -15,3 +15,4 @@ class Doujinshi:
         self.tags = []
         self.pages = 0
         self.page_ext = []
+        self.num_favorites = 0
