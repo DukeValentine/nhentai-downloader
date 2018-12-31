@@ -43,34 +43,7 @@ def get_doujinshi_data (doujinshi_id):
             
             json_resp = resp.json()
             
-            doujinshi.main_id = doujinshi_id
-            doujinshi.title = json_resp ['title']['english']
-            doujinshi.media_id = json_resp['media_id']
-            doujinshi.pages = json_resp['num_pages']
-            
-            if len(doujinshi.page_ext):
-                del doujinshi.page_ext[:]
-            
-            if len(doujinshi.tags):
-                del doujinshi.tags[:]
-            
-            for page in json_resp['images']['pages']:
-                
-                doujinshi.page_ext.append(doujinshi.ext[page['t']])
-            
-            
-            for tag in json_resp['tags']:
-                if tag['type'] == "tag":
-                    doujinshi.tags.append(tag['name'])
-                
-                elif tag['type'] == "artist":
-                    doujinshi.artist = tag['name']
-                
-                elif tag['type'] == "language" and tag['name'] != "translated":
-                    doujinshi.language = tag['name']
-                    
-                elif tag['type'] == "group":
-                    doujinshi.group = tag['name']
+            doujinshi.fill_info(json_resp)
                     
             return doujinshi
             
@@ -131,7 +104,7 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
         
         
         if download:
-            doujinshi_path = "{0}{1}".format(directory,fav_doujinshi.title.replace("/"," "))
+            doujinshi_path = fav_doujinshi.get_path(directory)
             
             url_list = fav_doujinshi.generate_url_list()
         
@@ -178,7 +151,7 @@ def fetch_id(id,directory,threads =None,download=False,debug=False):
         
         if download:
             url_list = id_doujinshi.generate_url_list()
-            doujinshi_path = "{0}{1}".format(directory,id_doujinshi.title.replace("/"," "))
+            doujinshi_path = id_doujinshi.get_path(directory)
             
             if debug:
                 logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
