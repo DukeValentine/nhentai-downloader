@@ -29,11 +29,14 @@ def login(username, password,debug=False):
      response = nh_session.post(constant.urls['LOGIN_URL'], data=login_info)
      response_html = bs4.BeautifulSoup(response.text,'html.parser')
      
+     if debug:
+         logger.debug("Nhentai responded with {0}".format(response.status_code))
+     
      if "Invalid username (or email) or password" in response.text:
          raise Exception('Login failure')
      
     except Exception as error:
-        print(repr(error))
+        logger.error(repr(error))
         return None
         
     else:
