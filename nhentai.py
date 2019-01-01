@@ -38,16 +38,13 @@ def main():
     print(options.initial_page)
     print(options.last_page)
     
-    logger.info("Logging in...")
-    nh_session = auth.login(login,password)
-
-    if(nh_session is None):
-        logger.error("Login failure,exiting")
-        exit(1)
     #id_file = open(id_filename, "w")
 
     page_num = options.initial_page
     page_max = options.last_page
+    
+    if not options.download:
+        logger.info("Download argument not provided, the program will not download any doujinshi it finds")
     
     
     if options.id:
@@ -57,6 +54,17 @@ def main():
         fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
         
     else:
+        if not login or not password:
+            logger.error("Username or password not provided,exiting")
+            exit(1)
+        
+        logger.info("Logging in...")
+        nh_session = auth.login(login,password)
+
+        if(nh_session is None):
+            logger.error("Login failure,exiting")
+            exit(1)
+        
         while True:
             
             logger.info("Getting page %d" % page_num)
