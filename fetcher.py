@@ -133,6 +133,10 @@ def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_pa
     
     href_regex = re.compile(r'[\d]+')
     
+    if debug:
+        logger.debug("Base directory:{0}".format(directory))
+        
+    logger.info("Search tags: {0}".format(tags))
     
     while True:
         logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page_num))
@@ -148,8 +152,9 @@ def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_pa
         
         for id in search_elem:
             id = href_regex.search(id.get('href')).group()
-            logger.debug('{0}'.format(id))
-            #fetch_id(id,directory,threads,download,debug)
+            
+            if download:
+                fetch_id(id,directory,threads,download,debug)
             
         page_num = page_num + 1
         
@@ -210,7 +215,7 @@ if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     
-    search_doujinshi(tags,os.path.join(os.getcwd(),'') + 'search/',download=True,debug=False)
+    search_doujinshi(tags,os.path.join(os.getcwd(),'') + 'search/',download=True,debug=True)
             
     
     
