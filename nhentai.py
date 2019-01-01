@@ -25,18 +25,6 @@ def main():
     id_filename = options.id_filename
     tag = options.tags
     directory = options.dir
-
-    print (login)
-    print (password)
-    print (id_filename)
-    print(tag)
-    print(directory)
-
-    print(options.search)
-    print(options.download)
-
-    print(options.initial_page)
-    print(options.last_page)
     
     #id_file = open(id_filename, "w")
 
@@ -44,11 +32,12 @@ def main():
     page_max = options.last_page
     
     if not options.download:
-        logger.info("Download argument not provided, the program will not download any doujinshi it finds")
+        logger.info("Download argument not provided, found doujinshi will not be downloaded")
     
     
     if options.id:
         fetcher.fetch_id(options.id,options.dir,options.threads,options.download,options.verbose)
+        
     
     elif options.search:
         fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
