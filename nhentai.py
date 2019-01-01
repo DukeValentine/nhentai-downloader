@@ -48,16 +48,24 @@ def main():
 
     page_num = options.initial_page
     page_max = options.last_page
+    
+    
+    if options.id:
+        fetcher.fetch_id(options.id,options.dir,options.threads,options.download,options.verbose)
+    
+    elif options.search:
+        fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
         
-    while True:
-        
-        logger.info("Getting page %d" % page_num)
-                
-        id_list = fetcher.fetch_favorites(page_num,nh_session,options.dir,7,options.download,options.verbose)
-        
-        page_num = page_num + 1
-        if (not len(id_list)) or (page_num > page_max):
-            break
+    else:
+        while True:
+            
+            logger.info("Getting page %d" % page_num)
+                    
+            id_list = fetcher.fetch_favorites(page_num,nh_session,options.dir,options.threads,options.download,options.verbose)
+            
+            page_num = page_num + 1
+            if (not len(id_list)) or (page_num > page_max):
+                break
         
 
         
