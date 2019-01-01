@@ -5,9 +5,12 @@ import os
 import errno
 import multiprocessing
 from functools import partial
+import re
 
 from doujinshi import Doujinshi
 import constant
+
+import logging
 from logger import logger
 
 
@@ -48,9 +51,6 @@ def get_doujinshi_data (doujinshi_id):
             return doujinshi
             
 
-    
-    return None
-
 def download_worker (path,url):
     filename = url.split('/')[-1]
     fullpath = path + '/' + filename
@@ -66,6 +66,9 @@ def download_worker (path,url):
     return fullpath
 
 def image_pool_manager(threads,path,url_list):
+    """
+    Create and manage a pool for downloading images
+    """
     image_pool = multiprocessing.Pool(threads)
     func = partial(download_worker,path)
     image_pool.map(func,url_list)
@@ -120,6 +123,42 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
     
     return id_list
 
+
+def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_page = 0 ,download=False,debug=False):
+    id_list = []
+    
+    search_string = '+'.join(tags)
+    
+    page_num = 1
+    
+    href_regex = re.compile(r'[\d]+')
+    
+    
+    while True:
+        logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page_num))
+        
+        search_page = requests.get(constant.urls['SEARCH'] +  search_string + "&page={0}".format(page_num)).content
+        search_html = bs4.BeautifulSoup(search_page,'html.parser')
+        search_elem = search_html.find_all('a', class_ = 'cover')
+        
+        logger.info("Found {0} doujinshi in page".format(len(search_elem)))
+        
+        if (not len(search_elem)) or (page_num > max_page and max_page):
+            break
+        
+        for id in search_elem:
+            id = href_regex.search(id.get('href')).group()
+            logger.debug('{0}'.format(id))
+            #fetch_id(id,directory,threads,download,debug)
+            
+        page_num = page_num + 1
+        
+        
+        
+    return id_list
+    
+    
+
 def create_doujinshi_path(doujinshi_path,permissions=0o755):
     try:
         os.makedirs(doujinshi_path,0o755)
@@ -165,7 +204,13 @@ def fetch_id(id,directory,threads =None,download=False,debug=False):
 if __name__ == '__main__':
     
     test_list = ["257565","257566","257525"]
-    fetch_id(test_list,os.path.join(os.getcwd(),'') + "id_test/",download=True,debug=True)
+    #fetch_id(test_list,os.path.join(os.getcwd(),'') + "id_test/",download=True,debug=True)
+    tags = ["impregnation","english","sword"]
+    
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    
+    search_doujinshi(tags,os.path.join(os.getcwd(),'') + 'search/',download=True,debug=False)
             
     
     
