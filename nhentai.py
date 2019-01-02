@@ -1,5 +1,6 @@
 import os
 import requests
+import re
 import bs4
 import sys
 import argparse
@@ -14,10 +15,13 @@ from logger import logger
 import fetcher
 import auth
 import constant
+import logging
 
 
 def main():
     options = cli.option_parser()
+    
+    id_regex = re.compile(r'[\d]+')
 
 
     login = options.login
@@ -31,6 +35,25 @@ def main():
     page_num = options.initial_page
     page_max = options.last_page
     
+    input_id_list = []
+    
+    if options.input_filename:
+        logger.info("Reading input file")
+        
+        with open(options.input_filename,"r") as input_file:
+            for line in input_file:
+                input_id_list.append(id_regex.search(line).group())
+                
+        logger.info("{0} ids found in file".format(len(input_id_list)))
+                
+            
+    
+    
+    if not options.verbose:
+        logging.getLogger("requests").setLevel(logging.WARNING)
+        logging.getLogger("urllib3").setLevel(logging.WARNING)
+    
+    
     if not options.download:
         logger.info("Download argument not provided, found doujinshi will not be downloaded")
     
@@ -40,7 +63,18 @@ def main():
         
     
     elif options.search:
-        fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
+        if not options.tags:
+            logger.warning("No search tags were given, the program will search until max-page is reached")
+        
+        id_list = fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
+        
+        logger.info("Writing id list output")
+        
+        with open(os.path.join(options.dir, options.id_filename),"a+") as id_file:
+            for id in id_list:
+                id_file.write("https://nhentai.net/g/{0}/\n".format(id))
+        
+        logger.info("Writing finished")
         
     else:
         if not login or not password:
@@ -63,8 +97,14 @@ def main():
             page_num = page_num + 1
             if (not len(id_list)) or (page_num > page_max):
                 break
+            
+            logger.info("Writing id list output")
+            
+            with open(os.path.join(options.dir, options.id_filename),"a+") as id_file:
+                for id in id_list:
+                    id_file.write("https://nhentai.net/g/{0}/\n".format(id))
         
-
+            logger.info("Writing finished")
         
         
     #id_file.close()
