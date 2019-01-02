@@ -53,10 +53,7 @@ def get_doujinshi_data (doujinshi_id):
 
 def download_worker (path,overwrite,url):
     filename = url.split('/')[-1]
-    fullpath = path + '/' + filename
-    
-    
-    #print(fullpath)
+    fullpath = os.path.join(path,filename)
     
     req = requests.get(url, stream=True)
     
