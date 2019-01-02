@@ -1,4 +1,5 @@
 import constant
+from datetime import datetime
 
 class Doujinshi:
     
@@ -18,11 +19,14 @@ class Doujinshi:
         self.pages = 0
         self.page_ext = []
         self.num_favorites = 0
+        self.upload_date = ''
         
     def fill_info(self, json_data):
         self.title = json_data ['title']['english']
         self.media_id = json_data['media_id']
         self.pages = json_data['num_pages']
+        self.num_favorites = json_data['num_favorites']
+        self.upload_date = datetime.utcfromtimestamp(json_data['upload_date']).strftime('[%Y-%m-%d] (%a,%H:%M:%S)%Z')
         
         if len(self.page_ext):
             del self.page_ext[:]
