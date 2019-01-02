@@ -3,7 +3,7 @@ import os
 
 
 def option_parser():
-    parser = argparse.ArgumentParser (description = "Get a list of doujinshi from your favorites or tag searches \n Download galleries in image or cbz formats")
+    parser = argparse.ArgumentParser (description = "Extract information and download doujinshis \n Fetch them from your favorites, searching by tags or by inputing a file with a list of doujinshi \n Ample configuration options")
 
     auth = parser.add_argument_group('Authentication')
     debug = parser.add_argument_group('Debug')
@@ -12,8 +12,9 @@ def option_parser():
     download = parser.add_argument_group('Download options')
 
 
-    file_args.add_argument ("--dir",'-D', action ="store", nargs='?', default=os.getcwd() + '/nhentai/',help ='Directory for saved files, defaults to ./nhentai/')
-    file_args.add_argument ('-f', action="store", dest = "id_filename", default = 'ids.txt', help='Filename for the id list, ids.txt by default')
+    file_args.add_argument ("--dir",'-D', action ="store", nargs='?', default=os.path.join(os.getcwd(),"nhentai"),help ='Directory for saved files, defaults to ./nhentai/')
+    file_args.add_argument ('-o','--output', action="store", dest = "id_filename", default = 'ids.txt', help='id list filename, ids.txt by default')
+    file_args.add_argument ('-i','--input', action='store', dest = "input_filename", default = "", help = 'Extract doujinshi from input file')
 
     auth.add_argument ('-l','--login', action="store", dest = "login", default = '')
     auth.add_argument ('-p','--password', action="store", dest = "password",default = '')
