@@ -51,32 +51,38 @@ def get_doujinshi_data (doujinshi_id):
             return doujinshi
             
 
-def download_worker (path,url):
+def download_worker (path,overwrite,url):
     filename = url.split('/')[-1]
     fullpath = path + '/' + filename
     
-    logger.info("Downloading {0}".format(filename))
+    
     #print(fullpath)
     
     req = requests.get(url, stream=True)
     
-    with open(fullpath, 'wb') as f:
-        shutil.copyfileobj(req.raw, f)
+    
+    if overwrite or not os.path.isfile(fullpath):
+        logger.info("Downloading {0}".format(filename))
+        with open(fullpath, 'wb') as f:
+            shutil.copyfileobj(req.raw, f)
+            
+    else:
+        logger.info("File {0} exists, overwriting disabled".format(filename))
     
     return fullpath
 
-def image_pool_manager(threads,path,url_list):
+def image_pool_manager(threads,path,url_list,overwrite=True):
     """
     Create and manage a pool for downloading images
     """
     image_pool = multiprocessing.Pool(threads)
-    func = partial(download_worker,path)
+    func = partial(download_worker,path,overwrite)
     image_pool.map(func,url_list)
     image_pool.close()
     image_pool.join()
     
     
-def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False):
+def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False,overwrite=True):
     """
     Fetch doujinshi information from given page of the favorites of the given session.
     To download the found doujinshis, it is required to supply a true value to the download flag. Default behaviour is to just return list of ids
@@ -103,28 +109,13 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
                     
         id_list.append(id)
         
-        fav_doujinshi = get_doujinshi_data(id)
-        
-        
         if download:
-            doujinshi_path = fav_doujinshi.get_path(directory)
-            
-            url_list = fav_doujinshi.generate_url_list()
-        
-            if debug:
-                logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
-                logger.debug("Title:{0}".format(fav_doujinshi.title))
-                logger.debug("Pages:{0}".format(fav_doujinshi.pages))
-            
-                
-            create_doujinshi_path(doujinshi_path)
-                
-            image_pool_manager(threads,doujinshi_path,url_list)
+            fetch_id(id,directory,threads,download,debug,overwrite)
     
     return id_list
 
 
-def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_page = 0 ,download=False,debug=False):
+def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_page = 0 ,download=False,debug=False,overwrite=True):
     id_list = []
     
     search_string = '+'.join(tags)
@@ -152,9 +143,10 @@ def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_pa
         
         for id in search_elem:
             id = href_regex.search(id.get('href')).group()
+            id_list.append(id)
             
             if download:
-                fetch_id(id,directory,threads,download,debug)
+                fetch_id(id,directory,threads,download,debug,overwrite)
             
         page_num = page_num + 1
         
@@ -170,12 +162,12 @@ def create_doujinshi_path(doujinshi_path,permissions=0o755):
             
     except OSError as error:
         if error.errno != errno.EEXIST:
-            print(repr(error))
+            logger.error(repr(error))
             raise
         else:
             logger.warning("Doujinshi folder already exists")
 
-def fetch_id(id,directory,threads =None,download=False,debug=False):
+def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=True):
     """
     Fetch doujinshi information from given ids.
     To download found doujinshi, the download flag must be given a true value. By default doujinshi are not downloaded
@@ -198,24 +190,25 @@ def fetch_id(id,directory,threads =None,download=False,debug=False):
             doujinshi_path = id_doujinshi.get_path(directory)
             
             if debug:
-                logger.debug("Doujinshi path : {0}\n".format(doujinshi_path))
+                logger.debug("Doujinshi path : {0}".format(doujinshi_path))
                 logger.debug("Title:{0}".format(id_doujinshi.title))
                 logger.debug("Pages:{0}".format(id_doujinshi.pages))
             
             create_doujinshi_path(doujinshi_path)
                 
-            image_pool_manager(threads,doujinshi_path,url_list)
+            image_pool_manager(threads,doujinshi_path,url_list,overwrite)
             
 if __name__ == '__main__':
-    
-    test_list = ["257565","257566","257525"]
-    #fetch_id(test_list,os.path.join(os.getcwd(),'') + "id_test/",download=True,debug=True)
-    tags = ["impregnation","english","sword"]
-    
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     
-    search_doujinshi(tags,os.path.join(os.getcwd(),'') + 'search/',download=True,debug=True)
+    test_list = ["257565","257566","257525"]
+    fetch_id(test_list,os.path.join(os.getcwd(),'') + "id_test/",download=True,debug=True,overwrite=False)
+    tags = ["impregnation","english","sword"]
+    
+    
+    
+    #search_doujinshi(tags,os.path.join(os.getcwd(),'') + 'search/',download=True,debug=True)
             
     
     
