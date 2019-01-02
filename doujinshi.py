@@ -1,5 +1,6 @@
 import constant
 from datetime import datetime
+import os
 
 class Doujinshi:
     
@@ -53,14 +54,18 @@ class Doujinshi:
                 self.group = tag['name']
         
     def get_path(self,directory):
-        return ("{0}{1}".format(directory,self.title.replace("/"," ")))
+        return os.path.join(directory, self.title.replace("/"," "))
+        
+        #return ("{0}{1}".format(directory,self.title.replace("/"," ")))
     
     def generate_url_list(self):
         
         url_list = []
         
         for index,ext in enumerate(self.page_ext,1):
-                url_list.append(constant.urls['MEDIA_URL'] + self.media_id + "/{0}".format(index) + ext)
+                filename = "{0}".format(index) + ext
+                url_list.append(os.path.join(constant.urls['MEDIA_URL'],self.media_id,filename))
+                #url_list.append(constant.urls['MEDIA_URL'] + self.media_id + "/{0}".format(index) + ext)
                 
         return url_list
     
