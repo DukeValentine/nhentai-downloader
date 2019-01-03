@@ -2,10 +2,7 @@ import os
 import requests
 import re
 import bs4
-import sys
 import argparse
-import multiprocessing
-import queue
 import time
 import errno
 import shutil
@@ -133,4 +130,4 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt as error:
         print(repr(error))
-        sys.exit(0)
+        exit(1)
