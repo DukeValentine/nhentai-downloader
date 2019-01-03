@@ -1,9 +1,9 @@
 import constant
 from datetime import datetime
 import os
+import json
 
 class Doujinshi:
-    
     ext = {
         'j' : '.jpg',
         'p' : '.png'
@@ -69,6 +69,10 @@ class Doujinshi:
                 
         return url_list
     
-    
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)
+
+if __name__ == '__main__':
         
-        
+    print("Test")
