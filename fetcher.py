@@ -13,6 +13,7 @@ import constant
 import logging
 from logger import logger
 import io_utils
+import json
 
 
 def get_doujinshi_data (doujinshi_id):
@@ -113,7 +114,6 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
 
 
 def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_page = 0 ,download=False,debug=False,overwrite=True):
-    id_list = []
     
     search_string = '+'.join(tags)
     
@@ -142,16 +142,17 @@ def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_pa
         
         for id in search_elem:
             id = href_regex.search(id.get('href')).group()
-            id_list.append(id)
             
-            if download:
-                fetch_id(id,directory,threads,download,debug,overwrite)
+            dlist = fetch_id(id,directory,threads,download,debug,overwrite)
+            
+            for elem in dlist:
+                doujinshi_list.append(elem)
             
         page_num = page_num + 1
         
         
         
-    return id_list
+    return doujinshi_list
     
     
 
@@ -184,7 +185,7 @@ def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=Tru
         id_doujinshi = get_doujinshi_data(id_)
         doujinshi_list.append(id_doujinshi)
         
-        logger.info("Downloading doujinshi id[{0}]".format(id_))
+        logger.info("Fetching doujinshi id[{0}]".format(id_))
         
         if download:
             url_list = id_doujinshi.generate_url_list()
@@ -206,12 +207,17 @@ if __name__ == '__main__':
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     
     test_list = ["257565","257566","257525"]
-    fetch_id(test_list,os.path.join(os.getcwd(),'') + "id_test/",download=True,debug=True,overwrite=False)
+    #dlist = fetch_id(test_list,os.path.join(os.getcwd(),'') + "id_test/",download=False,debug=True,overwrite=False)
     tags = ["impregnation","english","sword"]
     
+    directory = os.path.join(os.getcwd(),"json")
     
     
-    #search_doujinshi(tags,os.path.join(os.getcwd(),'') + 'search/',download=True,debug=True)
+    #print(dlist)
+    dlist = search_doujinshi(tags,os.path.join(os.getcwd(),'') + 'search/',download=False,debug=True,max_page=1)
+    
+   
+    io_utils.write_doujinshi_json(directory,"test.json",dlist)
             
     
     
