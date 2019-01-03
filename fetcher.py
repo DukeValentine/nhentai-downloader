@@ -12,6 +12,7 @@ import constant
 
 import logging
 from logger import logger
+import io_utils
 
 
 def get_doujinshi_data (doujinshi_id):
@@ -97,19 +98,18 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
 
     logger.info("{0} doujinshi founnd".format(len(fav_elem)) )
     
-    id_list = []
+    doujinshi_list = []
     
     for id in fav_elem:
         id = id.get('data-id')
         
         logger.info("Downloading doujinshi id[{0}]".format(id))
-                    
-        id_list.append(id)
         
         if download:
-            fetch_id(id,directory,threads,download,debug,overwrite)
+            doujinshi_list = fetch_id(id,directory,threads,download,debug,overwrite)
+            
     
-    return id_list
+    return doujinshi_list
 
 
 def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_page = 0 ,download=False,debug=False,overwrite=True):
@@ -125,6 +125,8 @@ def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_pa
         logger.debug("Base directory:{0}".format(directory))
         
     logger.info("Search tags: {0}".format(tags))
+    
+    doujinshi_list = []
     
     while True:
         logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page_num))
@@ -169,6 +171,7 @@ def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=Tru
     Fetch doujinshi information from given ids.
     To download found doujinshi, the download flag must be given a true value. By default doujinshi are not downloaded
     """
+    doujinshi_list = []
     id_list = []
     
     if isinstance(id,str):
@@ -179,6 +182,7 @@ def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=Tru
     
     for id_ in id_list:
         id_doujinshi = get_doujinshi_data(id_)
+        doujinshi_list.append(id_doujinshi)
         
         logger.info("Downloading doujinshi id[{0}]".format(id_))
         
@@ -194,6 +198,8 @@ def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=Tru
             create_doujinshi_path(doujinshi_path)
                 
             image_pool_manager(threads,doujinshi_path,url_list,overwrite)
+            
+    return doujinshi_list
             
 if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)

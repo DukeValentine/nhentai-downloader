@@ -2,6 +2,7 @@ import constant
 from datetime import datetime
 import os
 import json
+from logger import logger
 
 class Doujinshi:
     ext = {
@@ -70,8 +71,14 @@ class Doujinshi:
         return url_list
     
     def toJSON(self):
+        """
+        Convert Doujinshi object to json format
+        """
         return json.dumps(self, default=lambda o: o.__dict__, 
             sort_keys=True, indent=4)
+    
+    
+        
 
 if __name__ == '__main__':
         
