@@ -40,11 +40,18 @@ def main():
     if options.input_filename:
         logger.info("Reading input file")
         
-        with open(options.input_filename,"r") as input_file:
-            for line in input_file:
-                input_id_list.append(id_regex.search(line).group())
-                
-        logger.info("{0} ids found in file".format(len(input_id_list)))
+        
+        try:
+            with open(options.input_filename,"r") as input_file:
+                for line in input_file:
+                    input_id_list.append(id_regex.search(line).group())
+                    
+        except OSError as error:
+            logger.error(repr(error))
+            exit(1)
+            
+        else:
+            logger.info("{0} ids found in file".format(len(input_id_list)))
                 
             
     
@@ -69,12 +76,18 @@ def main():
         id_list = fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
         
         logger.info("Writing id list output")
+            
+        try:
+            with open(os.path.join(options.dir, options.id_filename),"a+") as id_file:
+                for id in id_list:
+                    id_file.write("https://nhentai.net/g/{0}/\n".format(id))
         
-        with open(os.path.join(options.dir, options.id_filename),"a+") as id_file:
-            for id in id_list:
-                id_file.write("https://nhentai.net/g/{0}/\n".format(id))
+        except OSError as error:
+            logger.error(repr(error))
+            exit(1)
         
-        logger.info("Writing finished")
+        else:
+            logger.info("Writing finished")
         
     else:
         if not login or not password:
@@ -100,11 +113,17 @@ def main():
             
             logger.info("Writing id list output")
             
-            with open(os.path.join(options.dir, options.id_filename),"a+") as id_file:
-                for id in id_list:
-                    id_file.write("https://nhentai.net/g/{0}/\n".format(id))
-        
-            logger.info("Writing finished")
+            try:
+                with open(os.path.join(options.dir, options.id_filename),"a+") as id_file:
+                    for id in id_list:
+                        id_file.write("https://nhentai.net/g/{0}/\n".format(id))
+            
+            except OSError as error:
+                logger.error(repr(error))
+                exit(1)
+            
+            else:
+                logger.info("Writing finished")
         
         
     #id_file.close()
