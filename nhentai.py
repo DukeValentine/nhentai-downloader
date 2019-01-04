@@ -69,7 +69,7 @@ def main():
     
     elif options.search:
         if not options.tags:
-            logger.warning("No search tags were given, the program will search until max-page is reached")
+            logger.warning("No search tags were given, the program will search the entirety of nhentai")
         
         dlist = fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
         
@@ -92,29 +92,25 @@ def main():
             logger.error("Login failure,exiting")
             exit(1)
         
-        while True:
+        doujinshi_list = []
+        
+        while (page_num > page_max):
             
             logger.info("Getting page %d" % page_num)
                     
-            id_list = fetcher.fetch_favorites(page_num,nh_session,options.dir,options.threads,options.download,options.verbose)
+            dlist = dlist + fetcher.fetch_favorites(page_num,nh_session,options.dir,options.threads,options.download,options.verbose)
             
             page_num = page_num + 1
-            if (not len(id_list)) or (page_num > page_max):
+            if (not len(dlist)):
                 break
             
-            logger.info("Writing id list output")
+        if options.json:
+            io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
             
-            try:
-                with open(os.path.join(options.dir, options.id_filename),"a+") as id_file:
-                    for id in id_list:
-                        id_file.write("https://nhentai.net/g/{0}/\n".format(id))
-            
-            except OSError as error:
-                logger.error(repr(error))
-                exit(1)
-            
-            else:
-                logger.info("Writing finished")
+        else:
+            id_list = (obj.main_id for obj in dlist)
+            io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)    
+        
         
         
     #id_file.close()
