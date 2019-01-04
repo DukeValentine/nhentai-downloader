@@ -1,7 +1,5 @@
 import os
 
-import cli
-
 
 urls = {
     'LOGIN_URL' : 'https://nhentai.net/login/',

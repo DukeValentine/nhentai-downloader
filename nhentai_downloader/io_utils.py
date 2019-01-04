@@ -1,6 +1,6 @@
 import os
-from logger import logger
-from doujinshi import Doujinshi
+from nhentai_downloader.logger import logger as logger
+from nhentai_downloader.doujinshi import Doujinshi
 import json
 import errno
 

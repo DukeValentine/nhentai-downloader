@@ -1,8 +1,8 @@
-import constant
+import nhentai_downloader.constant as constant
 from datetime import datetime
 import os
 import json
-from logger import logger
+from nhentai_downloader.logger import logger as logger
 
 class Doujinshi:
     ext = {

@@ -1,7 +1,7 @@
 import requests
 import constant
 import bs4
-from logger import logger
+from nhentai_downloader.logger import logger as logger
 
 def login(username, password,debug=False):
     

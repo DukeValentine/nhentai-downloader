@@ -7,13 +7,13 @@ import time
 import errno
 import shutil
 from functools import partial
-import cli
-from logger import logger
-import fetcher
-import auth
-import constant
+import nhentai_downloader.cli as cli
+from nhentai_downloader.logger import logger as logger
+import nhentai_downloader.fetcher as fetcher
+import nhentai_downloader.auth as auth
+import nhentai_downloader.constant as constant
 import logging
-import io_utils
+import nhentai_downloader.io_utils as io_utils
 
 
 def main():

@@ -7,12 +7,12 @@ import multiprocessing
 from functools import partial
 import re
 
-from doujinshi import Doujinshi
-import constant
+from nhentai_downloader.doujinshi import Doujinshi
+import nhentai_downloader.constant as constant
 
 import logging
-from logger import logger
-import io_utils
+from nhentai_downloader.logger import logger as logger
+import nhentai_downloader.io_utils as io_utils
 import json
 
 
