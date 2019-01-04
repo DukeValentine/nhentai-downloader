@@ -13,6 +13,7 @@ import fetcher
 import auth
 import constant
 import logging
+import io_utils
 
 
 def main():
@@ -23,7 +24,7 @@ def main():
 
     login = options.login
     password = options.password
-    id_filename = options.id_filename
+    #id_filename = options.id_filename
     tag = options.tags
     directory = options.dir
     
@@ -70,21 +71,14 @@ def main():
         if not options.tags:
             logger.warning("No search tags were given, the program will search until max-page is reached")
         
-        id_list = fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
+        dlist = fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
         
-        logger.info("Writing id list output")
+        if options.json:
+            io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
             
-        try:
-            with open(os.path.join(options.dir, options.id_filename),"a+") as id_file:
-                for id in id_list:
-                    id_file.write("https://nhentai.net/g/{0}/\n".format(id))
-        
-        except OSError as error:
-            logger.error(repr(error))
-            exit(1)
-        
         else:
-            logger.info("Writing finished")
+            id_list = (obj.main_id for obj in dlist)
+            io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)
         
     else:
         if not login or not password:

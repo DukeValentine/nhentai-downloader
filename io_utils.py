@@ -2,9 +2,19 @@ import os
 from logger import logger
 from doujinshi import Doujinshi
 import json
+import errno
 
-def write_idlist(directory,id_filename,id_list):
+
+
+
+def write_idlist(directory,id_filename,id_list,debug=False):
     logger.info("Writing id list output")
+    
+    if not id_filename.endswith(".txt"):
+        id_filename = id_filename + ".txt"
+    
+    if debug:
+        logger.debug("Filepath:{0}".format(os.path.join(directory,id_filename)))
             
     try:
         with open(os.path.join(directory,id_filename),"a+") as id_file:
@@ -20,14 +30,18 @@ def write_idlist(directory,id_filename,id_list):
         
         
 def write_doujinshi_json(directory,filename,data,debug=False):
-    
     logger.info("Writing json output")
+    
+    if not filename.endswith(".json"):
+        filename = filename + ".json"
     
     if debug:
         logger.debug("Filepath:{0}".format(os.path.join(directory,filename)))
             
     try:
-        with open(os.path.join(directory,filename),"a+") as json_file:
+        create_path(directory)
+        
+        with open(os.path.join(directory,filename),"w") as json_file:
             json_file.write(
                 json.dumps(data, default=lambda o: o.__dict__, 
                 sort_keys=True, indent=4))
@@ -38,10 +52,17 @@ def write_doujinshi_json(directory,filename,data,debug=False):
     
     else:
         logger.info("Writing finished")
-    
-    
-    
-    return 1
+        
+def create_path(path,permissions=0o755):
+    try:
+        os.makedirs(path,0o755)
+            
+    except OSError as error:
+        if error.errno != errno.EEXIST:
+            logger.error(repr(error))
+            raise
+        else:
+            logger.warning("Folder already exists")
 
 if __name__ == '__main__':
     test = Doujinshi("1225")

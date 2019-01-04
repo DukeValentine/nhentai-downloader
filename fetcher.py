@@ -114,7 +114,6 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
 
 
 def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_page = 0 ,download=False,debug=False,overwrite=True):
-    
     search_string = '+'.join(tags)
     
     page_num = 1
@@ -165,7 +164,7 @@ def create_doujinshi_path(doujinshi_path,permissions=0o755):
             logger.error(repr(error))
             raise
         else:
-            logger.warning("Doujinshi folder already exists")
+            logger.warning("Folder already exists")
 
 def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=True):
     """
