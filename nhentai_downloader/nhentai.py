@@ -92,9 +92,9 @@ def main():
             logger.error("Login failure,exiting")
             exit(1)
         
-        doujinshi_list = []
+        dlist = []
         
-        while (page_num > page_max):
+        while (page_num <= page_max):
             
             logger.info("Getting page %d" % page_num)
                     

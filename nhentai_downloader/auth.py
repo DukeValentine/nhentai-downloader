@@ -1,5 +1,5 @@
 import requests
-import constant
+import nhentai_downloader.constant as constant
 import bs4
 from nhentai_downloader.logger import logger as logger
 
