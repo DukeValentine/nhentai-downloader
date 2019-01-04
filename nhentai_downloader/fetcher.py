@@ -106,8 +106,7 @@ def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count()
         
         logger.info("Downloading doujinshi id[{0}]".format(id))
         
-        if download:
-            doujinshi_list = fetch_id(id,directory,threads,download,debug,overwrite)
+        doujinshi_list = doujinshi_list + (fetch_id(id,directory,threads,download,debug,overwrite))
             
     
     return doujinshi_list
@@ -179,6 +178,7 @@ def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=Tru
         
     else:
         id_list = id
+    
     
     for id_ in id_list:
         id_doujinshi = get_doujinshi_data(id_)

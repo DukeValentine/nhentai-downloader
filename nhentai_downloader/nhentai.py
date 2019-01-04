@@ -97,7 +97,6 @@ def main():
         while (page_num <= page_max):
             
             logger.info("Getting page %d" % page_num)
-                    
             dlist = dlist + fetcher.fetch_favorites(page_num,nh_session,options.dir,options.threads,options.download,options.verbose)
             
             page_num = page_num + 1
