@@ -127,7 +127,7 @@ def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_pa
     
     doujinshi_list = []
     
-    while True:
+    while (page_num > max_page and max_page):
         logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page_num))
         
         search_page = requests.get(constant.urls['SEARCH'] +  search_string + "&page={0}".format(page_num)).content
@@ -136,7 +136,7 @@ def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_pa
         
         logger.info("Found {0} doujinshi in page".format(len(search_elem)))
         
-        if (not len(search_elem)) or (page_num > max_page and max_page):
+        if (not len(search_elem)):
             break
         
         for id in search_elem:

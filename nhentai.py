@@ -37,10 +37,10 @@ def main():
     
     if options.input_filename:
         logger.info("Reading input file")
-        
+        input_path = os.path.join(options.dir,options.input_filename)
         
         try:
-            with open(options.input_filename,"r") as input_file:
+            with open(input_path,"r") as input_file:
                 for line in input_file:
                     input_id_list.append(id_regex.search(line).group())
                     
