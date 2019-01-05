@@ -14,6 +14,7 @@ import nhentai_downloader.auth as auth
 import nhentai_downloader.constant as constant
 import logging
 import nhentai_downloader.io_utils as io_utils
+import queue
 
 
 def main():
@@ -29,6 +30,8 @@ def main():
     directory = options.dir
     
     #id_file = open(id_filename, "w")
+    doujinshi_queue = queue.Queue()
+    
 
     page_num = options.initial_page
     page_max = options.last_page
@@ -94,7 +97,7 @@ def main():
         
         dlist = []
         
-        while (page_num <= page_max):
+        while (page_num <= page_max or not page_max):
             
             logger.info("Getting page %d" % page_num)
             dlist = dlist + fetcher.fetch_favorites(page_num,nh_session,options.dir,options.threads,options.download,options.verbose)
