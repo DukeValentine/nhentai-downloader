@@ -75,12 +75,13 @@ def main():
         
         dlist = fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.initial_page,options.last_page,options.download,options.verbose)
         
-        if options.json:
-            io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
-            
-        else:
-            id_list = (obj.main_id for obj in dlist)
-            io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)
+        if options.output_filename:
+            if options.json:
+                io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
+                
+            else:
+                id_list = (obj.main_id for obj in dlist)
+                io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)
         
     else:
         if not login or not password:
@@ -98,12 +99,13 @@ def main():
         dlist = fetcher.fetch_favorites(options.initial_page,options.last_page,nh_session, 
                 options.dir,options.threads,options.download,options.verbose,options.overwrite)
         
-        if options.json:
-            io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
-            
-        else:
-            id_list = (obj.main_id for obj in dlist)
-            io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)    
+        if options.output_filename:
+            if options.json:
+                io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
+                
+            else:
+                id_list = (obj.main_id for obj in dlist)
+                io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)    
         
         
         
