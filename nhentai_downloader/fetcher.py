@@ -88,13 +88,17 @@ def image_pool_manager(threads,path,url_list,overwrite=True):
     image_pool.join()
     
     
-def fetch_favorites(page,max_page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False,overwrite=True):
+def fetch_favorites(page,max_page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False,overwrite=True,tags=""):
     """
     Fetch doujinshi information from given page of the favorites of the given session.
     To download the found doujinshis, it is required to supply a true value to the download flag, otherwise it will only fetch their metadata
     Returns a list of fetched doujinshi
     """
     doujinshi_list = []
+    
+    search_string = '+'.join(tags)
+    
+    logger.debug(search_string)
     
     while (page <= max_page or not max_page):  #not max_page is for the default max_page value (max_page = 0), which means 'fetch until the last page of favorites
         logger.info("Getting page {0}".format(page))

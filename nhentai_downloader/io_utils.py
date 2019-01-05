@@ -3,8 +3,29 @@ from .logger import logger
 from .doujinshi import Doujinshi
 import json
 import errno
+import re
 
 
+def read_input_file(directory,filename):
+    input_id_list = []
+    id_regex = re.compile(r'[\d]+')
+    logger.info("Reading input file")
+    
+    input_path = os.path.join(directory,filename)
+    
+    try:
+        with open(input_path,"r") as input_file:
+            for line in input_file:
+                input_id_list.append(id_regex.search(line).group())
+                
+    except OSError as error:
+        logger.error(repr(error))
+        return input_id_list
+        
+    else:
+        logger.info("{0} ids found in file".format(len(input_id_list)))
+        return input_id_list
+    
 
 
 def write_idlist(directory,id_filename,id_list,debug=False):
@@ -60,6 +81,15 @@ def write_doujinshi_json(directory,filename,data,debug=False):
     
     else:
         logger.info("Writing finished")
+        
+def write_output(directory,filename,dlist,json,debug=False):
+    if filename:
+            if json:
+                write_doujinshi_json(directory,filename,dlist,debug)
+                
+            else:
+                id_list = (obj.main_id for obj in dlist)
+                write_idlist(directory,filename,id_list,debug)
         
 def create_path(path,permissions=0o755):
     """
