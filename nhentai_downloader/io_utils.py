@@ -9,9 +9,11 @@ import re
 def read_input_file(directory,filename):
     input_id_list = []
     id_regex = re.compile(r'[\d]+')
-    logger.info("Reading input file")
+    
     
     input_path = os.path.join(directory,filename)
+    
+    logger.info("Reading input file : {0}".format(input_path))
     
     try:
         with open(input_path,"r") as input_file:

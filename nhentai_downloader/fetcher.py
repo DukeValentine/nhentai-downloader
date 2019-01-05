@@ -88,12 +88,21 @@ def image_pool_manager(threads,path,url_list,overwrite=True):
     image_pool.join()
     
     
-def fetch_favorites(page,max_page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False,overwrite=True,tags=""):
+def fetch_favorites(session,options):
     """
     Fetch doujinshi information from given page of the favorites of the given session.
     To download the found doujinshis, it is required to supply a true value to the download flag, otherwise it will only fetch their metadata
     Returns a list of fetched doujinshi
     """
+    tags = options.tags
+    directory = options.dir
+    threads = options.threads
+    page = options.initial_page
+    max_page = options.last_page
+    debug = options.verbose
+    download = options.download
+    overwrite = options.overwrite
+    
     doujinshi_list = []
     
     search_string = '+'.join(tags)
@@ -103,7 +112,7 @@ def fetch_favorites(page,max_page,session,directory,threads = multiprocessing.cp
     while (page <= max_page or not max_page):  #not max_page is for the default max_page value (max_page = 0), which means 'fetch until the last page of favorites
         logger.info("Getting page {0}".format(page))
         
-        fav_page = session.get("{0}?page={1}".format(constant.urls['FAV_URL'],page)).content
+        fav_page = session.get("{0}?q={1}&page={2}".format(constant.urls['FAV_URL'],search_string,page)).content
         fav_html = bs4.BeautifulSoup(fav_page, 'html.parser')
         fav_elem = fav_html.find_all('div' , class_ = 'gallery-favorite')
         
@@ -124,13 +133,24 @@ def fetch_favorites(page,max_page,session,directory,threads = multiprocessing.cp
         
     return doujinshi_list
 
-
-def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),page = 1,max_page = 0 ,download=False,debug=False,overwrite=True):
+#tags,directory,threads = multiprocessing.cpu_count(),page = 1,max_page = 0 ,download=False,debug=False,overwrite=True
+def search_doujinshi(options):
     """
     Using the given tags, search nhentai for doujinshi until max_page is reached.
     If the download argument is true, it will download found doujinshi in the given directory.
     Overwrite: whether it will overwrite already existing images
     """
+    
+    tags = options.tags
+    directory = options.dir
+    threads = options.threads
+    page = options.initial_page
+    max_page = options.last_page
+    debug = options.verbose
+    download = options.download
+    overwrite = options.overwrite
+    
+    
     
     #Nhentai joins search words with a '+' character
     search_string = '+'.join(tags)
@@ -139,12 +159,13 @@ def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),page =
     
     if debug:
         logger.debug("Base directory:{0}".format(directory))
+        logger.debug("Page {0} to {1}".format(page,max_page))
         
     logger.info("Search tags: {0}".format(tags))
     
     doujinshi_list = []
     
-    while (page > max_page and max_page):
+    while (page <= max_page or not max_page):
         logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
         
         search_page = requests.get(constant.urls['SEARCH'] +  search_string + "&page={0}".format(page)).content

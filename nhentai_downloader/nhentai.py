@@ -57,7 +57,7 @@ def main():
         if not options.tags:
             logger.warning("No search tags were given, the program will search the entirety of nhentai")
         
-        dlist = fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.initial_page,options.last_page,options.download,options.verbose)
+        dlist = fetcher.search_doujinshi(options)
         
         io_utils.write_output(options.dir,options.output_filename,dlist,options.json,options.verbose)
         
@@ -74,8 +74,7 @@ def main():
             exit(1)
         
         
-        dlist = fetcher.fetch_favorites(options.initial_page,options.last_page,nh_session, 
-                options.dir,options.threads,options.download,options.verbose,options.overwrite,options.tags)
+        dlist = fetcher.fetch_favorites(nh_session,options)
         
         io_utils.write_output(options.dir,options.output_filename,dlist,options.json,options.verbose)
         
