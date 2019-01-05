@@ -6,24 +6,25 @@ import errno
 import multiprocessing
 from functools import partial
 import re
-
-from nhentai_downloader.doujinshi import Doujinshi
-import nhentai_downloader.constant as constant
-
 import logging
-from nhentai_downloader.logger import logger as logger
-import nhentai_downloader.io_utils as io_utils
-import json
+
+
+from .doujinshi import Doujinshi
+from . import constant
+from .logger import logger
+from . import io_utils
+
 
 
 def get_doujinshi_data (doujinshi_id):
     """
-    Creates Doujinshi object for the given id and populates its fields from the API url_list
+    Creates Doujinshi object for the given id and populates its fields from the API url_list(which is in JSON format)
     ID must be a string
+    Check Doujinshi class to know more
     """
     try:
         if not doujinshi_id or not isinstance(doujinshi_id,str):
-            raise TypeError('Bad id format')
+            raise TypeError('Bad id format') #ID received is not a string or is NULL
         
     except TypeError as error:
         logger.error('Bad id format')
@@ -36,8 +37,7 @@ def get_doujinshi_data (doujinshi_id):
         try:
             resp = requests.get(constant.urls['API_URL'] + doujinshi.main_id)
             
-            if resp.status_code is not 200:
-                
+            if resp.status_code is not requests.codes.ok:
                 raise Exception("Couldn't get doujinshi id [%s]" % doujinshi_id)
             
         except Exception as error:
@@ -54,6 +54,10 @@ def get_doujinshi_data (doujinshi_id):
             
 
 def download_worker (path,overwrite,url):
+    """
+    Download file in given url in given path
+    If Overwrite argument is false,the worker will check whether the file exists and skip if so
+    """
     filename = url.split('/')[-1]
     fullpath = os.path.join(path,filename)
     
@@ -73,51 +77,61 @@ def download_worker (path,overwrite,url):
 def image_pool_manager(threads,path,url_list,overwrite=True):
     """
     Create and manage a pool for downloading images
+    Receives how many download threads there will be, along with the destination path and the url_list with all the images to download
     """
+    
+    #Since the path and overwrite arguments are common to all workers, they must be applied to all with a partial function because the map function only accepts one argument to apply to the target function
     image_pool = multiprocessing.Pool(threads)
-    func = partial(download_worker,path,overwrite)
+    func = partial(download_worker,path,overwrite) 
     image_pool.map(func,url_list)
     image_pool.close()
     image_pool.join()
     
     
-def fetch_favorites(page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False,overwrite=True):
+def fetch_favorites(page,max_page,session,directory,threads = multiprocessing.cpu_count(),download=False,debug=False,overwrite=True):
     """
     Fetch doujinshi information from given page of the favorites of the given session.
-    To download the found doujinshis, it is required to supply a true value to the download flag. Default behaviour is to just return list of ids
+    To download the found doujinshis, it is required to supply a true value to the download flag, otherwise it will only fetch their metadata
+    Returns a list of fetched doujinshi
     """
-    logger.info("Getting page %d" % page)
-                
-    fav_page = session.get(constant.urls['FAV_URL'] + '?page=%d' % page).content
-    
-
-    fav_html = bs4.BeautifulSoup(fav_page, 'html.parser')
-
-    fav_elem = fav_html.find_all('div' , class_ = 'gallery-favorite')
-    
-    
-
-    logger.info("{0} doujinshi founnd".format(len(fav_elem)) )
-    
     doujinshi_list = []
     
-    for id in fav_elem:
-        id = id.get('data-id')
+    while (page <= max_page or not max_page):  #not max_page is for the default max_page value (max_page = 0), which means 'fetch until the last page of favorites
+        logger.info("Getting page {0}".format(page))
         
-        logger.info("Downloading doujinshi id[{0}]".format(id))
+        fav_page = session.get("{0}?page={1}".format(constant.urls['FAV_URL'],page)).content
+        fav_html = bs4.BeautifulSoup(fav_page, 'html.parser')
+        fav_elem = fav_html.find_all('div' , class_ = 'gallery-favorite')
         
-        doujinshi_list = doujinshi_list + (fetch_id(id,directory,threads,download,debug,overwrite))
-            
-    
+        page = page + 1
+        
+        if (not len(fav_elem)): #if there's no more favorite elements, it must mean the program passed the last page of favorites
+            break
+
+        logger.info("{0} doujinshi founnd".format(len(fav_elem)) )
+        
+        
+        
+        for id in fav_elem:
+            id = id.get('data-id')
+        
+            doujinshi_list = doujinshi_list + (fetch_id(id,directory,threads,download,debug,overwrite))
+                
+        
     return doujinshi_list
 
 
-def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_page = 0 ,download=False,debug=False,overwrite=True):
+def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),page = 1,max_page = 0 ,download=False,debug=False,overwrite=True):
+    """
+    Using the given tags, search nhentai for doujinshi until max_page is reached.
+    If the download argument is true, it will download found doujinshi in the given directory.
+    Overwrite: whether it will overwrite already existing images
+    """
+    
+    #Nhentai joins search words with a '+' character
     search_string = '+'.join(tags)
     
-    page_num = 1
-    
-    href_regex = re.compile(r'[\d]+')
+    href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrasing out the rest of the link
     
     if debug:
         logger.debug("Base directory:{0}".format(directory))
@@ -126,53 +140,41 @@ def search_doujinshi(tags,directory,threads = multiprocessing.cpu_count(),max_pa
     
     doujinshi_list = []
     
-    while (page_num > max_page and max_page):
-        logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page_num))
+    while (page > max_page and max_page):
+        logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
         
-        search_page = requests.get(constant.urls['SEARCH'] +  search_string + "&page={0}".format(page_num)).content
+        search_page = requests.get(constant.urls['SEARCH'] +  search_string + "&page={0}".format(page)).content
         search_html = bs4.BeautifulSoup(search_page,'html.parser')
         search_elem = search_html.find_all('a', class_ = 'cover')
         
         logger.info("Found {0} doujinshi in page".format(len(search_elem)))
         
-        if (not len(search_elem)):
+        if (not len(search_elem)): #if there's no more search elements, it must mean the program passed the last page of the search
             break
         
         for id in search_elem:
             id = href_regex.search(id.get('href')).group()
             
-            dlist = fetch_id(id,directory,threads,download,debug,overwrite)
+            doujinshi_list = doujinshi_list + fetch_id(id,directory,threads,download,debug,overwrite)
             
-            for elem in dlist:
-                doujinshi_list.append(elem)
-            
-        page_num = page_num + 1
+        page = page + 1
         
         
         
     return doujinshi_list
     
-    
 
-def create_doujinshi_path(doujinshi_path,permissions=0o755):
-    try:
-        os.makedirs(doujinshi_path,0o755)
-            
-    except OSError as error:
-        if error.errno != errno.EEXIST:
-            logger.error(repr(error))
-            raise
-        else:
-            logger.warning("Folder already exists")
 
 def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=True):
     """
     Fetch doujinshi information from given ids.
     To download found doujinshi, the download flag must be given a true value. By default doujinshi are not downloaded
     """
+    
     doujinshi_list = []
     id_list = []
     
+    #This snippet is to allow the function to work with both a single id and a list of ids
     if isinstance(id,str):
         id_list.append(id)
         
@@ -181,12 +183,16 @@ def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=Tru
     
     
     for id_ in id_list:
+        logger.info("Fetching doujinshi id[{0}]".format(id_))
+         
         id_doujinshi = get_doujinshi_data(id_)
         doujinshi_list.append(id_doujinshi)
         
-        logger.info("Fetching doujinshi id[{0}]".format(id_))
+       
         
         if download:
+            logger.info("Downloading doujinshi id[{0}]".format(id))
+            
             url_list = id_doujinshi.generate_url_list()
             doujinshi_path = id_doujinshi.get_path(directory)
             
@@ -195,7 +201,8 @@ def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=Tru
                 logger.debug("Title:{0}".format(id_doujinshi.title))
                 logger.debug("Pages:{0}".format(id_doujinshi.pages))
             
-            create_doujinshi_path(doujinshi_path)
+            
+            io_utils.create_path(doujinshi_path)
                 
             image_pool_manager(threads,doujinshi_path,url_list,overwrite)
             
@@ -214,9 +221,7 @@ if __name__ == '__main__':
     
     #print(dlist)
     dlist = search_doujinshi(tags,os.path.join(os.getcwd(),'') + 'search/',download=False,debug=True,max_page=1)
-    
-   
-    io_utils.write_doujinshi_json(directory,"test.json",dlist)
+
             
     
     

@@ -13,7 +13,7 @@ def option_parser():
 
 
     file_args.add_argument ("--dir",'-D', action ="store", nargs='?', default=os.path.join(os.getcwd(),"nhentai"),help ='Directory for saved files, defaults to ./nhentai/')
-    file_args.add_argument ('-o','--output', action="store", dest = "output_filename", default = 'doujinshi', help='Output filename, ids.txt by default')
+    file_args.add_argument ('-o','--output', action="store", dest = "output_filename", default = "", help='Output filename, ids.txt by default')
     file_args.add_argument ('-i','--input', action='store', dest = "input_filename", default = "", help = 'Extract doujinshi from input file')
     file_args.add_argument('--json',action = 'store_true', default = False, help = 'Switch between id list and json outputs')
 
@@ -32,7 +32,7 @@ def option_parser():
 
 
     download.add_argument('--download',action = "store_true", default = False, help = "Download found doujinshi")
-    download.add_argument('--overwrite',action = "store_true",default = True, help ="Overwrite already downloaded images")
+    download.add_argument('--overwrite-disable',dest = "overwrite", action = "store_false",default = True, help ="Overwrite already downloaded images")
     download.add_argument("--threads",action = "store", type=int, default = 7, help = "How many download threads the program will use")
     
     

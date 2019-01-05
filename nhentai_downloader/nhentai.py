@@ -1,19 +1,17 @@
 import os
-import requests
 import re
-import bs4
 import argparse
 import time
 import errno
-import shutil
-from functools import partial
-import nhentai_downloader.cli as cli
-from nhentai_downloader.logger import logger as logger
-import nhentai_downloader.fetcher as fetcher
-import nhentai_downloader.auth as auth
-import nhentai_downloader.constant as constant
+from . import cli
+#import nhentai_downloader.cli as cli
+from .logger import logger
+from . import fetcher
+from . import auth
+from . import constant
+from . import io_utils
+
 import logging
-import nhentai_downloader.io_utils as io_utils
 import queue
 
 
@@ -35,6 +33,7 @@ def main():
 
     page_num = options.initial_page
     page_max = options.last_page
+    
     
     input_id_list = []
     
@@ -63,7 +62,7 @@ def main():
     
     
     if not options.download:
-        logger.info("Download argument not provided, found doujinshi will not be downloaded")
+        logger.warning("Download argument not provided, found doujinshi will not be downloaded")
     
     
     if options.id:
@@ -74,14 +73,15 @@ def main():
         if not options.tags:
             logger.warning("No search tags were given, the program will search the entirety of nhentai")
         
-        dlist = fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.last_page,options.download,options.verbose)
+        dlist = fetcher.search_doujinshi(options.tags,options.dir,options.threads,options.initial_page,options.last_page,options.download,options.verbose)
         
-        if options.json:
-            io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
-            
-        else:
-            id_list = (obj.main_id for obj in dlist)
-            io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)
+        if options.output_filename:
+            if options.json:
+                io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
+                
+            else:
+                id_list = (obj.main_id for obj in dlist)
+                io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)
         
     else:
         if not login or not password:
@@ -95,23 +95,17 @@ def main():
             logger.error("Login failure,exiting")
             exit(1)
         
-        dlist = []
         
-        while (page_num <= page_max or not page_max):
-            
-            logger.info("Getting page %d" % page_num)
-            dlist = dlist + fetcher.fetch_favorites(page_num,nh_session,options.dir,options.threads,options.download,options.verbose)
-            
-            page_num = page_num + 1
-            if (not len(dlist)):
-                break
-            
-        if options.json:
-            io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
-            
-        else:
-            id_list = (obj.main_id for obj in dlist)
-            io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)    
+        dlist = fetcher.fetch_favorites(options.initial_page,options.last_page,nh_session, 
+                options.dir,options.threads,options.download,options.verbose,options.overwrite)
+        
+        if options.output_filename:
+            if options.json:
+                io_utils.write_doujinshi_json(options.dir,options.output_filename,dlist,options.verbose)
+                
+            else:
+                id_list = (obj.main_id for obj in dlist)
+                io_utils.write_idlist(options.dir,options.output_filename,id_list,options.verbose)    
         
         
         
