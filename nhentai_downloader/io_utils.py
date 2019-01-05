@@ -84,9 +84,6 @@ if __name__ == '__main__':
     test.tags = ["tag1","tag2","tag3"]
     test.language = "english"
     
-    
-    #print (test.toJSON())
-    
     directory = os.path.join(os.getcwd(),"json")
     path = os.path.join(directory,"test.json")
     print(path)
