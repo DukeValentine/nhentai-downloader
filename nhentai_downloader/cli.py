@@ -32,7 +32,7 @@ def option_parser():
 
 
     download.add_argument('--download',action = "store_true", default = False, help = "Download found doujinshi")
-    download.add_argument('--overwrite',action = "store_true",default = True, help ="Overwrite already downloaded images")
+    download.add_argument('--overwrite-disable',dest = "overwrite", action = "store_false",default = True, help ="Overwrite already downloaded images")
     download.add_argument("--threads",action = "store", type=int, default = 7, help = "How many download threads the program will use")
     
     

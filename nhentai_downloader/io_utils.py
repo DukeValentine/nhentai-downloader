@@ -1,6 +1,6 @@
 import os
-from nhentai_downloader.logger import logger as logger
-from nhentai_downloader.doujinshi import Doujinshi
+from .logger import logger
+from .doujinshi import Doujinshi
 import json
 import errno
 
@@ -8,6 +8,10 @@ import errno
 
 
 def write_idlist(directory,id_filename,id_list,debug=False):
+    """
+    Writes in a file a list of ids in the format https://nhentai.net/g/[id]/
+    List of ids must contain ONLY the ids, otherwise the link syntax will be wrong
+    """
     logger.info("Writing id list output")
     
     if not id_filename.endswith(".txt"):
@@ -30,6 +34,10 @@ def write_idlist(directory,id_filename,id_list,debug=False):
         
         
 def write_doujinshi_json(directory,filename,data,debug=False):
+    """
+    Converts a list of doujinshi to json format and writes it to a json file
+    If destination directory does not exist, it will be created
+    """
     logger.info("Writing json output")
     
     if not filename.endswith(".json"):
@@ -54,6 +62,10 @@ def write_doujinshi_json(directory,filename,data,debug=False):
         logger.info("Writing finished")
         
 def create_path(path,permissions=0o755):
+    """
+    Creates given path with given permissions
+    The user must have permissions to create subdirectories in the given directory
+    """
     try:
         os.makedirs(path,0o755)
             
