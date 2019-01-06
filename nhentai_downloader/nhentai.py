@@ -4,16 +4,16 @@ import argparse
 import time
 import errno
 from . import cli
-#import nhentai_downloader.cli as cli
 from .logger import logger
 from . import fetcher
 from . import auth
 from . import constant
 from . import io_utils
 
+
 import logging
 import queue
-
+import json
 
 def main():
     options = cli.option_parser()
@@ -39,9 +39,12 @@ def main():
     
     
                 
-    if not options.verbose:
+    if not options.debug:
         logging.getLogger("requests").setLevel(logging.WARNING)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
+        
+    if not options.verbose:
+        logging.getLogger("NHENTAI").setLevel(logging.INFO)
     
     
     if not options.download:
@@ -59,24 +62,24 @@ def main():
         
         dlist = fetcher.search_doujinshi(options)
         
-        io_utils.write_output(options.dir,options.output_filename,dlist,options.json,options.verbose)
+        io_utils.write_output(options.dir,options.output_filename,dlist,options.json)
         
     else:
         if not login or not password:
-            logger.error("Username or password not provided,exiting")
+            logger.critical("Username or password not provided,exiting")
             exit(1)
         
         logger.info("Logging in...")
         nh_session = auth.login(login,password)
 
         if(nh_session is None):
-            logger.error("Login failure,exiting")
+            logger.critical("Login failure,exiting")
             exit(1)
         
         
         dlist = fetcher.fetch_favorites(nh_session,options)
         
-        io_utils.write_output(options.dir,options.output_filename,dlist,options.json,options.verbose)
+        io_utils.write_output(options.dir,options.output_filename,dlist,options.json)
         
 
 

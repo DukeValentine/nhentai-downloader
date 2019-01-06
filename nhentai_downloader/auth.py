@@ -3,6 +3,9 @@ from . import constant
 import bs4
 from .logger import logger
 
+class LoginError(Exception):
+    pass
+
 def login(username, password,debug=False):
     
     nh_session = requests.Session()
@@ -20,22 +23,19 @@ def login(username, password,debug=False):
     
     }
     
-    if debug:
-        logger.debug(login_info)
-   # print(csrf_token)
-   # print(login_info)
+    
+    logger.debug(login_info)
    
     try:
-     response = nh_session.post(constant.urls['LOGIN_URL'], data=login_info)
-     response_html = bs4.BeautifulSoup(response.text,'html.parser')
+        response = nh_session.post(constant.urls['LOGIN_URL'], data=login_info)
+        response_html = bs4.BeautifulSoup(response.text,'html.parser')
+
+        logger.debug("Nhentai responded with {0}".format(response.status_code))
      
-     if debug:
-         logger.debug("Nhentai responded with {0}".format(response.status_code))
+        if "Invalid username (or email) or password" in response.text:
+            raise LoginError('Invalid username (or email) or password')
      
-     if "Invalid username (or email) or password" in response.text:
-         raise Exception('Login failure')
-     
-    except Exception as error:
+    except LoginError as error:
         logger.error(repr(error))
         return None
         

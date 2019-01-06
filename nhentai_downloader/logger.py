@@ -10,8 +10,8 @@ LEVELS = {
 }
 
 
-logger = logging.getLogger('[NHENTAI]')
-logging.basicConfig(level=0,format = "\r[%(asctime)s][%(levelname)-8s]   %(message)s" , datefmt = "%H:%M:%S")
+logger = logging.getLogger('NHENTAI')
+logging.basicConfig(level=0,format = "\r[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
 
 
 if __name__ == '__main__':

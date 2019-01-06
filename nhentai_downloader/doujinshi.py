@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import json
 from .logger import logger
+
 class Doujinshi:
     ext = {
         'j' : '.jpg',
@@ -77,8 +78,16 @@ class Doujinshi:
             sort_keys=True, indent=4)
     
     
+class Tag_count:
+    def __init__(self):
+        self.tags = {}
         
+    def Insert(self,tag):
+        if tag in self.tags:
+            self.tags[tag] = self.tags[tag] + 1
+            
+        else:
+            self.tags[tag] = 1
+    
 
-if __name__ == '__main__':
-        
-    print("Test")
+

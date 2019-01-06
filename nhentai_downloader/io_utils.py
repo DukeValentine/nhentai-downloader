@@ -1,6 +1,7 @@
 import os
 from .logger import logger
 from .doujinshi import Doujinshi
+from .doujinshi import Tag_count
 import json
 import errno
 import re
@@ -30,7 +31,7 @@ def read_input_file(directory,filename):
     
 
 
-def write_idlist(directory,id_filename,id_list,debug=False):
+def write_idlist(directory,id_filename,id_list):
     """
     Writes in a file a list of ids in the format https://nhentai.net/g/[id]/
     List of ids must contain ONLY the ids, otherwise the link syntax will be wrong
@@ -40,8 +41,8 @@ def write_idlist(directory,id_filename,id_list,debug=False):
     if not id_filename.endswith(".txt"):
         id_filename = id_filename + ".txt"
     
-    if debug:
-        logger.debug("Filepath:{0}".format(os.path.join(directory,id_filename)))
+    
+    logger.debug("Filepath:{0}".format(os.path.join(directory,id_filename)))
             
     try:
         with open(os.path.join(directory,id_filename),"a+") as id_file:
@@ -55,8 +56,8 @@ def write_idlist(directory,id_filename,id_list,debug=False):
     else:
         logger.info("Writing finished")
         
-        
-def write_doujinshi_json(directory,filename,data,debug=False):
+    
+def write_doujinshi_json(directory,filename,data):
     """
     Converts a list of doujinshi to json format and writes it to a json file
     If destination directory does not exist, it will be created
@@ -66,9 +67,16 @@ def write_doujinshi_json(directory,filename,data,debug=False):
     if not filename.endswith(".json"):
         filename = filename + ".json"
     
-    if debug:
-        logger.debug("Filepath:{0}".format(os.path.join(directory,filename)))
+    logger.debug("Filepath:{0}".format(os.path.join(directory,filename)))
+    
+    tags = Tag_count()
+    
+    for doujinshi in data:
+        for tag in doujinshi.tags:
+            tags.Insert(tag)
             
+    data.append(tags.tags)
+    
     try:
         create_path(directory)
         
@@ -87,11 +95,11 @@ def write_doujinshi_json(directory,filename,data,debug=False):
 def write_output(directory,filename,dlist,json,debug=False):
     if filename:
             if json:
-                write_doujinshi_json(directory,filename,dlist,debug)
+                write_doujinshi_json(directory,filename,dlist)
                 
             else:
                 id_list = (obj.main_id for obj in dlist)
-                write_idlist(directory,filename,id_list,debug)
+                write_idlist(directory,filename,id_list)
         
 def create_path(path,permissions=0o755):
     """

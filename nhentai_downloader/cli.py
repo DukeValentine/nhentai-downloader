@@ -22,7 +22,8 @@ def option_parser():
     auth.add_argument ('-p','--password', action="store", dest = "password",default = '')
     
 
-    debug.add_argument('-V','--verbose', action = "store_true", dest = "verbose", default = False, help = "Print aditional debug information") 
+    debug.add_argument('-V','--verbose', action = "store_true", dest = "verbose", default = False, help = "Print aditional debug information")
+    debug.add_argument('--debug', action = "store_true", dest = "debug", default = False, help = "Enable debug information for http requests") 
 
     search.add_argument ('--search', action = "store_true", default = False, help = "Sets whether it will get doujinshi from favorites or site-wide search")
     search.add_argument ('--id', nargs='*',default=[], help = "Fetch doujinshi from supplied ids")
