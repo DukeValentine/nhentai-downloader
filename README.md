@@ -17,7 +17,7 @@ pip install nhentai-downloader
 
 ```
 git clone https://gitlab.com/DukeValentine/nhentai-downloader.git
-git cd nhentai-downloader
+cd nhentai-downloader
 python setup.py install
 ```
 
