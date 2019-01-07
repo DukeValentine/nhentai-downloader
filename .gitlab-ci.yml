@@ -1,10 +1,10 @@
 before_script:
     - apt-get update -qy
-    - apt-get install -y python-dev python-pip python
-    - pip install -r test_requirements.txt
+    - apt-get install -y python3 python3-pip
+    - pip3 install -r test_requirements.txt
     - git clone https://gitlab.com/DukeValentine/nhentai-downloader.git
     - cd nhentai-downloader
-    - python setup.py install
+    - python3 setup.py install
 
 
 test:
