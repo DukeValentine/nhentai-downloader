@@ -27,12 +27,10 @@ httplib2==0.12.0
 idna==2.8
 imagesize==1.1.0
 isort==4.3.4
-Jade-Application-Kit==1.3.5
 Jinja2==2.10
 josepy==1.1.0
 keyutils==0.5
 lazy-object-proxy==1.3.1
-lector==0.4.1
 lensfun==0.3.2
 lockfile==0.12.2
 louis==3.8.0
