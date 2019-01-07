@@ -88,11 +88,9 @@ sphinx-rtd-theme==0.4.1
 sphinxcontrib-websupport==1.1.0
 SQLAlchemy==1.2.15
 tabulate==0.8.2
-team==1.0
 tinycss2==0.6.1
 udiskie==1.7.5
 urllib3==1.24.1
-vboxapi==1.0
 vimiv==0.9.1
 webencodings==0.5.1
 Whoosh==2.7.4
