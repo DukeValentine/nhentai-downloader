@@ -91,7 +91,6 @@ tabulate==0.8.2
 tinycss2==0.6.1
 udiskie==1.7.5
 urllib3==1.24.1
-vimiv==0.9.1
 webencodings==0.5.1
 Whoosh==2.7.4
 wrapt==1.10.11
