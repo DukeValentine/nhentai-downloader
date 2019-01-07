@@ -1,6 +1,7 @@
 # Nhentai downloader
+Python command line program to retrieve information from and download nhentai galleries. 
 
-Python command line program to retrieve information from and download nhentai galleries with ample configuration options. You can fetch by id, searching the website or from your favorites. You may also download from a file.
+This project idea was inspired by [RicterZhen nhentai doujinshi downloader](https://github.com/RicterZ/nhentai)
 
 Output the found doujinshi in json format or a simple list of ids.
 
