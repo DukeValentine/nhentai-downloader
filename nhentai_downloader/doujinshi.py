@@ -7,7 +7,8 @@ from .logger import logger
 class Doujinshi:
     ext = {
         'j' : '.jpg',
-        'p' : '.png'
+        'p' : '.png',
+        'g' : '.gif'
     }
     
     def __init__(self,doujinshi_id):
