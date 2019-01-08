@@ -1,10 +1,11 @@
 before_script:
     - apt-get update -qy
     - apt-get install -y python3 python3-pip python3-dev build-essential libkeyutils-dev python-dev python python-pip libtool pkg-config python3.5-dev libgirepository1.0-dev libssl-dev cups libsmbclient udiskie libsmbclient-dev libcups2 libcups2-dev  python3-cups
+    - pip3 install -r test_requirements.txt
+
     
 install:
   stage: build
-  
   script:
       - ls
       - python3 setup.py develop
