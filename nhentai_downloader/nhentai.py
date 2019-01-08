@@ -67,7 +67,7 @@ def main():
     else:
         if not login or not password:
             logger.critical("Username or password not provided,exiting")
-            exit(1)
+            exit(0)
         
         logger.info("Logging in...")
         nh_session = auth.login(login,password)

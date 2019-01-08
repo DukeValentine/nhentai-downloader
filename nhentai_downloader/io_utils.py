@@ -11,6 +11,8 @@ def read_input_file(directory,filename):
     input_id_list = []
     id_regex = re.compile(r'[\d]+')
     
+    if not filename:
+        return input_id_list
     
     input_path = os.path.join(directory,filename)
     
