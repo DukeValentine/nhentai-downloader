@@ -10,7 +10,7 @@ install:
       - ls
       - python setup.py develop
       - nhentai-downloader --help
-      - ls /usr/local/lib/python3.5/dist-packages/
+      - ls
     
 
 test:
@@ -18,7 +18,7 @@ test:
   before_script:
     - python setup.py develop
   script:
-    - ls /usr/local/lib/python3.5/dist-packages/
+    - ls
     - nhentai-downloader --help
     
 test0:
@@ -26,7 +26,7 @@ test0:
   before_script:
     - python setup.py develop
   script:
-    - ls /usr/local/lib/python3.5/dist-packages/
+    - ls
     - nhentai-downloader --search --verbose -t sword english --json --output test0.json
     
 test1:
@@ -34,7 +34,7 @@ test1:
   before_script:
     - python setup.py develop
   script:
-    - ls /usr/local/lib/python3.5/dist-packages/
+    - ls
     - nhentai-downloader --search --verbose -t english --max-page 4 --json --output test1.json
     
 test2:
@@ -42,7 +42,7 @@ test2:
   before_script:
     - python setup.py develop
   script:
-    - ls /usr/local/lib/python3.5/dist-packages/
+    - ls
     - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --json --output test2.json
     
 test3:
@@ -50,7 +50,7 @@ test3:
   before_script:
     - python setup.py develop
   script:
-   - ls /usr/local/lib/python3.5/dist-packages/
+   - ls
    - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --download --json --output test3.json
    
 test4:
@@ -58,6 +58,6 @@ test4:
   before_script:
     - python setup.py develop
   script:
-   - ls /usr/local/lib/python3.5/dist-packages/
+   - ls
    - nhentai-downloader --verbose --debug --id 253293
    - nhentai-downloader --verbose -t sword english
