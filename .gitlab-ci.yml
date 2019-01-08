@@ -2,32 +2,43 @@ before_script:
     - apt-get update -qy
     - apt-get install -y python3 python3-pip python3-dev build-essential libkeyutils-dev python-dev python python-pip libtool pkg-config python3.5-dev libgirepository1.0-dev libssl-dev cups libsmbclient udiskie libsmbclient-dev libcups2 libcups2-dev  python3-cups
     - pip3 install -r test_requirements.txt
-    - git clone https://gitlab.com/DukeValentine/nhentai-downloader.git
-    - cd nhentai-downloader
-    - python3 setup.py install
+    - pip3 uninstall nhentai-downloader
 
+
+install:
+  stage: build
+  script:
+      - ls
+      - python3 setup.py develop
+    
 
 test:
+  stage: test
   script:
     - nhentai-downloader --help
     
 test0:
+  stage: test
   script:
     - nhentai-downloader --search --verbose -t sword english --json --output test0.json
     
 test1:
+  stage: test
   script:
     - nhentai-downloader --search --verbose -t english --max-page 4 --json --output test1.json
     
 test2:
+  stage: test
   script:
     - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --json --output test2.json
     
 test3:
+  stage: test
   script:
    - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --download --json --output test3.json
    
 test4:
+  stage: test
   script:
    - nhentai-downloader --verbose --debug --id 253293
    - nhentai-downloader --verbose -t sword english
