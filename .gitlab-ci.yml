@@ -1,6 +1,4 @@
 
-
-
 install:
   stage: build
   before_script:
@@ -9,36 +7,43 @@ install:
   script:
       - ls
       - python3 setup.py develop
-      - cat ./nhentai_downloader/doujinshi.py
+      - nhentai-downloader --help
+      - ls /usr/local/lib/python3.5/dist-packages/
     
 
 test:
   stage: test
   script:
+    - ls /usr/local/lib/python3.5/dist-packages/
     - nhentai-downloader --help
     
 test0:
   stage: test
   script:
+    - ls /usr/local/lib/python3.5/dist-packages/
     - nhentai-downloader --search --verbose -t sword english --json --output test0.json
     
 test1:
   stage: test
   script:
+    - ls /usr/local/lib/python3.5/dist-packages/
     - nhentai-downloader --search --verbose -t english --max-page 4 --json --output test1.json
     
 test2:
   stage: test
   script:
+    - ls /usr/local/lib/python3.5/dist-packages/
     - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --json --output test2.json
     
 test3:
   stage: test
   script:
+   - ls /usr/local/lib/python3.5/dist-packages/
    - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --download --json --output test3.json
    
 test4:
   stage: test
   script:
+   - ls /usr/local/lib/python3.5/dist-packages/
    - nhentai-downloader --verbose --debug --id 253293
    - nhentai-downloader --verbose -t sword english
