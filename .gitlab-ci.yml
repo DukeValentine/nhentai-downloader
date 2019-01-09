@@ -10,6 +10,7 @@ install:
       - ls
       - python setup.py develop
       - nhentai-downloader --help
+      - nhentai-downloader --login $NHENTAI_USER --password $NHENTAI_PASS --verbose --debug --max-page 3
       - ls
     
 

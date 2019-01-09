@@ -131,6 +131,7 @@ def fetch_favorites(session,options):
             id = id.get('data-id')
         
             doujinshi_list = doujinshi_list + fetch_id(options,id,session)
+            logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
                 
         
     return doujinshi_list
@@ -184,6 +185,7 @@ def search_doujinshi(options):
             id = href_regex.search(id.get('href')).group()
             
             doujinshi_list = doujinshi_list + fetch_id(options,id)
+            logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
             
         page = page + 1
         
@@ -232,7 +234,7 @@ def fetch_id(options,id,session=None):
         logger.debug("Title:{0}".format(id_doujinshi.title))
         logger.debug("Pages:{0}".format(id_doujinshi.pages))
     
-        logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
+        
         
        
         
@@ -244,9 +246,9 @@ def fetch_id(options,id,session=None):
             
             logger.debug("Doujinshi path : {0}".format(doujinshi_path))
             
-            
-            
             io_utils.create_path(doujinshi_path)
+            
+            logger.debug("Starting image pool")
                 
             image_pool_manager(threads,doujinshi_path,url_list,overwrite)
             
