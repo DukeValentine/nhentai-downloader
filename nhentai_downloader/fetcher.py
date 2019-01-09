@@ -255,16 +255,23 @@ def fetch_id(options,session=None):
         if torrent:
             if not (options.login and options.password):
                 logger.warning("Login info not provided despite torrent argument being given, skipping .torrent download")
+                break
             
             elif not session:
                 session = auth.login(options.login,options.password,options.verbose)
+                
+                if session is None:
+                    break
+                
             
             path = os.path.join(options.dir,"{0}.torrent".format(id_doujinshi.main_id))
             url = "{0}{1}/download".format(constant.urls['GALLERY_URL'],id_doujinshi.main_id)
+            logger.debug("Path: {0}\nUrl:{1}".format(path,url))
+            
             
             io_utils.create_path(options.dir)
             
-            logger.debug("Path: {0}\nUrl:{1}".format(path,url))
+            
             
             req = session.get(url, stream=True)
             with open(path,"wb") as torrent_file:
