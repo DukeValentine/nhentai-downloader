@@ -116,7 +116,7 @@ def create_path(path,permissions=0o755):
             logger.error(repr(error))
             raise
         else:
-            logger.warning("Folder already exists")
+            logger.warning("Path {0} already exists".format(path))
 
 if __name__ == '__main__':
     test = Doujinshi("1225")

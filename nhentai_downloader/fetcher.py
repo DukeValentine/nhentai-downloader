@@ -13,6 +13,7 @@ from .doujinshi import Doujinshi
 from . import constant
 from .logger import logger
 from . import io_utils
+from . import auth
 
 
 
@@ -129,7 +130,8 @@ def fetch_favorites(session,options):
         for id in fav_elem:
             id = id.get('data-id')
         
-            doujinshi_list = doujinshi_list + (fetch_id(id,directory,threads,download,debug,overwrite))
+            doujinshi_list = doujinshi_list + fetch_id(options,id,session)
+            logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
                 
         
     return doujinshi_list
@@ -150,6 +152,7 @@ def search_doujinshi(options):
     debug = options.verbose
     download = options.download
     overwrite = options.overwrite
+    torrent = options.torrent
     
     
     
@@ -181,7 +184,8 @@ def search_doujinshi(options):
         for id in search_elem:
             id = href_regex.search(id.get('href')).group()
             
-            doujinshi_list = doujinshi_list + fetch_id(id,directory,threads,download,debug,overwrite)
+            doujinshi_list = doujinshi_list + fetch_id(options,id)
+            logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
             
         page = page + 1
         
@@ -191,11 +195,18 @@ def search_doujinshi(options):
     
 
 
-def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=True):
+def fetch_id(options,id,session=None):
     """
     Fetch doujinshi information from given ids.
     To download found doujinshi, the download flag must be given a true value. By default doujinshi are not downloaded
     """
+    
+    directory = options.dir
+    threads = options.threads
+    download = options.download
+    debug = options.verbose
+    overwrite = options.overwrite
+    torrent = options.torrent
     
     doujinshi_list = []
     id_list = []
@@ -219,6 +230,12 @@ def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=Tru
         id_doujinshi = get_doujinshi_data(id_)
         doujinshi_list.append(id_doujinshi)
         
+        
+        logger.debug("Title:{0}".format(id_doujinshi.title))
+        logger.debug("Pages:{0}".format(id_doujinshi.pages))
+    
+        
+        
        
         
         if download:
@@ -228,13 +245,40 @@ def fetch_id(id,directory,threads =None,download=False,debug=False,overwrite=Tru
             doujinshi_path = id_doujinshi.get_path(directory)
             
             logger.debug("Doujinshi path : {0}".format(doujinshi_path))
-            logger.debug("Title:{0}".format(id_doujinshi.title))
-            logger.debug("Pages:{0}".format(id_doujinshi.pages))
-            
             
             io_utils.create_path(doujinshi_path)
+            
+            logger.debug("Starting image pool")
                 
             image_pool_manager(threads,doujinshi_path,url_list,overwrite)
+            
+            
+        if torrent:
+            if not (options.login and options.password):
+                logger.warning("Login info not provided despite torrent argument being given, skipping .torrent download")
+                break
+            
+            elif not session:
+                session = auth.login(options.login,options.password,options.verbose)
+                
+                if session is None:
+                    break
+                
+            
+            path = os.path.join(options.dir,"{0}.torrent".format(id_doujinshi.main_id))
+            url = "{0}{1}/download".format(constant.urls['GALLERY_URL'],id_doujinshi.main_id)
+            logger.debug("Path: {0}\nUrl:{1}".format(path,url))
+            
+            
+            io_utils.create_path(options.dir)
+            
+            
+            
+            req = session.get(url, stream=True)
+            with open(path,"wb") as torrent_file:
+                shutil.copyfileobj(req.raw, torrent_file)
+            
+        
             
     return doujinshi_list
             

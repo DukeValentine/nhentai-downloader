@@ -20,6 +20,7 @@ test:
   script:
     - ls
     - nhentai-downloader --help
+    - nhentai-downloader --login $NHENTAI_USER --password $NHENTAI_PASS --verbose --debug --max-page 3
     
 test0:
   stage: test
@@ -28,6 +29,7 @@ test0:
   script:
     - ls
     - nhentai-downloader --search --verbose -t sword english --json --output test0.json
+    - ls nhentai
     
 test1:
   stage: test
@@ -36,6 +38,7 @@ test1:
   script:
     - ls
     - nhentai-downloader --search --verbose -t english --max-page 4 --json --output test1.json
+    - ls nhentai
     
 test2:
   stage: test
@@ -44,6 +47,7 @@ test2:
   script:
     - ls
     - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --json --output test2.json
+    - ls nhentai
     
 test3:
   stage: test
@@ -51,13 +55,31 @@ test3:
     - python setup.py develop
   script:
    - ls
-   - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --download --json --output test3.json
+   - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --download --json --output test3.json --torrent
+   - ls -la nhentai
+   - du -sh nhentai
    
 test4:
   stage: test
   before_script:
-    - python setup.py develop
+   - python setup.py develop
   script:
    - ls
    - nhentai-downloader --verbose --debug --id 253293
-   - nhentai-downloader --verbose -t sword english
+   - nhentai-downloader --verbose -t sword english --max-page 3 --download --search
+   - ls -la nhentai
+   - du -sh nhentai
+   
+pypi:
+  stage: deploy
+  only:
+  - master
+  - tags
+  - /^v\d+.\d+.\d+[a-z]?/
+   
+  before_script:
+  - pip install twine
+  - python setup.py sdist
+   
+  script:
+  - twine upload dist/*.tar.gz --skip-existing
