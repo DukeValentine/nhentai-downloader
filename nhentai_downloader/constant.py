@@ -6,5 +6,6 @@ urls = {
     'FAV_URL' : 'https://nhentai.net/favorites/?q=',
     'API_URL' : 'https://nhentai.net/api/gallery/',
     'MEDIA_URL' : 'https://i.nhentai.net/galleries/',
-    'SEARCH' : 'https://nhentai.net/search/?q='
+    'SEARCH' : 'https://nhentai.net/search/?q=',
+    'GALLERY_URL' : 'https://nhentai.net/g/'
 }
