@@ -204,7 +204,7 @@ def fetch_id(options,session=None):
     threads = options.threads
     download = options.download
     debug = options.verbose
-    overwrite = options.write
+    overwrite = options.overwrite
     torrent = options.torrent
     
     doujinshi_list = []
