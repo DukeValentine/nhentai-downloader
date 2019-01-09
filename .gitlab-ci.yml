@@ -61,7 +61,7 @@ test3:
 test4:
   stage: test
   before_script:
-    - python setup.py develop
+   - python setup.py develop
   script:
    - ls
    - nhentai-downloader --verbose --debug --id 253293
@@ -71,15 +71,14 @@ test4:
    
 pypi:
   stage: deploy
-  
   only:
-   - master
-   - tags
-   - /^v\d+.\d+.\d+[a-z]?/
+  - master
+  - tags
+  - /^v\d+.\d+.\d+[a-z]?/
    
-   before_script:
-   - pip install twine
-   - python setup.py sdist
+  before_script:
+  - pip install twine
+  - python setup.py sdist
    
-   script:
-   - twine upload dist/*.tar.gz --skip-existing
+  script:
+  - twine upload dist/*.tar.gz --skip-existing
