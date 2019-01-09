@@ -130,7 +130,7 @@ def fetch_favorites(session,options):
         for id in fav_elem:
             id = id.get('data-id')
         
-            doujinshi_list = doujinshi_list + fetch_id(options,session)
+            doujinshi_list = doujinshi_list + fetch_id(options,id,session)
                 
         
     return doujinshi_list
@@ -183,7 +183,7 @@ def search_doujinshi(options):
         for id in search_elem:
             id = href_regex.search(id.get('href')).group()
             
-            doujinshi_list = doujinshi_list + fetch_id(options)
+            doujinshi_list = doujinshi_list + fetch_id(options,id)
             
         page = page + 1
         
@@ -193,13 +193,12 @@ def search_doujinshi(options):
     
 
 
-def fetch_id(options,session=None):
+def fetch_id(options,id,session=None):
     """
     Fetch doujinshi information from given ids.
     To download found doujinshi, the download flag must be given a true value. By default doujinshi are not downloaded
     """
     
-    id = options.id
     directory = options.dir
     threads = options.threads
     download = options.download

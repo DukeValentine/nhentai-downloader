@@ -53,7 +53,7 @@ def main():
     
     if options.id or options.input_filename:
         ids = io_utils.read_input_file(options.dir,options.input_filename) + options.id
-        dlist = fetcher.fetch_id(options)
+        dlist = fetcher.fetch_id(options,ids)
     
     
     elif options.search:
