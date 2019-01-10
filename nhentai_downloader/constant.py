@@ -9,3 +9,6 @@ urls = {
     'SEARCH' : 'https://nhentai.net/search/?q=',
     'GALLERY_URL' : 'https://nhentai.net/g/'
 }
+
+
+ok_code = 200
