@@ -82,13 +82,21 @@ def torrent_download_worker(path,session,id):
     logger.info("Downloading {0}.torrent".format(id))
     logger.debug(url)
     
-    req = session.get(url, stream=True)
-    logger.debug("Nhentai responded with {0}".format(req.status_code))
-    
-    with open(fullpath,"wb") as torrent_file:
-        shutil.copyfileobj(req.raw, torrent_file)
+    for attempt in range(1,5):
+        logger.info("Attempt {0}".format(attempt))
+        req = session.get(url, stream=True)
+        logger.debug("Nhentai responded with {0}".format(req.status_code))
         
-
+        if req.codes.ok:
+            break
+        
+    if req.codes.ok:
+        with open(fullpath,"wb") as torrent_file:
+            shutil.copyfileobj(req.raw, torrent_file)
+        
+    else:
+        logger.error("Failed to download torrent file")
+        
 def torrent_pool_manager(threads,path,id_list,session):
     torrent_pool =  multiprocessing.Pool(threads)
     func = partial(torrent_download_worker,path,session)
