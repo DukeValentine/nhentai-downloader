@@ -8,6 +8,7 @@ import queue
 from functools import partial
 import re
 import logging
+from time import sleep
 
 
 from .doujinshi import Doujinshi
@@ -89,11 +90,14 @@ def torrent_download_worker(path,session,id):
         
         if req.status_code == constant.ok_code:
             break
+        else:
+            sleep(0.1)
         
     if req.status_code == constant.ok_code:
         with open(fullpath,"wb") as torrent_file:
             shutil.copyfileobj(req.raw, torrent_file)
-        logger.debug("Download of {0}.torrent finished".format(attempt))
+        logger.debug("Download of {0}.torrent finished".format(id))
+        
     else:
         logger.error("Failed to download torrent file")
         
@@ -137,7 +141,7 @@ def fetch_favorites(session,options):
     overwrite = options.overwrite
     
     doujinshi_list = []
-    id_list = []
+    
     
     search_string = '+'.join(tags)
     
@@ -157,7 +161,7 @@ def fetch_favorites(session,options):
 
         logger.info("{0} doujinshi founnd".format(len(fav_elem)) )
         
-        
+        id_list = []
         
         for id in fav_elem:
             id_list.append(id.get('data-id'))
@@ -286,19 +290,22 @@ def fetch_id(options,id,session=None):
             image_pool_manager(threads,doujinshi_path,url_list,overwrite)
             
             
-        if torrent:
-            if not (options.login and options.password):
-                logger.warning("Login info not provided despite torrent argument being given, skipping .torrent download")
-                break
+    if torrent:
+        if not (options.login and options.password):
+            logger.warning("Login info not provided despite torrent argument being given, skipping .torrent download")
+            return doujinshi_list
+        
+        elif not session:
+            session = auth.login(options.login,options.password,options.verbose)
             
-            elif not session:
-                session = auth.login(options.login,options.password,options.verbose)
-                
-                if session is None:
-                    break
-                
-            io_utils.create_path(options.dir)
-            torrent_pool_manager(threads,options.dir,id_list,session)
+            if session is None:
+                return doujinshi_list
+        
+        
+        io_utils.create_path(options.dir)
+        logger.debug("Starting torrent pool")
+        torrent_pool_manager(threads,options.dir,id_list,session)
+        logger.debug("End torrent pool")
             
         
             
