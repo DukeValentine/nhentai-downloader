@@ -4,6 +4,7 @@ import bs4
 import os
 import errno
 import multiprocessing
+import queue
 from functools import partial
 import re
 import logging
@@ -14,7 +15,6 @@ from . import constant
 from .logger import logger
 from . import io_utils
 from . import auth
-
 
 
 def get_doujinshi_data (doujinshi_id):
@@ -56,7 +56,7 @@ def get_doujinshi_data (doujinshi_id):
 
 def download_worker (path,overwrite,url):
     """
-    Download file in given url in given path
+    Download file in given url in given path. Url must have the filename with extension (eg: https://i.nhentai.net/galleries/1343630/1.jpg)
     If Overwrite argument is false,the worker will check whether the file exists and skip if so
     """
     filename = url.split('/')[-1]
@@ -73,7 +73,30 @@ def download_worker (path,overwrite,url):
     else:
         logger.info("File {0} exists, overwriting disabled".format(filename))
     
-    return fullpath
+    logger.debug("Fullpath: {0}".format(fullpath))
+
+def torrent_download_worker(path,session,id):
+    url = "{0}{1}/download".format(constant.urls['GALLERY_URL'],id)
+    fullpath = os.path.join(path, "{0}.torrent".format(id))
+    
+    logger.info("Downloading {0}.torrent".format(id))
+    logger.debug(url)
+    
+    req = session.get(url, stream=True)
+    logger.debug("Nhentai responded with {0}".format(req.status_code))
+    
+    with open(fullpath,"wb") as torrent_file:
+        shutil.copyfileobj(req.raw, torrent_file)
+        
+
+def torrent_pool_manager(threads,path,id_list,session):
+    torrent_pool =  multiprocessing.Pool(threads)
+    func = partial(torrent_download_worker,path,session)
+    torrent_pool.map(func,id_list)
+    torrent_pool.close()
+    torrent_pool.join()
+    
+
 
 def image_pool_manager(threads,path,url_list,overwrite=True):
     """
@@ -106,6 +129,7 @@ def fetch_favorites(session,options):
     overwrite = options.overwrite
     
     doujinshi_list = []
+    id_list = []
     
     search_string = '+'.join(tags)
     
@@ -128,10 +152,11 @@ def fetch_favorites(session,options):
         
         
         for id in fav_elem:
-            id = id.get('data-id')
+            id_list.append(id.get('data-id'))
         
-            doujinshi_list = doujinshi_list + fetch_id(options,id,session)
-            logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
+        logger.debug("Id batch: {0}".format(id_list))
+        doujinshi_list = doujinshi_list + fetch_id(options,id_list,session)
+        logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
                 
         
     return doujinshi_list
@@ -264,19 +289,8 @@ def fetch_id(options,id,session=None):
                 if session is None:
                     break
                 
-            
-            path = os.path.join(options.dir,"{0}.torrent".format(id_doujinshi.main_id))
-            url = "{0}{1}/download".format(constant.urls['GALLERY_URL'],id_doujinshi.main_id)
-            logger.debug("Path: {0}\nUrl:{1}".format(path,url))
-            
-            
             io_utils.create_path(options.dir)
-            
-            
-            
-            req = session.get(url, stream=True)
-            with open(path,"wb") as torrent_file:
-                shutil.copyfileobj(req.raw, torrent_file)
+            torrent_pool_manager(threads,options.dir,id_list,session)
             
         
             

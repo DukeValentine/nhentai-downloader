@@ -117,6 +117,7 @@ def create_path(path,permissions=0o755):
             raise
         else:
             logger.warning("Path {0} already exists".format(path))
+            logger.debug(repr(error))
 
 if __name__ == '__main__':
     test = Doujinshi("1225")
