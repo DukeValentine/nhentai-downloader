@@ -83,17 +83,17 @@ def torrent_download_worker(path,session,id):
     logger.debug(url)
     
     for attempt in range(1,5):
-        logger.info("Attempt {0}".format(attempt))
+        logger.info("Attempt {0} for {1}.torrent".format(attempt,id))
         req = session.get(url, stream=True)
-        logger.debug("Nhentai responded with {0}".format(req.status_code))
+        logger.debug("Nhentai responded with {0} for {1}.torrent".format(req.status_code,id))
         
-        if req.codes.ok:
+        if req.status_code == constant.ok_code:
             break
         
     if req.codes.ok:
         with open(fullpath,"wb") as torrent_file:
             shutil.copyfileobj(req.raw, torrent_file)
-        
+        logger.debug("Download of {0}.torrent finished".format(attempt))
     else:
         logger.error("Failed to download torrent file")
         
