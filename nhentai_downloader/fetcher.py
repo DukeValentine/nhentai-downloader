@@ -83,7 +83,7 @@ def torrent_download_worker(path,session,id):
     logger.info("Downloading {0}.torrent".format(id))
     logger.debug(url)
     
-    for attempt in range(1,5):
+    for attempt in range(1,6):
         logger.info("Attempt {0} for {1}.torrent".format(attempt,id))
         req = session.get(url, stream=True)
         logger.debug("Nhentai responded with {0} for {1}.torrent".format(req.status_code,id))
@@ -91,7 +91,7 @@ def torrent_download_worker(path,session,id):
         if req.status_code == constant.ok_code:
             break
         else:
-            sleep(0.1)
+            sleep(0.2)
         
     if req.status_code == constant.ok_code:
         with open(fullpath,"wb") as torrent_file:
@@ -304,7 +304,7 @@ def fetch_id(options,id,session=None):
         
         io_utils.create_path(options.dir)
         logger.debug("Starting torrent pool")
-        torrent_pool_manager(threads,options.dir,id_list,session)
+        torrent_pool_manager(4,options.dir,id_list,session)
         logger.debug("End torrent pool")
             
         
