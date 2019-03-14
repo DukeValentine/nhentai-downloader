@@ -24,7 +24,7 @@ def login(username, password,debug=False):
     }
     
     
-    logger.debug(login_info)
+    logger.debug("csrf token: {0}".format(login_info['csrfmiddlewaretoken']))
    
     try:
         response = nh_session.post(constant.urls['LOGIN_URL'], data=login_info)

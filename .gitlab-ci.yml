@@ -20,7 +20,7 @@ test:
   script:
     - ls
     - nhentai-downloader --help
-    - nhentai-downloader --login $NHENTAI_USER --password $NHENTAI_PASS --verbose --debug --max-page 3
+    - nhentai-downloader --login $NHENTAI_USER --password $NHENTAI_PASS --verbose --debug --max-page 3 --torrent
     
 test0:
   stage: test
@@ -75,7 +75,9 @@ pypi:
   only:
   - master
   - tags
-  - /^v\d+.\d+.\d+[a-z]?/
+  only:
+  - /^v[0-9]+.[0-9]+.[0-9]+[a-z]?/
+
    
   before_script:
   - pip install twine

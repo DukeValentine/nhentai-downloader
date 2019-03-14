@@ -1,4 +1,3 @@
-4. Create setup.py file
 5. Use queues for the doujinshis lists 
 6. Index fetched doujinshis by tags, ids and titles(so they are easily searchable)
 7. Make a web portal to browse fetched doujinshi

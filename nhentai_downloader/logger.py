@@ -1,5 +1,8 @@
 import logging
+import logging.handlers
 import sys
+from . import constant
+import os
 
 LEVELS = {
     'debug': logging.DEBUG,
@@ -11,7 +14,18 @@ LEVELS = {
 
 
 logger = logging.getLogger('NHENTAI')
-logging.basicConfig(level=0,format = "\r[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
+logging.basicConfig(level=0,format = "[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
+
+if not os.path.exists( os.path.join(os.getcwd(),"log") ):
+    os.makedirs(os.path.join(os.getcwd(),"log"))
+
+file_handle = logging.handlers.RotatingFileHandler("./log/nhentai.log",maxBytes = 10*1024*1024,backupCount = 10)
+
+
+
+format = logging.Formatter("[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
+file_handle.setFormatter(format)
+logger.addHandler(file_handle)
 
 
 if __name__ == '__main__':

@@ -4,9 +4,11 @@ import bs4
 import os
 import errno
 import multiprocessing
+import queue
 from functools import partial
 import re
 import logging
+from time import sleep
 
 
 from .doujinshi import Doujinshi
@@ -14,7 +16,6 @@ from . import constant
 from .logger import logger
 from . import io_utils
 from . import auth
-
 
 
 def get_doujinshi_data (doujinshi_id):
@@ -56,7 +57,7 @@ def get_doujinshi_data (doujinshi_id):
 
 def download_worker (path,overwrite,url):
     """
-    Download file in given url in given path
+    Download file in given url in given path. Url must have the filename with extension (eg: https://i.nhentai.net/galleries/1343630/1.jpg)
     If Overwrite argument is false,the worker will check whether the file exists and skip if so
     """
     filename = url.split('/')[-1]
@@ -73,7 +74,41 @@ def download_worker (path,overwrite,url):
     else:
         logger.info("File {0} exists, overwriting disabled".format(filename))
     
-    return fullpath
+    logger.debug("Fullpath: {0}".format(fullpath))
+
+def torrent_download_worker(path,session,id):
+    url = "{0}{1}/download".format(constant.urls['GALLERY_URL'],id)
+    fullpath = os.path.join(path, "{0}.torrent".format(id))
+    
+    logger.info("Downloading {0}.torrent".format(id))
+    logger.debug(url)
+    
+    for attempt in range(1,6):
+        logger.info("Attempt {0} for {1}.torrent".format(attempt,id))
+        req = session.get(url, stream=True)
+        logger.debug("Nhentai responded with {0} for {1}.torrent".format(req.status_code,id))
+        
+        if req.status_code == constant.ok_code:
+            break
+        else:
+            sleep(0.2)
+        
+    if req.status_code == constant.ok_code:
+        with open(fullpath,"wb") as torrent_file:
+            shutil.copyfileobj(req.raw, torrent_file)
+        logger.debug("Download of {0}.torrent finished".format(id))
+        
+    else:
+        logger.error("Failed to download torrent file")
+        
+def torrent_pool_manager(threads,path,id_list,session):
+    torrent_pool =  multiprocessing.Pool(threads)
+    func = partial(torrent_download_worker,path,session)
+    torrent_pool.map(func,id_list)
+    torrent_pool.close()
+    torrent_pool.join()
+    
+
 
 def image_pool_manager(threads,path,url_list,overwrite=True):
     """
@@ -107,6 +142,7 @@ def fetch_favorites(session,options):
     
     doujinshi_list = []
     
+    
     search_string = '+'.join(tags)
     
     logger.debug(search_string)
@@ -125,13 +161,14 @@ def fetch_favorites(session,options):
 
         logger.info("{0} doujinshi founnd".format(len(fav_elem)) )
         
-        
+        id_list = []
         
         for id in fav_elem:
-            id = id.get('data-id')
+            id_list.append(id.get('data-id'))
         
-            doujinshi_list = doujinshi_list + fetch_id(options,id,session)
-            logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
+        logger.debug("Id batch: {0}".format(id_list))
+        doujinshi_list = doujinshi_list + fetch_id(options,id_list,session)
+        logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
                 
         
     return doujinshi_list
@@ -253,30 +290,22 @@ def fetch_id(options,id,session=None):
             image_pool_manager(threads,doujinshi_path,url_list,overwrite)
             
             
-        if torrent:
-            if not (options.login and options.password):
-                logger.warning("Login info not provided despite torrent argument being given, skipping .torrent download")
-                break
+    if torrent:
+        if not (options.login and options.password):
+            logger.warning("Login info not provided despite torrent argument being given, skipping .torrent download")
+            return doujinshi_list
+        
+        elif not session:
+            session = auth.login(options.login,options.password,options.verbose)
             
-            elif not session:
-                session = auth.login(options.login,options.password,options.verbose)
-                
-                if session is None:
-                    break
-                
-            
-            path = os.path.join(options.dir,"{0}.torrent".format(id_doujinshi.main_id))
-            url = "{0}{1}/download".format(constant.urls['GALLERY_URL'],id_doujinshi.main_id)
-            logger.debug("Path: {0}\nUrl:{1}".format(path,url))
-            
-            
-            io_utils.create_path(options.dir)
-            
-            
-            
-            req = session.get(url, stream=True)
-            with open(path,"wb") as torrent_file:
-                shutil.copyfileobj(req.raw, torrent_file)
+            if session is None:
+                return doujinshi_list
+        
+        
+        io_utils.create_path(options.dir)
+        logger.debug("Starting torrent pool")
+        torrent_pool_manager(4,options.dir,id_list,session)
+        logger.debug("End torrent pool")
             
         
             
