@@ -55,6 +55,12 @@ def get_doujinshi_data (doujinshi_id):
             
             page_content = response.content
             page_html = bs4.BeautifulSoup(page_content, 'html.parser')
+            doujinshi_info_text = ""
+            
+            for item in page_html.find_all("script"):
+                if "gallery" in item:
+                    doujinshi_info_text = item
+                
             doujinshi_info_text = page_html.find_all("script")[2].get_text()
             doujinshi_info_json = info_regex.search(doujinshi_info_text).group().strip('(').strip(')')
             
