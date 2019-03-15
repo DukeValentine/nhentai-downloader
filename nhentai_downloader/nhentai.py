@@ -42,6 +42,7 @@ def main():
     if not options.debug:
         logging.getLogger("requests").setLevel(logging.WARNING)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
+        logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
         
     if not options.verbose:
         logging.getLogger("NHENTAI").setLevel(logging.INFO)
