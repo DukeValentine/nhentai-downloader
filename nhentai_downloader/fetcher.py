@@ -42,6 +42,7 @@ def get_doujinshi_data (doujinshi_id):
         
         try:
             response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id))
+            logger.debug(response.status_code)
         
             if response.status_code is not requests.codes.ok:
                 raise Exception("Couldn't get doujinshi id [%s]" % doujinshi_id)
@@ -57,9 +58,13 @@ def get_doujinshi_data (doujinshi_id):
             page_html = bs4.BeautifulSoup(page_content, 'html.parser')
             doujinshi_info_text = ""
             
+            logger.debug(len(page_html.find_all("script")))
+            
             for item in page_html.find_all("script"):
-                if "gallery" in item:
-                    doujinshi_info_text = item
+                
+                if "gallery" in item.get_text():
+                    logger.debug(item)
+                    doujinshi_info_text = item.get_text()
                 
             doujinshi_info_json = info_regex.search(doujinshi_info_text).group().strip('(').strip(')')
             
@@ -233,6 +238,8 @@ def search_doujinshi(options):
         
         for id in search_elem:
             id = href_regex.search(id.get('href')).group()
+            
+            sleep(0.1) 
             
             doujinshi_list = doujinshi_list + fetch_id(options,id)
             logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
