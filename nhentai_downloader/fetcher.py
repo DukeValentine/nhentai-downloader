@@ -7,6 +7,7 @@ import multiprocessing
 import queue
 from functools import partial
 import re
+import json
 import logging
 from time import sleep
 
@@ -36,21 +37,28 @@ def get_doujinshi_data (doujinshi_id):
     else:
         doujinshi = Doujinshi(doujinshi_id)
         
+        info_regex = re.compile(r'\(\{.*\}\)')
+
+        
         try:
-            resp = requests.get(constant.urls['API_URL'] + doujinshi.main_id)
+            page_content = requests.get("https://nhentai.net/g/265175/").content
+        
             
-            if resp.status_code is not requests.codes.ok:
+            if page_content.status_code is not requests.codes.ok:
                 raise Exception("Couldn't get doujinshi id [%s]" % doujinshi_id)
             
         except Exception as error:
-            logger.error("Doujinshi id[{0}] not found. Nhentai responded with {1}" .format(doujinshi_id,resp.status_code))
+            logger.error("Doujinshi id[{0}] not found. Nhentai responded with {1}" .format(doujinshi_id,page_content.status_code))
+            return None
             
         else:
             logger.info("Getting info from doujinshi id[{0}]".format(doujinshi_id))
             
-            json_resp = resp.json()
+            page_html = bs4.BeautifulSoup(page_content, 'html.parser')
+            doujinshi_info_text = page_html.find_all("script")[2].get_text()
+            doujinshi_info_json = info_regex.search(doujinshi_info_text).group().strip('(').strip(')')
             
-            doujinshi.fill_info(json_resp)
+            doujinshi.fill_info(json.loads(doujinshi_info_json))
                     
             return doujinshi
             
@@ -263,31 +271,30 @@ def fetch_id(options,id,session=None):
     
     for id_ in id_list:
         logger.info("Fetching doujinshi id[{0}]".format(id_))
-         
+        
+        
         id_doujinshi = get_doujinshi_data(id_)
-        doujinshi_list.append(id_doujinshi)
         
-        
-        logger.debug("Title:{0}".format(id_doujinshi.title))
-        logger.debug("Pages:{0}".format(id_doujinshi.pages))
-    
-        
-        
-       
-        
-        if download:
-            logger.info("Downloading doujinshi id[{0}]".format(id))
+        if id_doujinshi:
+            doujinshi_list.append(id_doujinshi)
             
-            url_list = id_doujinshi.generate_url_list()
-            doujinshi_path = id_doujinshi.get_path(directory)
             
-            logger.debug("Doujinshi path : {0}".format(doujinshi_path))
-            
-            io_utils.create_path(doujinshi_path)
-            
-            logger.debug("Starting image pool")
+            logger.debug("Title:{0}".format(id_doujinshi.title))
+            logger.debug("Pages:{0}".format(id_doujinshi.pages))
+        
+            if download:
+                logger.info("Downloading doujinshi id[{0}]".format(id))
                 
-            image_pool_manager(threads,doujinshi_path,url_list,overwrite)
+                url_list = id_doujinshi.generate_url_list()
+                doujinshi_path = id_doujinshi.get_path(directory)
+                
+                logger.debug("Doujinshi path : {0}".format(doujinshi_path))
+                
+                io_utils.create_path(doujinshi_path)
+                
+                logger.debug("Starting image pool")
+                    
+                image_pool_manager(threads,doujinshi_path,url_list,overwrite)
             
             
     if torrent:
