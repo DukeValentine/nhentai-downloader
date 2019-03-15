@@ -41,7 +41,7 @@ def get_doujinshi_data (doujinshi_id):
 
         
         try:
-            response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id))
+            response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id),allow_redirects=False)
             logger.debug(response.status_code)
         
             if response.status_code is not requests.codes.ok:
@@ -239,7 +239,7 @@ def search_doujinshi(options):
         for id in search_elem:
             id = href_regex.search(id.get('href')).group()
             
-            sleep(0.1) 
+            sleep(0.3) 
             
             doujinshi_list = doujinshi_list + fetch_id(options,id)
             logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
