@@ -41,19 +41,19 @@ def get_doujinshi_data (doujinshi_id):
 
         
         try:
-            page_content = requests.get("https://nhentai.net/g/265175/").content
+            response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id))
         
-            
-            if page_content.status_code is not requests.codes.ok:
+            if response.status_code is not requests.codes.ok:
                 raise Exception("Couldn't get doujinshi id [%s]" % doujinshi_id)
             
         except Exception as error:
-            logger.error("Doujinshi id[{0}] not found. Nhentai responded with {1}" .format(doujinshi_id,page_content.status_code))
+            logger.error("Doujinshi id[{0}] not found. Nhentai responded with {1}" .format(doujinshi_id,response.status_code))
             return None
             
         else:
             logger.info("Getting info from doujinshi id[{0}]".format(doujinshi_id))
             
+            page_content = response.content
             page_html = bs4.BeautifulSoup(page_content, 'html.parser')
             doujinshi_info_text = page_html.find_all("script")[2].get_text()
             doujinshi_info_json = info_regex.search(doujinshi_info_text).group().strip('(').strip(')')
