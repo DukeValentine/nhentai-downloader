@@ -61,7 +61,6 @@ def get_doujinshi_data (doujinshi_id):
                 if "gallery" in item:
                     doujinshi_info_text = item
                 
-            doujinshi_info_text = page_html.find_all("script")[2].get_text()
             doujinshi_info_json = info_regex.search(doujinshi_info_text).group().strip('(').strip(')')
             
             doujinshi.fill_info(json.loads(doujinshi_info_json))
