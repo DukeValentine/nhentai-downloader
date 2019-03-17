@@ -21,10 +21,10 @@ cd nhentai-downloader
 python setup.py install
 ```
 
-##Building the windows binary
+## Building the windows binary
 The available windows binary is built with pyinstaller, to build it yourself, execute the following in windows or wine:
 
-`wine pyinstaller ./nhentai_downloader/nhentai.py -F -p ./nhentai_downloader --hidden-import=requests --hidden-import=bs4`
+`pyinstaller ./nhentai_downloader/nhentai.py -F -p ./nhentai_downloader --hidden-import=requests --hidden-import=bs4`
 
 You must have requests and beaultifulSoup4 already installed prior to building the binary
 ## Available options
