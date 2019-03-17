@@ -16,10 +16,14 @@ LEVELS = {
 logger = logging.getLogger('NHENTAI')
 logging.basicConfig(level=0,format = "[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
 
-if not os.path.exists( os.path.join(os.getcwd(),"log") ):
-    os.makedirs(os.path.join(os.getcwd(),"log"))
+log_dir = os.path.join(os.getcwd(),"log")
 
-file_handle = logging.handlers.RotatingFileHandler("./log/nhentai.log",maxBytes = 10*1024*1024,backupCount = 10)
+if not os.path.exists( os.path.join(os.getcwd(),"log") ):
+    os.makedirs(log_dir)
+    
+
+log_path = os.path.join(log_dir,"nhentai.log")
+file_handle = logging.handlers.RotatingFileHandler(log_path,maxBytes = 10*1024*1024,backupCount = 10)
 
 
 

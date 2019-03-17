@@ -298,8 +298,8 @@ def fetch_id(options,id,session=None):
         if id_doujinshi:
             doujinshi_list.append(id_doujinshi)
             
-            logger.debug("Title:{0}".format(id_doujinshi.title))
-            logger.debug("Pages:{0}".format(id_doujinshi.pages))
+            logger.info("Title:{0}".format(id_doujinshi.title))
+            logger.info("Pages:{0}".format(id_doujinshi.pages))
         
             if download:
                 logger.info("Downloading doujinshi id[{0}]".format(id))

@@ -39,15 +39,17 @@ def main():
     
     input_id_list = []
     
-    
+    logging.getLogger("NHENTAI").setLevel(logging.INFO)
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
                 
-    if not options.debug:
-        logging.getLogger("requests").setLevel(logging.WARNING)
-        logging.getLogger("urllib3").setLevel(logging.WARNING)
+    if options.debug:
+        logging.getLogger("requests").setLevel(logging.DEBUG)
+        logging.getLogger("urllib3").setLevel(logging.DEBUG)
         logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
         
-    if not options.verbose:
-        logging.getLogger("NHENTAI").setLevel(logging.INFO)
+    if options.verbose:
+        logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
     
     
     if not options.download:
@@ -86,7 +88,6 @@ def main():
 
 if __name__ == '__main__':
     try:
-        logger.info("Your system is {0}".format(system()))
         if system() is "Windows":
             multiprocessing.freeze_support()
         main()
