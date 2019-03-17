@@ -1,21 +1,23 @@
 import os
+from platform import system
 import re
 import argparse
+import multiprocessing
 import time
 import errno
-from . import cli
-from .logger import logger
-from . import fetcher
-from . import auth
-from . import constant
-from . import io_utils
-
+from nhentai_downloader import cli
+from nhentai_downloader.logger import logger
+from nhentai_downloader import fetcher
+from nhentai_downloader import auth
+from nhentai_downloader import constant
+from nhentai_downloader import io_utils
 
 import logging
 import queue
 import json
 
 def main():
+
     options = cli.option_parser()
     
     id_regex = re.compile(r'[\d]+')
@@ -84,6 +86,9 @@ def main():
 
 if __name__ == '__main__':
     try:
+        logger.info("Your system is {0}".format(system()))
+        if system() is "Windows":
+            multiprocessing.freeze_support()
         main()
     except KeyboardInterrupt as error:
         print(repr(error))

@@ -79,7 +79,15 @@ def download_worker (path,overwrite,url):
     If Overwrite argument is false,the worker will check whether the file exists and skip if so
     """
     filename = url.split('/')[-1]
+    
+    filename = filename.split('\\')[-1] #deal with the case of the filename coming back as MEDIA_ID\*.jpg
+    
     fullpath = os.path.join(path,filename)
+    
+    
+    
+    logger.debug("URL: {0}".format(url))
+    logger.debug("Fullpath: {0}".format(fullpath))
     
     req = requests.get(url, stream=True)
     
@@ -92,7 +100,7 @@ def download_worker (path,overwrite,url):
     else:
         logger.info("File {0} exists, overwriting disabled".format(filename))
     
-    logger.debug("Fullpath: {0}".format(fullpath))
+    
 
 def torrent_download_worker(path,session,id):
     url = "{0}{1}/download".format(constant.urls['GALLERY_URL'],id)
@@ -290,7 +298,6 @@ def fetch_id(options,id,session=None):
         if id_doujinshi:
             doujinshi_list.append(id_doujinshi)
             
-            
             logger.debug("Title:{0}".format(id_doujinshi.title))
             logger.debug("Pages:{0}".format(id_doujinshi.pages))
         
@@ -305,6 +312,8 @@ def fetch_id(options,id,session=None):
                 io_utils.create_path(doujinshi_path)
                 
                 logger.debug("Starting image pool")
+                
+                logger.debug(url_list)
                     
                 image_pool_manager(threads,doujinshi_path,url_list,overwrite)
             

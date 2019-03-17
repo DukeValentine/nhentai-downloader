@@ -1,5 +1,6 @@
 from . import constant
 from datetime import datetime
+from platform import system
 import os
 import json
 from .logger import logger
@@ -56,18 +57,35 @@ class Doujinshi:
                 self.group = tag['name']
         
     def get_path(self,directory):
-        return os.path.join(directory, self.title.replace("/"," "))
+        title = ''
+        
+        if system() is "Windows":
+            title = self.GetWindowsFormattedName(self.title)
+            
+        else:
+            title = self.title.replace("/"," ")
+        
+        
+        return os.path.join(directory, title)
         
         #return ("{0}{1}".format(directory,self.title.replace("/"," ")))
+        
+    def GetWindowsFormattedName(self,name):
+        formatted_title = name
+        
+        for character in constant.INVALID_CHARACTERS:
+            formatted_title.replace(character,'')
+            
+        return formatted_title
     
     def generate_url_list(self):
         
         url_list = []
         
         for index,ext in enumerate(self.page_ext,1):
-                filename = "{0}".format(index) + ext
-                url_list.append(os.path.join(constant.urls['MEDIA_URL'],self.media_id,filename))
-                #url_list.append(constant.urls['MEDIA_URL'] + self.media_id + "/{0}".format(index) + ext)
+                filename = "{0}{1}".format(index,ext)
+                #url_list.append(os.path.join(constant.urls['MEDIA_URL'],self.media_id,filename))
+                url_list.append(constant.urls['MEDIA_URL'] + self.media_id + "/{0}".format(filename))
                 
         return url_list
     

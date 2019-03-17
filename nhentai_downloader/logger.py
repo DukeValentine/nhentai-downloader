@@ -1,7 +1,7 @@
 import logging
 import logging.handlers
 import sys
-from . import constant
+from nhentai_downloader import constant
 import os
 
 LEVELS = {

@@ -10,5 +10,5 @@ urls = {
     'GALLERY_URL' : 'https://nhentai.net/g/'
 }
 
-
+INVALID_CHARACTERS = ['/', '\\', ':', '*', '?', '\"', '<', '>', '|']
 ok_code = 200
