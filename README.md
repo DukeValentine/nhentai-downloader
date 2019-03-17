@@ -3,7 +3,7 @@ Python command line program to retrieve information from and download nhentai ga
 
 This project idea was inspired by [RicterZhen nhentai doujinshi downloader](https://github.com/RicterZ/nhentai)
 
-Output the found doujinshi in json format or a simple list of ids.
+Support for output the found doujinshi in json or a id list
 
 ## Instalation
 
@@ -21,6 +21,12 @@ cd nhentai-downloader
 python setup.py install
 ```
 
+##Building the windows binary
+The available windows binary is built with pyinstaller, to build it yourself, execute the following in windows or wine:
+
+`wine pyinstaller ./nhentai_downloader/nhentai.py -F -p ./nhentai_downloader --hidden-import=requests --hidden-import=bs4`
+
+You must have requests and beaultifulSoup4 already installed prior to building the binary
 ## Available options
 To see all command line options for nhentai-downloader, run it with the --help argument:
 ```
