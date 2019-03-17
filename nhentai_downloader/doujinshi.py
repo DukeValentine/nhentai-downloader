@@ -16,6 +16,7 @@ class Doujinshi:
         self.main_id = str(doujinshi_id)
         self.media_id = ''
         self.title = ''
+        self.compact_title = ''
         self.artist = ''
         self.group = ''
         self.language = ''
@@ -25,8 +26,17 @@ class Doujinshi:
         self.num_favorites = 0
         self.upload_date = ''
         
+    def addTags(self,new_tags):
+        if isinstance(new_tags,str):
+            self.tags.append(new_tags)
+            
+        else:    
+            for tag in new_tags:
+                self.tags.append(tag)
+        
     def fill_info(self, json_data):
         self.title = json_data ['title']['english']
+        self.compact_title = json_data['title']['pretty']
         self.media_id = json_data['media_id']
         self.pages = json_data['num_pages']
         self.num_favorites = json_data['num_favorites']
