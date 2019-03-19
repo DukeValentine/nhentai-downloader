@@ -74,6 +74,7 @@ pypi:
   stage: deploy
   only:
   - master
+  only:
   - tags
   only:
   - /^v[0-9]+.[0-9]+.[0-9]+[a-z]?/
