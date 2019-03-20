@@ -1,6 +1,8 @@
 import argparse
+import git 
 import os
-
+from . import __version__ as version
+from . import __package__ as package
 
 def option_parser():
     parser = argparse.ArgumentParser (description = "Extract information and download doujinshis \n Fetch them from your favorites, searching by tags or by inputing a file with a list of doujinshi \n Ample configuration options")
@@ -10,6 +12,15 @@ def option_parser():
     file_args = parser.add_argument_group('File options')
     search = parser.add_argument_group('Search options')
     download = parser.add_argument_group('Download options')
+    
+    
+    commit_date = ""
+    parent_directory = os.path.dirname(os.path.dirname(__file__))
+    with open(os.path.join(parent_directory,".commit_date")) as file:
+        commit_date +="|"
+        commit_date += file.readline()
+    
+    parser.add_argument("--version",action="version",version = "You are running  : {0} {1} {2}".format(package,version,commit_date))
 
 
     file_args.add_argument ("--dir",'-D', action ="store", nargs='?', default=os.path.join(os.getcwd(),"nhentai"),help ='Directory for saved files, defaults to ./nhentai/')

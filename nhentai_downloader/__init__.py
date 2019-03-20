@@ -1,3 +1,13 @@
-__version__ = '0.4.9'
+__version__ = '0.4.9-dev'
 __author__ = 'DukeValentine'
 __email__ = 'humanix@posteo.de'
+
+
+from .auth import login
+from .logger import logger_config
+from .cli import option_parser
+from . import constant
+from .doujinshi import Doujinshi
+from . import fetcher
+from . import io_utils
+
