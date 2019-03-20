@@ -1,5 +1,4 @@
 import argparse
-import git 
 import os
 from . import __version__ as version
 from . import __package__ as package
