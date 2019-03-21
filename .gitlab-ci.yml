@@ -66,7 +66,7 @@ test4:
   script:
    - ls
    - nhentai-downloader --verbose --debug --id 253293
-   - nhentai-downloader --verbose -t sword english --max-page 3 --download --search
+   - nhentai-downloader --verbose -t sword english --max-page 2 --download --search
    - ls -la nhentai
    - du -sh nhentai
    
