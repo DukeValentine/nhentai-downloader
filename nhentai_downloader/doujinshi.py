@@ -20,7 +20,7 @@ class Doujinshi:
         self.artist = ''
         self.group = ''
         self.language = ''
-        self.tags = []
+        self.tags = {}
         self.pages = 0
         self.page_ext = []
         self.num_favorites = 0
@@ -34,7 +34,7 @@ class Doujinshi:
             for tag in new_tags:
                 self.tags.append(tag)
         
-    def fill_info(self, json_data):
+    def FillInfo(self, json_data):
         self.title = json_data ['title']['english']
         self.compact_title = json_data['title']['pretty']
         self.media_id = json_data['media_id']
@@ -53,18 +53,9 @@ class Doujinshi:
             self.page_ext.append(self.ext[page['t']])
         
         
-        for tag in json_data['tags']:
-            if tag['type'] == "tag":
-                self.tags.append(tag['name'])
-            
-            elif tag['type'] == "artist":
-                self.artist = tag['name']
-            
-            elif tag['type'] == "language" and tag['name'] != "translated":
-                self.language = tag['name']
-                
-            elif tag['type'] == "group":
-                self.group = tag['name']
+        for data_tag in json_data['tags']:
+            if data_tag['name'] is not "translated":
+                self.tags[ data_tag['type'] ].append(data_tag['name'])
         
     def get_path(self,directory):
         title = ''
@@ -98,6 +89,18 @@ class Doujinshi:
                 url_list.append(constant.urls['MEDIA_URL'] + self.media_id + "/{0}".format(filename))
                 
         return url_list
+    
+    def PrintDoujinshiInfo(self,verbose=False):
+        logger.info("Title: {0}".format(self.title))
+        logger.info("Language: {0}".format(self.tags['language']))
+        logger.info("Artist: {0}".format(self.tags['artist']) )
+        logger.info("Group: {0}".format(self.tags['group']) )
+        logger.info("Total pages : {0}".format(self.pages))
+        
+        if verbose:
+            logger.info("Characters : {0}".format(self.tags['character']))
+            logger.info("Tags : {0}".format(self.tags['tag']))
+        
     
     def toJSON(self):
         """
