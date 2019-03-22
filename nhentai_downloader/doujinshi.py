@@ -12,21 +12,28 @@ class Doujinshi:
         'g' : '.gif'
     }
     
-    def __init__(self,doujinshi_id):
+    def __init__(self,doujinshi_id,media_id = "",title = "",compact_title = "",pages=0,page_ext = [],num_favorites=0, upload_date=0):
         self.main_id = str(doujinshi_id)
-        self.media_id = ''
-        self.title = ''
-        self.compact_title = ''
-        self.artist = ''
-        self.group = ''
-        self.language = ''
-        self.tags = {'artist' : [],'group' : [],'character' : [],'language' : [],'tag' : [],'parody' : [],'category': []}
-        self.pages = 0
-        self.page_ext = []
-        self.num_favorites = 0
-        self.upload_date = ''
+        self.media_id = media_id
+        self.title = title
+        self.compact_title = compact_title
+        self.tags = {
+            'artist' : [],
+            'group' : [],
+            'character' : [],
+            'language' : [],
+            'tag' : [],
+            'parody' : [],
+            'category': []
+            }
+        self.pages = pages
+        self.page_ext = page_ext
+        self.num_favorites = num_favorites
+        self.upload_date = upload_date
         
-    def addTags(self,new_tags):
+    def AddTags(self,new_tags,**kwargs):
+        
+        
         if isinstance(new_tags,str):
             self.tags.append(new_tags)
             
@@ -35,12 +42,15 @@ class Doujinshi:
                 self.tags.append(tag)
         
     def FillInfo(self, json_data):
+        """
+        Receives a dictionary containing all the information about the doujinshi
+        """
         self.title = json_data ['title']['english']
         self.compact_title = json_data['title']['pretty']
         self.media_id = json_data['media_id']
         self.pages = json_data['num_pages']
         self.num_favorites = json_data['num_favorites']
-        self.upload_date = datetime.utcfromtimestamp(json_data['upload_date']).strftime('[%Y-%m-%d] (%a,%H:%M:%S)%Z')
+        self.upload_date = json_data['upload_date']
         
         if len(self.page_ext):
             del self.page_ext[:]
@@ -55,8 +65,11 @@ class Doujinshi:
         
         
         for data_tag in json_data['tags']:
-            if data_tag['name'] is not "translated":
+            if (data_tag['name'] != 'translated'):
                 self.tags[ data_tag['type'] ].append(data_tag['name'])
+                
+    def GetFormattedDate(self):
+        return (datetime.utcfromtimestamp(self.upload_date).strftime('[%Y-%m-%d] (%a,%H:%M:%S)%Z') ) 
         
     def get_path(self,directory):
         title = ''
@@ -93,14 +106,16 @@ class Doujinshi:
     
     def PrintDoujinshiInfo(self,verbose=False):
         logger.info("Title: {0}".format(self.title))
-        logger.info("Language: {0}".format(self.tags['language']))
-        logger.info("Artist: {0}".format(self.tags['artist']) )
-        logger.info("Group: {0}".format(self.tags['group']) )
+        logger.info("Language: {0}".format(', '.join(self.tags['language']) ))
+        logger.info("Parody: {0}".format(', '.join(self.tags['parody']) ))
+        logger.info("Artist: {0}".format(', '.join(self.tags['artist']) ))
+        logger.info("Group: {0}".format(', '.join(self.tags['group']) ))
         logger.info("Total pages : {0}".format(self.pages))
         
         if verbose:
-            logger.info("Characters : {0}".format(self.tags['character']))
-            logger.info("Tags : {0}".format(self.tags['tag']))
+            logger.info("Characters : {0}".format(', '.join(self.tags['character']) ))
+            logger.info("Tags : {0}".format(', '.join(self.tags['tag']) ))
+            logger.info("Upload date: {0}".format(self.GetFormattedDate()) )
         
     
     def toJSON(self):
