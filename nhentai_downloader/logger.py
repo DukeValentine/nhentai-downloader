@@ -12,20 +12,28 @@ LEVELS = {
     'critical': logging.CRITICAL,
 }
 
-
 logger = logging.getLogger('NHENTAI')
-logging.basicConfig(level=0,format = "[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
 
-if not os.path.exists( os.path.join(os.getcwd(),"log") ):
-    os.makedirs(os.path.join(os.getcwd(),"log"))
+def logger_config():
+    logging.basicConfig(level=0,format = "[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
 
-file_handle = logging.handlers.RotatingFileHandler("./log/nhentai.log",maxBytes = 10*1024*1024,backupCount = 10)
+    log_dir = os.path.join(os.getcwd(),"log")
+
+    if not os.path.exists( os.path.join(os.getcwd(),"log") ):
+        os.makedirs(log_dir)
+        
+
+    log_path = os.path.join(log_dir,"nhentai.log")
+    file_handle = logging.handlers.RotatingFileHandler(log_path,maxBytes = 10*1024*1024,backupCount = 10)
 
 
 
-format = logging.Formatter("[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
-file_handle.setFormatter(format)
-logger.addHandler(file_handle)
+    format = logging.Formatter("[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
+    file_handle.setFormatter(format)
+    logger.addHandler(file_handle)
+
+
+    
 
 
 if __name__ == '__main__':

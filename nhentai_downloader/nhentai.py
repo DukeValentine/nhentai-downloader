@@ -7,6 +7,7 @@ import time
 import errno
 from nhentai_downloader import cli
 from nhentai_downloader.logger import logger
+from nhentai_downloader.logger import logger_config
 from nhentai_downloader import fetcher
 from nhentai_downloader import auth
 from nhentai_downloader import constant
@@ -19,35 +20,34 @@ import json
 def main():
 
     options = cli.option_parser()
-    
-    id_regex = re.compile(r'[\d]+')
+    logger_config()
 
 
     login = options.login
     password = options.password
-    #id_filename = options.id_filename
     tag = options.tags
     directory = options.dir
     
-    #id_file = open(id_filename, "w")
-    doujinshi_queue = queue.Queue()
+    
     
 
     page_num = options.initial_page
     page_max = options.last_page
     
-    
+    logger_config()
     input_id_list = []
     
-    
+    logging.getLogger("NHENTAI").setLevel(logging.INFO)
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
                 
-    if not options.debug:
-        logging.getLogger("requests").setLevel(logging.WARNING)
-        logging.getLogger("urllib3").setLevel(logging.WARNING)
+    if options.debug:
+        logging.getLogger("requests").setLevel(logging.DEBUG)
+        logging.getLogger("urllib3").setLevel(logging.DEBUG)
         logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
         
-    if not options.verbose:
-        logging.getLogger("NHENTAI").setLevel(logging.INFO)
+    elif options.verbose:
+        logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
     
     
     if not options.download:
@@ -86,7 +86,6 @@ def main():
 
 if __name__ == '__main__':
     try:
-        logger.info("Your system is {0}".format(system()))
         if system() is "Windows":
             multiprocessing.freeze_support()
         main()

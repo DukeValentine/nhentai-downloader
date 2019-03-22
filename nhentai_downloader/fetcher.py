@@ -68,7 +68,7 @@ def get_doujinshi_data (doujinshi_id):
                 
             doujinshi_info_json = info_regex.search(doujinshi_info_text).group().strip('(').strip(')')
             
-            doujinshi.fill_info(json.loads(doujinshi_info_json))
+            doujinshi.FillInfo(json.loads(doujinshi_info_json))
                     
             return doujinshi
             
@@ -298,8 +298,7 @@ def fetch_id(options,id,session=None):
         if id_doujinshi:
             doujinshi_list.append(id_doujinshi)
             
-            logger.debug("Title:{0}".format(id_doujinshi.title))
-            logger.debug("Pages:{0}".format(id_doujinshi.pages))
+            id_doujinshi.PrintDoujinshiInfo(verbose=True)
         
             if download:
                 logger.info("Downloading doujinshi id[{0}]".format(id))

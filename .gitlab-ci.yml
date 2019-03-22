@@ -66,7 +66,7 @@ test4:
   script:
    - ls
    - nhentai-downloader --verbose --debug --id 253293
-   - nhentai-downloader --verbose -t sword english --max-page 3 --download --search
+   - nhentai-downloader --verbose -t sword english --max-page 2 --download --search
    - ls -la nhentai
    - du -sh nhentai
    
@@ -74,14 +74,21 @@ pypi:
   stage: deploy
   only:
   - master
+  only:
   - tags
   only:
-  - /^v[0-9]+.[0-9]+.[0-9]+[a-z]?/
+  - /^v[0-9]+.[0-9]+.[0-9]+[0-9]?/
 
    
   before_script:
   - pip install twine
   - python setup.py sdist
+  - wine pyinstaller ./nhentai_downloader/nhentai.py -F -p ./nhentai_downloader --hidden-import=requests,bs4 --clean --add-data ".commit_date;data" --name nhentai-downloader
+  - ls ./dist
+  - export BINARY_MARKDOWN=$(curl --request POST --header "PRIVATE-TOKEN:$PRIVATE_TOKEN" --form "file=@./dist/$BINARY_NAME" $CI_API_V4_URL/projects/$CI_PROJECT_ID/uploads | jq -r '.markdown')
+  - echo "$BINARY_MARKDOWN"
    
   script:
   - twine upload dist/*.tar.gz --skip-existing
+  - chmod +x release.sh
+  - ./release.sh
