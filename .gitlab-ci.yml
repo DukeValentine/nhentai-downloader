@@ -1,8 +1,12 @@
 image: registry.gitlab.com/dukevalentine/nhentai-downloader:latest
 
+variables:
+    BINARY_BASENAME: "nhentai-downloader"
+    BINARY_NAME: "nhentai-downloader.exe"
+
+
 before_script:
     - ls
-
     
 install:
   stage: build
@@ -77,18 +81,17 @@ pypi:
   only:
   - tags
   only:
-  - /^v[0-9]+.[0-9]+.[0-9]+[0-9]?/
+  - /^v[0-9](\.[0-9]){2,3}(-dev)?$
 
    
   before_script:
-  - pip install twine
   - python setup.py sdist
-  - wine pyinstaller ./nhentai_downloader/nhentai.py -F -p ./nhentai_downloader --hidden-import=requests,bs4 --clean --add-data ".commit_date;data" --name nhentai-downloader
+  - wine pyinstaller ./nhentai_downloader/nhentai.py -F -p ./nhentai_downloader --hidden-import=requests,bs4 --clean --add-data ".commit_date;data" --name $BINARY_BASENAME
   - ls ./dist
   - export BINARY_MARKDOWN=$(curl --request POST --header "PRIVATE-TOKEN:$PRIVATE_TOKEN" --form "file=@./dist/$BINARY_NAME" $CI_API_V4_URL/projects/$CI_PROJECT_ID/uploads | jq -r '.markdown')
   - echo "$BINARY_MARKDOWN"
    
   script:
   - twine upload dist/*.tar.gz --skip-existing
-  - chmod +x release.sh
-  - ./release.sh
+  - chmod +x ./automation_scripts/release.sh
+  - ./automation_scripts/release.sh
