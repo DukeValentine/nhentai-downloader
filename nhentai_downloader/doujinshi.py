@@ -47,7 +47,7 @@ class Doujinshi:
         
         if len(self.tags):
             for tag in self.tags:
-                del tag.clear()
+                tag.clear()
         
         for page in json_data['images']['pages']:
             
