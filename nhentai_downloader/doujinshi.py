@@ -20,7 +20,7 @@ class Doujinshi:
         self.artist = ''
         self.group = ''
         self.language = ''
-        self.tags = {'artist' : [],'group' : [],'character' : [],'language' : [],'tag' : []}
+        self.tags = {'artist' : [],'group' : [],'character' : [],'language' : [],'tag' : [],'parody' : [],'category': []}
         self.pages = 0
         self.page_ext = []
         self.num_favorites = 0
