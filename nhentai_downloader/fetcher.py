@@ -10,6 +10,8 @@ import re
 import json
 import logging
 from time import sleep
+from concurrent.futures.thread import ThreadPoolExecutor
+from concurrent.futures import as_completed as completed_threads
 
 
 from .doujinshi import Doujinshi
@@ -93,12 +95,12 @@ def download_worker (path,overwrite,url):
     
     
     if overwrite or not os.path.isfile(fullpath):
-        logger.info("Downloading {0}".format(filename))
+        logger.debug("Downloading {0}".format(filename))
         with open(fullpath, 'wb') as f:
             shutil.copyfileobj(req.raw, f)
             
     else:
-        logger.info("File {0} exists, overwriting disabled".format(filename))
+        logger.debug("File {0} exists, overwriting disabled".format(filename))
     
     
 
@@ -142,12 +144,15 @@ def image_pool_manager(threads,path,url_list,overwrite=True):
     Receives how many download threads there will be, along with the destination path and the url_list with all the images to download
     """
     
-    #Since the path and overwrite arguments are common to all workers, they must be applied to all with a partial function because the map function only accepts one argument to apply to the target function
-    image_pool = multiprocessing.Pool(threads)
-    func = partial(download_worker,path,overwrite) 
-    image_pool.map(func,url_list)
-    image_pool.close()
-    image_pool.join()
+    downloaded_count = 0
+    total_images = len(url_list)
+    
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        results = {executor.submit(download_worker,path,overwrite,url) : url for url in url_list}
+        for item in completed_threads(results):
+            print()
+            downloaded_count +=1
+            logger.info("Downloaded {0} of {1}".format(downloaded_count,total_images))
     
     
 def fetch_favorites(session,options):

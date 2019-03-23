@@ -36,6 +36,7 @@ def option_parser():
     file_args.add_argument ('-o','--output', action="store", dest = "output_filename", default = "", help='Output filename, ids.txt by default')
     file_args.add_argument ('-i','--input', action='store', dest = "input_filename", default = "", help = 'Extract doujinshi from input file')
     file_args.add_argument('--json',action = 'store_true', default = False, help = 'Switch between id list and json outputs')
+    file_args.add_argument('--cbz',dest = "archive_format",type=str,default = None,help = "Create cbz archive for the downloaded doujinshi")
 
 
     auth.add_argument ('-l','--login', action="store", dest = "login", default = '')
@@ -54,8 +55,12 @@ def option_parser():
 
     download.add_argument('--download',action = "store_true", default = False, help = "Download found doujinshi")
     download.add_argument('--torrent',action = "store_true", default = False, help = "Download torrent file")
+    download.add_argument('--overwrite',dest = "overwrite", action = "store_true",default = True)
     download.add_argument('--overwrite-disable',dest = "overwrite", action = "store_false",default = True, help ="Overwrite already downloaded images")
     download.add_argument("--threads",action = "store", type=int, default = 7, help = "How many download threads the program will use")
+    download.add_argument('--delay',type=float,default=0.4,help = "Delay between download attempts")
+    download.add_argument('--retry',type=int,default=5,help = "How many the program will retry each download")
+    
     
     
     return (parser.parse_args())

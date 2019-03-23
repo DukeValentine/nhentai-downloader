@@ -5,6 +5,19 @@ from .doujinshi import Tag_count
 import json
 import errno
 import re
+from zipfile import ZipFile
+
+def create_cbz(path,directory):
+    filename = directory + ".cbz"
+    fullpath = os.path.join(path,filename)
+    
+    with  ZipFile.open(filename,"w") as cbz_doujinshi:
+        print("a")
+        for image in os.listdir(fullpath):
+            cbz_doujinshi.write(image)
+        
+
+
 
 
 def read_input_file(directory,filename):
