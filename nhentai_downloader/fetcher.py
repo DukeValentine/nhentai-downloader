@@ -285,6 +285,7 @@ def fetch_id(options,id,session=None):
     delay = options.delay
     retry = options.retry
     cbz = options.cbz
+    remove_after = options.remove_after
     
     doujinshi_list = []
     id_list = []
@@ -327,7 +328,7 @@ def fetch_id(options,id,session=None):
                     
                 image_pool_manager(threads,doujinshi_path,url_list,overwrite)
                 if cbz:
-                    io_utils.create_cbz(directory,id_doujinshi.GetFormattedTitle())
+                    io_utils.create_cbz(directory,id_doujinshi.GetFormattedTitle(),remove_after)
             
             
     if torrent:

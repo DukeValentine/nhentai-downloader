@@ -37,6 +37,7 @@ def option_parser():
     file_args.add_argument ('-i','--input', action='store', dest = "input_filename", default = "", help = 'Extract doujinshi from input file')
     file_args.add_argument('--json',action = 'store_true', default = False, help = 'Switch between id list and json outputs')
     file_args.add_argument('--cbz',dest = "cbz",action ='store_true',default = None,help = "Create cbz archive for the downloaded doujinshi")
+    file_args.add_argument('--remove-after',default=False, help = "Remove doujinshi directory after creating cbz")
 
 
     auth.add_argument ('-l','--login', action="store", dest = "login", default = '')

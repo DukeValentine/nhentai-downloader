@@ -28,7 +28,7 @@ test0:
     - python setup.py develop
   script:
     - ls
-    - nhentai-downloader --search --verbose -t sword english --json --output test0.json
+    - nhentai-downloader --search --verbose -t sword english --json --output test0.json --max-page 1 --download --cbz --remove-after
     - ls nhentai
     
 test1:
@@ -55,7 +55,7 @@ test3:
     - python setup.py develop
   script:
    - ls
-   - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --download --json --output test3.json --torrent
+   - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --download --json --output test3.json --torrent --cbz
    - ls -la nhentai
    - du -sh nhentai
    
@@ -66,7 +66,7 @@ test4:
   script:
    - ls
    - nhentai-downloader --verbose --debug --id 253293
-   - nhentai-downloader --verbose -t sword english --max-page 2 --download --search
+   - nhentai-downloader --verbose -t sword english --max-page 1 --download --search
    - ls -la nhentai
    - du -sh nhentai
    

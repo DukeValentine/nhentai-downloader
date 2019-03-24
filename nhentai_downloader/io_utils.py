@@ -5,18 +5,30 @@ from .doujinshi import Tag_count
 import json
 import errno
 import re
+import shutil
 from zipfile import ZipFile
 
-def create_cbz(path,directory):
+def create_cbz(path,directory,remove_after=False):
     filename = directory + ".cbz"
     filepath = os.path.join(path,filename)
     image_path = os.path.join(path,directory)
     
-    with  ZipFile(filepath,"w") as cbz_doujinshi:
-        logger.info("Writing:{0}".format(filepath))
-        for image in os.listdir(image_path):
-            cbz_doujinshi.write(os.path.join(image_path,image))
+    try:
+        with  ZipFile(filepath,"w") as cbz_doujinshi:
+            logger.info("Writing:{0}".format(filepath))
+            for image in os.listdir(image_path):
+                cbz_doujinshi.write(os.path.join(image_path,image))
+    
+    except OSError as error:
+        logger.error("Couldn't write file, system responded with {0}".format(repr(error)) )
         
+    else:
+        if remove_after:
+            try:
+                shutil.rmtree(image_path)
+            
+            except OSError as error:
+                logger.error("Couldn't remove directory, system responded with {0}".format(repr(error)) )
 
 
 
