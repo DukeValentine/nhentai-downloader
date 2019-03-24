@@ -100,6 +100,9 @@ def write_doujinshi_json(directory,filename,data):
     tags = Tag_count()
     
     for doujinshi in data:
+        if doujinshi is None:
+            continue
+        
         for tag in doujinshi.tags:
             tags.Insert(tag)
             

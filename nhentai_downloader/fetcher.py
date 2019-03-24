@@ -48,6 +48,7 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
         
             if response.status_code is not constant.ok_code:
                 logger.error("Error fetching doujinshi id[{0}]. Nhentai responded with {1} [Attempt {2} of {3}]" .format(doujinshi_id,response.status_code,attempt,retry+1))
+                sleep(delay)
             else:
                 break
             
@@ -308,7 +309,8 @@ def fetch_id(options,id,session=None):
         results = {executor.submit(get_doujinshi_data, id,delay,retry): id for id in id_list}
         
         for future in completed_threads(results):
-            doujinshi_list.append(future.result())
+            if future.result() is not None:
+                doujinshi_list.append(future.result())
     
     
     for id_doujinshi in doujinshi_list:
