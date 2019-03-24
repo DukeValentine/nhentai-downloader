@@ -82,8 +82,13 @@ class Doujinshi:
         
         
         return os.path.join(directory, title)
-        
-        #return ("{0}{1}".format(directory,self.title.replace("/"," ")))
+    
+    def GetFormattedTitle(self):
+        if system() is "Windows":
+            return( self.GetWindowsFormattedName(self.title))
+            
+        else:
+            return(self.title.replace("/"," "))
         
     def GetWindowsFormattedName(self,name):
         formatted_title = name

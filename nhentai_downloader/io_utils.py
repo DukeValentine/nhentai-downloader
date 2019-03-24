@@ -9,12 +9,13 @@ from zipfile import ZipFile
 
 def create_cbz(path,directory):
     filename = directory + ".cbz"
-    fullpath = os.path.join(path,filename)
+    filepath = os.path.join(path,filename)
+    image_path = os.path.join(path,directory)
     
-    with  ZipFile.open(filename,"w") as cbz_doujinshi:
-        print("a")
-        for image in os.listdir(fullpath):
-            cbz_doujinshi.write(image)
+    with  ZipFile(filepath,"w") as cbz_doujinshi:
+        logger.info("Writing:{0}".format(filepath))
+        for image in os.listdir(image_path):
+            cbz_doujinshi.write(os.path.join(image_path,image))
         
 
 
