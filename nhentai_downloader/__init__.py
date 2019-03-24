@@ -1,4 +1,7 @@
 __version__ = '0.5.1.0'
+__author__ = 'DukeValentine' 
+__email__ = 'humanix@posteo.de'
+
 
 from .auth import login
 from .logger import logger_config
