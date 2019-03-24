@@ -1,6 +1,5 @@
 __version__ = '0.5.1.0'
 
-
 from .auth import login
 from .logger import logger_config
 from .cli import option_parser
