@@ -1,4 +1,4 @@
-__version__ = '0.5.13-dev'
+__version__ = '0.5.1.2-dev'
 __author__ = 'DukeValentine'
 __email__ = 'humanix@posteo.de'
 
