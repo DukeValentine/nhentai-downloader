@@ -302,33 +302,31 @@ def fetch_id(options,id,session=None):
         logger.critical("Fetch id: No ids were given")
         return doujinshi_list
     
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        results = {executor.submit(get_doujinshi_data, id): id for id in id_list}
+        
+        for future in completed_threads(results):
+            doujinshi_list.append(future.result())
     
-    for id_ in id_list:
-        logger.info("Fetching doujinshi id[{0}]".format(id_))
-        
-        
-        id_doujinshi = get_doujinshi_data(id_)
-        
-        if id_doujinshi:
-            doujinshi_list.append(id_doujinshi)
+    
+    for id_doujinshi in doujinshi_list:
+        id_doujinshi.PrintDoujinshiInfo(verbose=True)
+    
+        if download:
+            logger.info("Downloading doujinshi id[{0}]".format(id))
             
-            id_doujinshi.PrintDoujinshiInfo(verbose=True)
-        
-            if download:
-                logger.info("Downloading doujinshi id[{0}]".format(id))
+            url_list = id_doujinshi.generate_url_list()
+            doujinshi_path = id_doujinshi.get_path(directory)
+            logger.debug("Doujinshi path : {0}".format(doujinshi_path))
+            
+            io_utils.create_path(doujinshi_path)
+            
+            logger.debug("Starting image pool")
+            logger.debug(url_list)
                 
-                url_list = id_doujinshi.generate_url_list()
-                doujinshi_path = id_doujinshi.get_path(directory)
-                logger.debug("Doujinshi path : {0}".format(doujinshi_path))
-                
-                io_utils.create_path(doujinshi_path)
-                
-                logger.debug("Starting image pool")
-                logger.debug(url_list)
-                    
-                image_pool_manager(threads,doujinshi_path,url_list,overwrite)
-                if cbz:
-                    io_utils.create_cbz(directory,id_doujinshi.GetFormattedTitle(),remove_after)
+            image_pool_manager(threads,doujinshi_path,url_list,overwrite)
+            if cbz:
+                io_utils.create_cbz(directory,id_doujinshi.GetFormattedTitle(),remove_after)
             
             
     if torrent:
