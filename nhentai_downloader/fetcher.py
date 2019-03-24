@@ -10,6 +10,8 @@ import re
 import json
 import logging
 from time import sleep
+from concurrent.futures.thread import ThreadPoolExecutor
+from concurrent.futures import as_completed as completed_threads
 
 
 from .doujinshi import Doujinshi
@@ -73,7 +75,7 @@ def get_doujinshi_data (doujinshi_id):
             return doujinshi
             
 
-def download_worker (path,overwrite,url):
+def download_worker (path,overwrite,delay,retry,url):
     """
     Download file in given url in given path. Url must have the filename with extension (eg: https://i.nhentai.net/galleries/1343630/1.jpg)
     If Overwrite argument is false,the worker will check whether the file exists and skip if so
@@ -89,27 +91,33 @@ def download_worker (path,overwrite,url):
     logger.debug("URL: {0}".format(url))
     logger.debug("Fullpath: {0}".format(fullpath))
     
-    req = requests.get(url, stream=True)
-    
-    
-    if overwrite or not os.path.isfile(fullpath):
-        logger.info("Downloading {0}".format(filename))
-        with open(fullpath, 'wb') as f:
-            shutil.copyfileobj(req.raw, f)
-            
-    else:
-        logger.info("File {0} exists, overwriting disabled".format(filename))
+    for attempt in range(1,retry+1):
+        req = requests.get(url, stream=True)
+        
+        if req.status_code == constant.ok_code:
+            break
+        else:
+            sleep(delay)
+        
+    if req.status_code == constant.ok_code:
+        if overwrite or not os.path.isfile(fullpath):
+            logger.debug("Downloading {0}".format(filename))
+            with open(fullpath, 'wb') as f:
+                shutil.copyfileobj(req.raw, f)
+                
+        else:
+            logger.debug("File {0} exists, overwriting disabled".format(filename))
     
     
 
-def torrent_download_worker(path,session,id):
+def torrent_download_worker(path,session,delay,retry,id):
     url = "{0}{1}/download".format(constant.urls['GALLERY_URL'],id)
     fullpath = os.path.join(path, "{0}.torrent".format(id))
     
     logger.info("Downloading {0}.torrent".format(id))
     logger.debug(url)
     
-    for attempt in range(1,6):
+    for attempt in range(1,retry+1):
         logger.info("Attempt {0} for {1}.torrent".format(attempt,id))
         req = session.get(url, stream=True)
         logger.debug("Nhentai responded with {0} for {1}.torrent".format(req.status_code,id))
@@ -117,7 +125,7 @@ def torrent_download_worker(path,session,id):
         if req.status_code == constant.ok_code:
             break
         else:
-            sleep(0.2)
+            sleep(delay)
         
     if req.status_code == constant.ok_code:
         with open(fullpath,"wb") as torrent_file:
@@ -136,18 +144,20 @@ def torrent_pool_manager(threads,path,id_list,session):
     
 
 
-def image_pool_manager(threads,path,url_list,overwrite=True):
+def image_pool_manager(threads,path,url_list,delay=0.4,retry=5,overwrite=True):
     """
     Create and manage a pool for downloading images
     Receives how many download threads there will be, along with the destination path and the url_list with all the images to download
     """
     
-    #Since the path and overwrite arguments are common to all workers, they must be applied to all with a partial function because the map function only accepts one argument to apply to the target function
-    image_pool = multiprocessing.Pool(threads)
-    func = partial(download_worker,path,overwrite) 
-    image_pool.map(func,url_list)
-    image_pool.close()
-    image_pool.join()
+    downloaded_count = 0
+    total_images = len(url_list)
+    
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        results = {executor.submit(download_worker,path,overwrite,delay,retry,url) : url for url in url_list}
+        for item in completed_threads(results):
+            downloaded_count +=1
+            logger.info("Downloaded {0} of {1}".format(downloaded_count,total_images))
     
     
 def fetch_favorites(session,options):
@@ -272,6 +282,10 @@ def fetch_id(options,id,session=None):
     debug = options.verbose
     overwrite = options.overwrite
     torrent = options.torrent
+    delay = options.delay
+    retry = options.retry
+    cbz = options.cbz
+    remove_after = options.remove_after
     
     doujinshi_list = []
     id_list = []
@@ -305,16 +319,16 @@ def fetch_id(options,id,session=None):
                 
                 url_list = id_doujinshi.generate_url_list()
                 doujinshi_path = id_doujinshi.get_path(directory)
-                
                 logger.debug("Doujinshi path : {0}".format(doujinshi_path))
                 
                 io_utils.create_path(doujinshi_path)
                 
                 logger.debug("Starting image pool")
-                
                 logger.debug(url_list)
                     
                 image_pool_manager(threads,doujinshi_path,url_list,overwrite)
+                if cbz:
+                    io_utils.create_cbz(directory,id_doujinshi.GetFormattedTitle(),remove_after)
             
             
     if torrent:

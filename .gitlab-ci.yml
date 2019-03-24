@@ -10,6 +10,10 @@ before_script:
     
 install:
   stage: build
+  only:
+  - master
+  only:
+  - tags
   script:
       - ls
       - python setup.py develop
@@ -19,6 +23,10 @@ install:
 
 test:
   stage: test
+  only:
+  - master
+  only:
+  - tags
   before_script:
     - python setup.py develop
   script:
@@ -28,15 +36,23 @@ test:
     
 test0:
   stage: test
+  only:
+  - master
+  only:
+  - tags
   before_script:
     - python setup.py develop
   script:
     - ls
-    - nhentai-downloader --search --verbose -t sword english --json --output test0.json
+    - nhentai-downloader --search --verbose -t sword english --json --output test0.json --max-page 1 --download --cbz --remove-after
     - ls nhentai
     
 test1:
   stage: test
+  only:
+  - master
+  only:
+  - tags
   before_script:
     - python setup.py develop
   script:
@@ -46,6 +62,10 @@ test1:
     
 test2:
   stage: test
+  only:
+  - master
+  only:
+  - tags
   before_script:
     - python setup.py develop
   script:
@@ -55,22 +75,30 @@ test2:
     
 test3:
   stage: test
+  only:
+  - master
+  only:
+  - tags
   before_script:
     - python setup.py develop
   script:
    - ls
-   - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --download --json --output test3.json --torrent
+   - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --download --json --output test3.json --torrent --cbz
    - ls -la nhentai
    - du -sh nhentai
    
 test4:
   stage: test
+  only:
+  - master
+  only:
+  - tags
   before_script:
    - python setup.py develop
   script:
    - ls
    - nhentai-downloader --verbose --debug --id 253293
-   - nhentai-downloader --verbose -t sword english --max-page 2 --download --search
+   - nhentai-downloader --verbose -t sword english --max-page 1 --download --search
    - ls -la nhentai
    - du -sh nhentai
    

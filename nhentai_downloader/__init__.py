@@ -1,6 +1,4 @@
-__version__ = '0.5.0'
-__author__ = 'DukeValentine'
-__email__ = 'humanix@posteo.de'
+__version__ = '0.5.1.0'
 
 
 from .auth import login
