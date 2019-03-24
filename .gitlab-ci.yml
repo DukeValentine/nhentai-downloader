@@ -118,10 +118,6 @@ pypi:
   - python setup.py sdist
   - wine pyinstaller ./nhentai_downloader/nhentai.py -F -p ./nhentai_downloader --hidden-import=requests,bs4 --clean --add-data ".commit_date;data" --name $BINARY_BASENAME
   - ls ./dist
-  - export BINARY_MARKDOWN=$(curl --request POST --header "PRIVATE-TOKEN:$PRIVATE_TOKEN" --form "file=@./dist/$BINARY_NAME" $CI_API_V4_URL/projects/$CI_PROJECT_ID/uploads | jq -r '.markdown')
-  - echo $BINARY_MARKDOWN
-  - echo $BINARY_MARKDOWN > out
-  - cat out
    
   script:
   - twine upload dist/*.tar.gz --skip-existing
