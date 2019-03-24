@@ -21,7 +21,7 @@ from . import io_utils
 from . import auth
 
 
-def get_doujinshi_data (doujinshi_id):
+def get_doujinshi_data (doujinshi_id,delay,retry):
     """
     Creates Doujinshi object for the given id and populates its fields from the API url_list(which is in JSON format)
     ID must be a string
@@ -42,15 +42,17 @@ def get_doujinshi_data (doujinshi_id):
         info_regex = re.compile(r'\(\{.*\}\)')
 
         
-        try:
+        for attempt in range(1,retry+1):
             response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id),allow_redirects=False)
             logger.debug(response.status_code)
         
-            if response.status_code is not requests.codes.ok:
-                raise Exception("Couldn't get doujinshi id [%s]" % doujinshi_id)
+            if response.status_code is not constant.ok_code:
+                logger.error("Error fetching doujinshi id[{0}]. Nhentai responded with {1} [Attempt {2} of {3}]" .format(doujinshi_id,response.status_code,attempt,retry+1))
+            else:
+                break
             
-        except Exception as error:
-            logger.error("Doujinshi id[{0}] not found. Nhentai responded with {1}" .format(doujinshi_id,response.status_code))
+        if response.status_code is not constant.ok_code:
+            logger.error("Doujinshi id[{0}] not found after {1} attempts" .format(doujinshi_id,retry+1))
             return None
             
         else:
@@ -303,13 +305,16 @@ def fetch_id(options,id,session=None):
         return doujinshi_list
     
     with ThreadPoolExecutor(max_workers=threads) as executor:
-        results = {executor.submit(get_doujinshi_data, id): id for id in id_list}
+        results = {executor.submit(get_doujinshi_data, id,delay,retry): id for id in id_list}
         
         for future in completed_threads(results):
             doujinshi_list.append(future.result())
     
     
     for id_doujinshi in doujinshi_list:
+        if id_doujinshi is None:
+            continue
+        
         id_doujinshi.PrintDoujinshiInfo(verbose=True)
     
         if download:
