@@ -43,12 +43,13 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
 
         
         for attempt in range(1,retry+1):
+            sleep(delay)
             response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id),allow_redirects=True)
             
         
             if response.status_code is not constant.ok_code:
                 logger.error("Error fetching doujinshi id[{0}]. Nhentai responded with {1} [Attempt {2} of {3}]" .format(doujinshi_id,response.status_code,attempt,retry+1))
-                sleep(delay)
+                
                 
             elif response.history:
                 logger.debug("Redirect")
@@ -102,6 +103,7 @@ def download_worker (path,overwrite,delay,retry,url):
     logger.debug("Fullpath: {0}".format(fullpath))
     
     for attempt in range(1,retry+1):
+        sleep(delay)
         req = requests.get(url, stream=True)
         
         if req.status_code == constant.ok_code:
@@ -128,6 +130,7 @@ def torrent_download_worker(path,session,delay,retry,id):
     logger.debug(url)
     
     for attempt in range(1,retry+1):
+        sleep(delay)
         logger.info("Attempt {0} for {1}.torrent".format(attempt,id))
         req = session.get(url, stream=True)
         logger.debug("Nhentai responded with {0} for {1}.torrent".format(req.status_code,id))
@@ -223,7 +226,7 @@ def fetch_favorites(session,options):
     return doujinshi_list
 
 #tags,directory,threads = multiprocessing.cpu_count(),page = 1,max_page = 0 ,download=False,debug=False,overwrite=True
-def search_doujinshi(options):
+def search_doujinshi(options,session=None):
     """
     Using the given tags, search nhentai for doujinshi until max_page is reached.
     If the download argument is true, it will download found doujinshi in the given directory.
@@ -239,6 +242,7 @@ def search_doujinshi(options):
     download = options.download
     overwrite = options.overwrite
     torrent = options.torrent
+    delay = options.delay
     
     
     
@@ -254,6 +258,7 @@ def search_doujinshi(options):
     logger.info("Search tags: {0}".format(tags))
     
     doujinshi_list = []
+    id_list = []
     
     while (page <= max_page or not max_page):
         logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
@@ -267,13 +272,14 @@ def search_doujinshi(options):
         if (not len(search_elem)): #if there's no more search elements, it must mean the program passed the last page of the search
             break
         
+        
+        delay(sleep)
         for id in search_elem:
-            id = href_regex.search(id.get('href')).group()
+            id_list.append(href_regex.search(id.get('href')).group())
             
-            sleep(0.3) 
             
-            doujinshi_list = doujinshi_list + fetch_id(options,id)
-            logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
+        doujinshi_list = doujinshi_list + fetch_id(options,id_list)
+        logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
             
         page = page + 1
         

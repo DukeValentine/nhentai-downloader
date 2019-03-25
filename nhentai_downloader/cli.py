@@ -58,7 +58,7 @@ def option_parser():
     download.add_argument('--torrent',action = "store_true", default = False, help = "Download torrent file")
     download.add_argument('--overwrite',dest = "overwrite", action = "store_false",default = False, help ="Overwrite already downloaded images")
     download.add_argument("--threads",action = "store", type=int, default = 7, help = "How many download threads the program will use")
-    download.add_argument('--delay',type=float,default=0.5,help = "Delay between download attempts")
+    download.add_argument('--delay',type=float,default=1,help = "Delay between download attempts")
     download.add_argument('--retry',type=int,default=5,help = "How many the program will retry each download")
     
     
