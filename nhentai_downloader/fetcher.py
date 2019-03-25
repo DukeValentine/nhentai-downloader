@@ -135,7 +135,10 @@ def torrent_download_worker(path,session,delay,retry,id):
         req = session.get(url, stream=True)
         logger.debug("Nhentai responded with {0} for {1}.torrent".format(req.status_code,id))
         
-        if req.status_code == constant.ok_code:
+        if session.history:
+            session.post(session.url)
+        
+        elif req.status_code == constant.ok_code:
             break
         else:
             sleep(delay)
