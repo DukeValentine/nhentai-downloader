@@ -43,12 +43,15 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
 
         
         for attempt in range(1,retry+1):
-            response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id),allow_redirects=False)
+            response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id),allow_redirects=True)
             
         
             if response.status_code is not constant.ok_code:
                 logger.error("Error fetching doujinshi id[{0}]. Nhentai responded with {1} [Attempt {2} of {3}]" .format(doujinshi_id,response.status_code,attempt,retry+1))
                 sleep(delay)
+                
+            elif response.history:
+                logger.debug(response.content)
             else:
                 break
             
@@ -66,12 +69,10 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
             page_html = bs4.BeautifulSoup(page_content, 'html.parser')
             doujinshi_info_text = ""
             
-            logger.debug(len(page_html.find_all("script")))
-            
             for item in page_html.find_all("script"):
                 
                 if "gallery" in item.get_text():
-                    logger.debug(item)
+                    #logger.debug(item)
                     doujinshi_info_text = item.get_text()
                 
             doujinshi_info_json = info_regex.search(doujinshi_info_text).group().strip('(').strip(')')
@@ -141,13 +142,16 @@ def torrent_download_worker(path,session,delay,retry,id):
     else:
         logger.error("Failed to download torrent file")
         
-def torrent_pool_manager(threads,path,id_list,session):
-    torrent_pool =  multiprocessing.Pool(threads)
-    func = partial(torrent_download_worker,path,session)
-    torrent_pool.map(func,id_list)
-    torrent_pool.close()
-    torrent_pool.join()
+def torrent_pool_manager(threads,path,delay,retry,id_list,session):
+    downloaded_count = 0
+    total_torrents = len(id_list)
     
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        results = {executor.submit(torrent_download_worker,path,session,delay,retry,id) : id for id in id_list}
+        
+        for item in completed_threads(results):
+            downloaded_count +=1
+            logger.info("Downloaded {0} of {1}".format(downloaded_count,total_torrents))
 
 
 def image_pool_manager(threads,path,url_list,delay=0.4,retry=5,overwrite=True):
@@ -201,7 +205,7 @@ def fetch_favorites(session,options):
         if (not len(fav_elem)): #if there's no more favorite elements, it must mean the program passed the last page of favorites
             break
 
-        logger.info("{0} doujinshi founnd".format(len(fav_elem)) )
+        logger.info("{0} doujinshi found".format(len(fav_elem)) )
         
         id_list = []
         
@@ -353,7 +357,7 @@ def fetch_id(options,id,session=None):
         
         io_utils.create_path(options.dir)
         logger.debug("Starting torrent pool")
-        torrent_pool_manager(4,options.dir,id_list,session)
+        torrent_pool_manager(threads,directory,delay,retry,id_list,session)
         logger.debug("End torrent pool")
             
         
