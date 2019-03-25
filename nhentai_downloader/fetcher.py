@@ -44,7 +44,7 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
         
         for attempt in range(1,retry+1):
             response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id),allow_redirects=False)
-            logger.debug(response.status_code)
+            
         
             if response.status_code is not constant.ok_code:
                 logger.error("Error fetching doujinshi id[{0}]. Nhentai responded with {1} [Attempt {2} of {3}]" .format(doujinshi_id,response.status_code,attempt,retry+1))
@@ -54,6 +54,9 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
             
         if response.status_code is not constant.ok_code:
             logger.error("Doujinshi id[{0}] not found after {1} attempts" .format(doujinshi_id,retry+1))
+            logger.debug(response.text)
+            print()
+            logger.debug(requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id)) )
             return None
             
         else:
