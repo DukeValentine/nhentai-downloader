@@ -51,11 +51,14 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
                 sleep(delay)
                 
             elif response.history:
+                logger.debug("Redirect")
                 logger.debug(response.content)
+                logger.debug(requests.post(response.url) )
+                print()
             else:
                 break
             
-        if response.status_code is not constant.ok_code:
+        if (response.status_code is not constant.ok_code) or response.history:
             logger.error("Doujinshi id[{0}] not found after {1} attempts" .format(doujinshi_id,retry+1))
             logger.debug(response.text)
             print()
