@@ -77,6 +77,12 @@ class Doujinshi:
         if system() is "Windows":
             title = self.GetWindowsFormattedName(self.title)
             
+            leng_dir = len(directory)
+    
+            # MAX_PATH is 260 chars on windows (assuming program isn't run from an UNC path)	
+            if leng_dir + len(title) > 255:
+                title = title[:255 - leng_dir]
+            
         else:
             title = self.title.replace("/"," ")
         
@@ -85,6 +91,9 @@ class Doujinshi:
     
     def GetFormattedTitle(self):
         if system() is "Windows":
+            
+            
+            
             return( self.GetWindowsFormattedName(self.title))
             
         else:
@@ -94,7 +103,7 @@ class Doujinshi:
         formatted_title = name
         
         for character in constant.INVALID_CHARACTERS:
-            formatted_title.replace(character,'')
+            formatted_title = formatted_title.replace(character,'')
             
         return formatted_title
     

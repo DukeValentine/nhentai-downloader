@@ -1,3 +1,5 @@
+import sys
+from sys import exit
 import os
 from platform import system
 import re
