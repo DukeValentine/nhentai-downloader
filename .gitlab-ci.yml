@@ -93,6 +93,7 @@ test4:
   - master
   only:
   - tags
+
   before_script:
    - python setup.py develop
   script:
