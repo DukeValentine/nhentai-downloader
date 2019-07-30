@@ -11,6 +11,8 @@ with open("README.md", encoding='utf-8') as f:
 
 setup(
     name='nhentai-downloader',
+    install_requires=requirements,
+    data_files = [("", [".commit_date","requirements.txt"])],
     version = __version__,
     packages = find_packages(),
     author=__author__,
@@ -18,8 +20,7 @@ setup(
     keywords='nhentai, doujinshi',
     description="Nhentai doujinshi fetcher and downloader",
     include_package_data=True,
-     zip_safe=False,
-    install_requires=requirements,
+    zip_safe=False,
     license = 'Apache',
     url = 'https://gitlab.com/DukeValentine/nhentai-downloader',
     download_url = 'https://gitlab.com/DukeValentine/nhentai-downloader/-/archive/master/nhentai-downloader-master.tar.gz',
@@ -30,6 +31,8 @@ setup(
         'console_scripts': [
             'nhentai-downloader = nhentai_downloader.nhentai:main',
     ]},
+        
+    
         
     classifiers = [
         'Development Status :: 4 - Beta',
