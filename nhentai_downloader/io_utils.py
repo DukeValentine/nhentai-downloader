@@ -8,6 +8,29 @@ import re
 import shutil
 from zipfile import ZipFile
 
+
+def get_filename_from_url(url):
+    filename = url.split('/')[-1]
+    filename = filename.split('\\')[-1] #deal with the case of the filename coming back as MEDIA_ID\*.jpg
+    return filename
+
+def get_fullpath(path,filename):
+    return os.path.join(path,filename)
+
+def get_cbz_filename(path):
+    return path + ".cbz"
+
+def cbz_file_already_exists(path,url):
+    fullpath = os.path.join(path,get_filename_from_url(url)) + ".cbz"
+    
+    exists = os.path.isfile(fullpath)
+    
+    if(exists == True):
+        logger.debug(f"{path} already exists")
+    
+    return  exists
+
+
 def create_cbz(path,directory,remove_after=False):
     filename = directory + ".cbz"
     filepath = os.path.join(path,filename)

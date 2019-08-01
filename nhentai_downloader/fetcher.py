@@ -94,6 +94,9 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
             doujinshi.FillInfo(json.loads(doujinshi_info_json))
                     
             return doujinshi
+        
+        
+
             
 
 def download_worker (path,overwrite,delay,retry,url):
@@ -161,6 +164,11 @@ def torrent_download_worker(path,session,delay,retry,id):
     else:
         logger.error("Failed to download torrent file")
         
+        
+def remove_already_downloaded_cbz(path,url_list):
+    return [url for url in url_list if io_utils.cbz_file_already_exists(path,url) == False]
+    
+        
 def torrent_pool_manager(threads,path,delay,retry,id_list,session):
     downloaded_count = 0
     total_torrents = len(id_list)
@@ -173,11 +181,24 @@ def torrent_pool_manager(threads,path,delay,retry,id_list,session):
             logger.info("Downloaded {0} of {1}".format(downloaded_count,total_torrents))
 
 
-def image_pool_manager(threads,path,url_list,delay=0.4,retry=5,overwrite=True):
+def image_pool_manager(cbz,threads,path,url_list,delay=0.4,retry=5,overwrite=True):
     """
     Create and manage a pool for downloading images
     Receives how many download threads there will be, along with the destination path and the url_list with all the images to download
     """
+    
+    if(cbz == True and overwrite == False):
+        url_list = remove_already_downloaded_cbz(path,url_list)
+    
+    
+        
+    
+    logger.debug("Starting image pool")
+    logger.debug(url_list)
+    
+    
+    
+        
     
     downloaded_count = 0
     total_images = len(url_list)
@@ -393,7 +414,7 @@ def fetch_id(options,id,session=None):
         id_doujinshi.PrintDoujinshiInfo(verbose=True)
     
         if download:
-            logger.info("Downloading doujinshi id[{0}]".format(id))
+            logger.info("Downloading doujinshi id[{0}]".format(id_doujinshi))
             
             url_list = id_doujinshi.generate_url_list()
             doujinshi_path = id_doujinshi.get_path(directory)
@@ -401,10 +422,10 @@ def fetch_id(options,id,session=None):
             
             io_utils.create_path(doujinshi_path)
             
-            logger.debug("Starting image pool")
-            logger.debug(url_list)
+            
                 
-            image_pool_manager(threads,doujinshi_path,url_list,overwrite)
+            image_pool_manager(cbz,threads,doujinshi_path,url_list,overwrite)
+            
             if cbz:
                 io_utils.create_cbz(directory,id_doujinshi.GetFormattedTitle(),remove_after)
             
