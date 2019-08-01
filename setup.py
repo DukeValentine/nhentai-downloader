@@ -11,8 +11,10 @@ with open("README.md", encoding='utf-8') as f:
 
 setup(
     name='nhentai-downloader',
+    data_files = [("", [".commit_date","requirements.txt"])],
     version = __version__,
     packages = find_packages(),
+    install_requires=["requests","beautifulsoup4","threadpool"],
     author=__author__,
     author_email=__email__,
     keywords='nhentai, doujinshi',
