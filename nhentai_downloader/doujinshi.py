@@ -47,6 +47,7 @@ class Doujinshi:
         """
         self.title = json_data ['title']['english']
         self.title = self.title.replace("\\t","")
+        self.title = self.title.replace("&#039;","'")
         self.compact_title = json_data['title']['pretty']
         self.media_id = json_data['media_id']
         self.pages = json_data['num_pages']

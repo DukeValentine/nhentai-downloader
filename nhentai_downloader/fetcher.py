@@ -89,15 +89,18 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
             page_html = bs4.BeautifulSoup(page_content, 'html.parser')
             doujinshi_info_text = ""
             
+            
             for item in page_html.find_all("script"):
                 
                 if "gallery" in item.get_text():
                     #logger.debug(item)
                     doujinshi_info_text = item.get_text()
-                
+                    
+                    
             doujinshi_info_json = info_regex.search(doujinshi_info_text).group().strip('(').strip(')')
+
             
-            doujinshi.FillInfo(json.loads(doujinshi_info_json))
+            doujinshi.FillInfo(json.loads(doujinshi_info_json.encode("UTF-8")))
                     
             return doujinshi
         
