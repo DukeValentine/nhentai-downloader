@@ -189,7 +189,7 @@ def torrent_pool_manager(options,id_list,session):
         
         for item in completed_threads(results):
             downloaded_count +=1
-            logger.info("Downloaded {0} of {1}".format(downloaded_count,total_torrents))
+            logger.debug("Downloaded {0} of {1}".format(downloaded_count,total_torrents))
             
     logger.debug("End torrent pool")
 

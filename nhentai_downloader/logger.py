@@ -47,26 +47,43 @@ class DummyTqdmFile(object):
 
 def logger_config(logging_level = logging.INFO):
     if not len(logger.handlers):
+        logger.propagate = False
         logging.addLevelName(VERBOSE_LEVEL,"VERBOSE")
         logging.Logger.verbose = verbose
-        
-        logging.basicConfig(level=0,format = "[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S", stream=TqdmStream)
+        logger.setLevel(logging.DEBUG)
+        #logging.basicConfig(level=0,format = "[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S", stream=TqdmStream)
+        #logging.basicConfig(level = 0, format = "[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S",stream=TqdmStream)
 
         log_dir = os.path.join(os.getcwd(),"log")
 
         if not os.path.exists( os.path.join(os.getcwd(),"log") ):
             os.makedirs(log_dir)
             
+            
+        format = logging.Formatter("[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")    
 
         log_path = os.path.join(log_dir,"nhentai.log")
         file_handle = logging.handlers.RotatingFileHandler(log_path,maxBytes = 10*1024*1024,backupCount = 10)
-
-
-
-        format = logging.Formatter("[%(asctime)s][%(levelname)-8s]%(message)s" , datefmt = "%H:%M:%S")
         file_handle.setFormatter(format)
+        file_handle.setLevel(logging.DEBUG)
         
+        stream_handler = logging.StreamHandler(stream = TqdmStream)
+        stream_handler.setLevel(logging_level)
+        stream_handler.setFormatter(format)
+        
+        progress_bar_handler = logging.StreamHandler(stream = TqdmStream)
+        progress_bar_handler.setLevel(0)
+        
+
+
+
         logger.addHandler(file_handle)
+        logger.addHandler(stream_handler)
+        #logger.addHandler(progress_bar_handler)
+        
+        print(logger.getEffectiveLevel())
+        
+        logger.info("logger_set")
         
     
 

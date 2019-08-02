@@ -39,17 +39,21 @@ def main():
     logger_config()
     input_id_list = []
     
-    logging.getLogger("NHENTAI").setLevel(logging.INFO)
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    
+    
+    #logging.getLogger("NHENTAI").setLevel(logging.INFO)
+    #logging.getLogger("requests").setLevel(logging.WARNING)
+    #logging.getLogger("urllib3").setLevel(logging.WARNING)
                 
-    if options.debug:
-        logging.getLogger("requests").setLevel(logging.DEBUG)
-        logging.getLogger("urllib3").setLevel(logging.DEBUG)
-        logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
+    #if options.debug:
+        #logging.getLogger("requests").setLevel(logging.DEBUG)
+        #logging.getLogger("urllib3").setLevel(logging.DEBUG)
+        #logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
         
-    elif options.verbose:
-        logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
+    #elif options.verbose:
+        #logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
+        
+    
     
     
     if not options.download:

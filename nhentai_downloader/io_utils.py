@@ -168,7 +168,7 @@ def create_path(path,permissions=0o755):
     Creates given path with given permissions
     The user must have permissions to create subdirectories in the given directory
     """
-    logger.debug(f"Doujinshi path : {doujinshi_path}")
+    logger.debug(f"Doujinshi path : {path}")
     
     try:
         os.makedirs(path,0o755)
