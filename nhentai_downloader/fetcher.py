@@ -1,12 +1,18 @@
+from tqdm import tqdm 
+
 import shutil
 import requests
 import bs4
 import os
+import sys
 import errno
 import multiprocessing
 import queue
 from functools import partial
 import re
+
+
+
 import json
 import logging
 from time import sleep
@@ -28,8 +34,8 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
     Check Doujinshi class to know more
     """
     try:
-        if not doujinshi_id or not isinstance(doujinshi_id,str):
-            raise TypeError('Bad id format') #ID received is not a string or is NULL
+        if doujinshi_id is None or not isinstance(doujinshi_id,str):
+            raise TypeError('Bad id format')
         
     except TypeError as error:
         logger.error('Bad id format')
@@ -44,11 +50,11 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
         
         for attempt in range(1,retry+1):
             sleep(delay)
-            response = requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id),allow_redirects=True)
+            response = requests.get(f"https://nhentai.net/g/{doujinshi_id}/",allow_redirects=True)
             
         
             if response.status_code is not constant.ok_code:
-                logger.error("Error fetching doujinshi id[{0}]. Nhentai responded with {1} [Attempt {2} of {3}]" .format(doujinshi_id,response.status_code,attempt,retry+1))
+                logger.error(f"Error fetching doujinshi id[{doujinshi_id}]. Nhentai responded with {response.status_code} [Attempt {attempt} of {retry+1}]")
                 
                 
             elif response.history:
@@ -70,14 +76,14 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
                 break
             
         if (response.status_code is not constant.ok_code) or response.history:
-            logger.error("Doujinshi id[{0}] not found after {1} attempts" .format(doujinshi_id,retry+1))
+            logger.error(f"Doujinshi id[{doujinshi_id}] not found after {retry+1} attempts")
             logger.debug(response.text)
             print()
-            logger.debug(requests.get("https://nhentai.net/g/{0}/".format(doujinshi_id)) )
+            logger.debug(requests.get(f"https://nhentai.net/g/{doujinshi_id}/"))
             return None
             
         else:
-            logger.info("Getting info from doujinshi id[{0}]".format(doujinshi_id))
+            logger.info(f"Getting info from doujinshi id[{doujinshi_id}]")
             
             page_content = response.content
             page_html = bs4.BeautifulSoup(page_content, 'html.parser')
@@ -104,16 +110,14 @@ def download_worker (path,overwrite,delay,retry,url):
     Download file in given url in given path. Url must have the filename with extension (eg: https://i.nhentai.net/galleries/1343630/1.jpg)
     If Overwrite argument is false,the worker will check whether the file exists and skip if so
     """
-    filename = url.split('/')[-1]
     
-    filename = filename.split('\\')[-1] #deal with the case of the filename coming back as MEDIA_ID\*.jpg
-    
-    fullpath = os.path.join(path,filename)
+    filename = io_utils.get_filename_from_url(url)
+    fullpath = io_utils.get_fullpath(path,filename)
     
     
     
-    logger.debug("URL: {0}".format(url))
-    logger.debug("Fullpath: {0}".format(fullpath))
+    logger.debug(f"URL: {url}")
+    logger.debug(f"Fullpath: {fullpath}")
     
     for attempt in range(1,retry+1):
         sleep(delay)
@@ -125,17 +129,22 @@ def download_worker (path,overwrite,delay,retry,url):
             sleep(delay)
         
     if req.status_code == constant.ok_code:
-        if overwrite or not os.path.isfile(fullpath):
-            logger.debug("Downloading {0}".format(filename))
+        if (overwrite == True or os.path.isfile(fullpath) == False):
+            logger.debug(f"Downloading {filename}")
             with open(fullpath, 'wb') as f:
                 shutil.copyfileobj(req.raw, f)
                 
+            return True
+                
         else:
-            logger.debug("File {0} exists, overwriting disabled".format(filename))
+            logger.debug(f"File {filename} exists, overwriting disabled")
+            return False
+            
     
     
 
 def torrent_download_worker(path,session,delay,retry,id):
+    url = f"{constant.urls['GALLERY_URL']}/{id}/download"
     url = "{0}{1}/download".format(constant.urls['GALLERY_URL'],id)
     fullpath = os.path.join(path, "{0}.torrent".format(id))
     
@@ -187,8 +196,7 @@ def image_pool_manager(cbz,threads,path,url_list,delay=0.4,retry=5,overwrite=Tru
     Receives how many download threads there will be, along with the destination path and the url_list with all the images to download
     """
     
-    if(cbz == True and overwrite == False):
-        url_list = remove_already_downloaded_cbz(path,url_list)
+    io_utils.create_path(path)
     
     
         
@@ -197,18 +205,21 @@ def image_pool_manager(cbz,threads,path,url_list,delay=0.4,retry=5,overwrite=Tru
     logger.debug(url_list)
     
     
-    
-        
-    
     downloaded_count = 0
     total_images = len(url_list)
     
     with ThreadPoolExecutor(max_workers=threads) as executor:
         results = {executor.submit(download_worker,path,overwrite,delay,retry,url) : url for url in url_list}
+        download_progress_bar = tqdm(total = total_images)
+        
         for item in completed_threads(results):
+            download_progress_bar.update(1)
             downloaded_count +=1
-            logger.info("Downloaded {0} of {1}".format(downloaded_count,total_images))
-    
+            logger.info(f"Downloaded {downloaded_count} of {total_images}")
+        
+        download_progress_bar.close()
+        
+
     
 def fetch_favorites(session,options):
     """
@@ -407,23 +418,27 @@ def fetch_id(options,id,session=None):
             doujinshi_list.append(future.result())
     
     
+    download_counter  = 0
     for id_doujinshi in doujinshi_list:
+        download_counter+=1
+        logger.info(f"Downloaded {download_counter} of {len(doujinshi_list)}")
+        
         if id_doujinshi is None:
             continue
         
         id_doujinshi.PrintDoujinshiInfo(verbose=True)
     
         if download:
-            logger.info("Downloading doujinshi id[{0}]".format(id_doujinshi))
+            logger.info(f"Downloading doujinshi id[{id_doujinshi.main_id}]")
             
             url_list = id_doujinshi.generate_url_list()
             doujinshi_path = id_doujinshi.get_path(directory)
-            logger.debug("Doujinshi path : {0}".format(doujinshi_path))
+            logger.debug(f"Doujinshi path : {doujinshi_path}")
             
-            io_utils.create_path(doujinshi_path)
-            
-            
-                
+            if(cbz == True and overwrite == False and io_utils.cbz_file_already_exists(directory,id_doujinshi.GetFormattedTitle())):
+                continue
+        
+
             image_pool_manager(cbz,threads,doujinshi_path,url_list,overwrite)
             
             if cbz:

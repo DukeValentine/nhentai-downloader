@@ -17,11 +17,11 @@ def get_filename_from_url(url):
 def get_fullpath(path,filename):
     return os.path.join(path,filename)
 
-def get_cbz_filename(path):
-    return path + ".cbz"
+def get_cbz_filename(directory):
+    return directory + ".cbz"
 
-def cbz_file_already_exists(path,url):
-    fullpath = os.path.join(path,get_filename_from_url(url)) + ".cbz"
+def cbz_file_already_exists(path,directory):
+    fullpath = os.path.join(path, f"{directory}.cbz")
     
     exists = os.path.isfile(fullpath)
     
