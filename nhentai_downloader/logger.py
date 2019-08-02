@@ -67,6 +67,8 @@ def logger_config(logging_level = logging.INFO):
         file_handle.setFormatter(format)
         
         logger.addHandler(file_handle)
+        
+    
 
 
     

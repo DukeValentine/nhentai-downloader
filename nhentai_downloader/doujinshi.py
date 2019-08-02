@@ -46,6 +46,7 @@ class Doujinshi:
         Receives a dictionary containing all the information about the doujinshi
         """
         self.title = json_data ['title']['english']
+        self.title = self.title.replace("\\t","")
         self.compact_title = json_data['title']['pretty']
         self.media_id = json_data['media_id']
         self.pages = json_data['num_pages']
@@ -76,24 +77,25 @@ class Doujinshi:
         
         if system() is "Windows":
             title = self.GetWindowsFormattedName(self.title)
-            
-            leng_dir = len(directory)
-    
-            # MAX_PATH is 260 chars on windows (assuming program isn't run from an UNC path)	
-            if leng_dir + len(title) > 255:
-                title = title[:255 - leng_dir]
+            # MAX_PATH is 260 chars on windows (assuming program isn't run from an UNC path)
+	
+            if len(directory) + len(title) > constant.WINDOWS_MAX_PATH_LENGHT:
+                title = title[:constant.WINDOWS_MAX_PATH_LENGHT - len(directory)]
             
         else:
             title = self.title.replace("/"," ")
+            
+            if(len(self.title) > constant.LINUX_MAX_FILENAME_LENGHT):
+                title = title[:constant.LINUX_MAX_FILENAME_LENGHT]
+            
+            
         
         
         return os.path.join(directory, title)
     
     def GetFormattedTitle(self):
+        
         if system() is "Windows":
-            
-            
-            
             return( self.GetWindowsFormattedName(self.title))
             
         else:
