@@ -192,7 +192,7 @@ def torrent_pool_manager(options,id_list,session):
         
         for item in completed_threads(results):
             downloaded_count +=1
-            logger.debug("Downloaded {0} of {1}".format(downloaded_count,total_torrents))
+            logger.verbose("Downloaded {0} of {1}".format(downloaded_count,total_torrents))
             
     logger.debug("End torrent pool")
 
@@ -227,7 +227,7 @@ def image_pool_manager(options,doujinshi):
         for item in completed_threads(results):
             download_progress_bar.update(1)
             downloaded_count +=1
-            logger.info(f"Downloaded {downloaded_count} of {total_images}")
+            logger.verbose(f"Downloaded {downloaded_count} of {total_images}")
         
         download_progress_bar.close()
         
