@@ -22,7 +22,7 @@ import json
 def main():
 
     options = cli.option_parser()
-    logger_config()
+    logger_config(options.logging_level)
 
 
     login = options.login
@@ -41,17 +41,7 @@ def main():
     
     
     
-    #logging.getLogger("NHENTAI").setLevel(logging.INFO)
-    #logging.getLogger("requests").setLevel(logging.WARNING)
-    #logging.getLogger("urllib3").setLevel(logging.WARNING)
-                
-    #if options.debug:
-        #logging.getLogger("requests").setLevel(logging.DEBUG)
-        #logging.getLogger("urllib3").setLevel(logging.DEBUG)
-        #logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
-        
-    #elif options.verbose:
-        #logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
+
         
     
     

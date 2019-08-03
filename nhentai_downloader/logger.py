@@ -5,15 +5,8 @@ import sys
 from nhentai_downloader import constant
 import os
 
-LEVELS = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warning': logging.WARNING,
-    'error': logging.ERROR,
-    'critical': logging.CRITICAL,
-}
 
-VERBOSE_LEVEL = 15
+VERBOSE_LEVEL = constant.VERBOSE_LEVEL
 
 logger = logging.getLogger('NHENTAI')
 
@@ -21,6 +14,11 @@ def verbose(self, message, *args, **kws):
     if self.isEnabledFor(VERBOSE_LEVEL):
         # Yes, logger takes its '*args' as 'args'.
         self._log(VERBOSE_LEVEL, message, args, **kws)
+        
+def add_verbose_level():
+    logger.isEnabledFor()
+    return 
+
         
         
 class TqdmStream(object):
@@ -80,10 +78,6 @@ def logger_config(logging_level = logging.INFO):
         logger.addHandler(file_handle)
         logger.addHandler(stream_handler)
         #logger.addHandler(progress_bar_handler)
-        
-        print(logger.getEffectiveLevel())
-        
-        logger.info("logger_set")
         
     
 

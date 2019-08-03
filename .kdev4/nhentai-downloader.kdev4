@@ -1,5 +1,8 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00$\x00n\x00h\x00e\x00n\x00t\x00a\x00i\x00-\x00d\x00o\x00w\x00n\x00l\x00o\x00a\x00d\x00e\x00r)
+
 [Filters]
-size=37
+size=39
 
 [Filters][0]
 inclusive=0
@@ -154,6 +157,16 @@ targets=2
 [Filters][36]
 inclusive=0
 pattern=/nhentai_downloader/build
+targets=2
+
+[Filters][37]
+inclusive=0
+pattern=/build
+targets=2
+
+[Filters][38]
+inclusive=0
+pattern=/nhentai_downloader.egg-info
 targets=2
 
 [Filters][4]

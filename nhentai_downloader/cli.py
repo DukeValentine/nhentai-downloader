@@ -5,6 +5,9 @@ import sys
 from . import __version__ as version
 from . import __package__ as package
 
+from . import constant
+import logging
+
 def option_parser():
     parser = argparse.ArgumentParser (description = "Extract information and download doujinshis \n Fetch them from your favorites, searching by tags or by inputing a file with a list of doujinshi \n Ample configuration options")
 
@@ -45,8 +48,8 @@ def option_parser():
     auth.add_argument ('-p','--password', action="store", dest = "password",default = '')
     
 
-    debug.add_argument('-V','--verbose', action = "store_true", dest = "verbose", default = False, help = "Print aditional debug information")
-    debug.add_argument('--debug', action = "store_true", dest = "debug", default = False, help = "Enable debug information for http requests") 
+    debug.add_argument('-V','--verbose', action = "store_const", dest = "logging_level", const = constant.VERBOSE_LEVEL,default = logging.INFO, help = "Print aditional debug information")
+    debug.add_argument('--debug', action = "store_const", dest = "logging_level", const = logging.DEBUG, help = "Enable debug information for http requests") 
 
     search.add_argument ('--search', action = "store_true", default = False, help = "Sets whether it will get doujinshi from favorites or site-wide search")
     search.add_argument ('--id', nargs='*',default=[], help = "Fetch doujinshi from supplied ids")

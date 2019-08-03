@@ -245,7 +245,7 @@ def fetch_favorites(session,options):
     doujinshi_list = []
     
     
-    search_string = '+'.join(tags)
+    search_string = '+'.join(options.tags)
     
     logger.debug(search_string)
     
@@ -312,10 +312,10 @@ def search_doujinshi(options,session=None):
     href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrasing out the rest of the link
     
     
-    logger.debug("Base directory:{0}".format(directory))
-    logger.debug("Page {0} to {1}".format(page,options.max_page))
+    logger.debug(f"Base directory:{options.directory}")
+    logger.debug(f"Page {page} to {options.max_page}")
         
-    logger.info("Search tags: {0}".format(tags))
+    logger.info(f"Search tags: {options.tags}")
     
     doujinshi_list = []
     id_list = []

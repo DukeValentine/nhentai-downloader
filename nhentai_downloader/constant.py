@@ -14,7 +14,7 @@ INVALID_CHARACTERS = ['/', '\\', ':', '*', '?', '\"', '<', '>', '|']
 CONTROL_CHARACTERS = ['\\t','\\n']
 ok_code = 200
 
-
+VERBOSE_LEVEL = 15
 
 
 FILE_EXTENSION_LENGHT = 5
