@@ -203,9 +203,10 @@ def image_pool_manager(options,doujinshi):
     Receives how many download threads there will be, along with the destination path and the url_list with all the images to download
     """
     
+    logger.debug(doujinshi.page_ext)
+    
     url_list = doujinshi.generate_url_list()
     doujinshi_path = doujinshi.get_path(options.dir)
-    logger.debug(f"Doujinshi path : {doujinshi_path}")
     
     
     io_utils.create_path(doujinshi_path)
@@ -230,6 +231,7 @@ def image_pool_manager(options,doujinshi):
             logger.verbose(f"Downloaded {downloaded_count} of {total_images}")
         
         download_progress_bar.close()
+        logger.info(f"Finished downloading doujinshi id[{doujinshi.main_id}]")
         
 
     
@@ -403,6 +405,7 @@ def fetch_id(options,id,session=None):
         results = {executor.submit(get_doujinshi_data, id,options.delay,options.retry): id for id in id_list}
         
         for future in completed_threads(results):
+            logger.debug(f"{future.result().main_id} has {len(future.result().page_ext)} images")
             #if future.result() is not None:
             doujinshi_list.append(future.result())
     
