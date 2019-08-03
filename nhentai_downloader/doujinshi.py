@@ -54,20 +54,8 @@ class Doujinshi:
         self.num_favorites = json_data['num_favorites']
         self.upload_date = json_data['upload_date']
         
-        #if len(self.page_ext):
-            #del self.page_ext[:]
-        
-        #if len(self.tags):
-            #for tag_type in self.tags:
-                #self.tags[tag_type].clear()
-                
-        logger.debug(f"{self.main_id} : Lenght extensions : {len(json_data['images']['pages'])} | {len(self.page_ext)}")
         
         self.page_ext = [page['t'] for page in json_data['images']['pages']]
-        
-        #for page in json_data['images']['pages']:
-            
-            #self.page_ext.append(self.ext[page['t']])
         
         
         for data_tag in json_data['tags']:
@@ -75,7 +63,9 @@ class Doujinshi:
                 self.tags[ data_tag['type'] ].append(data_tag['name'])
                 
 
-                
+    def format_tags(self,tag_type):
+        return ",".join(self.tags[tag_type])
+        
                 
     def GetFormattedDate(self):
         return (datetime.utcfromtimestamp(self.upload_date).ctime() ) 
@@ -122,20 +112,20 @@ class Doujinshi:
         url_list = []
         
         for index,ext in enumerate(self.page_ext,1):
-                filename = "{0}{1}".format(index,ext)
+                filename = f"{index}{ext}"
                 #url_list.append(os.path.join(constant.urls['MEDIA_URL'],self.media_id,filename))
-                url_list.append(constant.urls['MEDIA_URL'] + self.media_id + "/{0}".format(filename))
+                url_list.append(f"{constant.urls['MEDIA_URL']}{self.media_id}/{filename}")
                 
         return url_list
     
     def PrintDoujinshiInfo(self,verbose=False):
         logger.verbose(f"Media id : {self.media_id}")
-        logger.info("Title: {0}".format(self.title))
-        logger.info("Language: {0}".format(', '.join(self.tags['language']) ))
-        logger.info("Parody: {0}".format(', '.join(self.tags['parody']) ))
-        logger.info("Artist: {0}".format(', '.join(self.tags['artist']) ))
-        logger.info("Group: {0}".format(', '.join(self.tags['group']) ))
-        logger.info("Total pages : {0}".format(self.pages))
+        logger.info(f"Title: {self.title}")
+        logger.info(f"Language: {self.tags_print('language')}")
+        logger.info(f"Parody: {self.tags_print('parody')}")
+        logger.info(f"Artist: {self.tags_print('artist')}")
+        logger.info(f"Group: {self.tags_print('group')}")
+        logger.info(f"Total pages : {self.pages}")
         
         logger.verbose(f"Characters: {self.tags['character']}")
         logger.verbose(f"Tags: {self.tags['tag']}")
