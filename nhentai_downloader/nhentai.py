@@ -25,16 +25,7 @@ def main():
     logger_config(options.logging_level)
 
 
-    login = options.login
-    password = options.password
-    tag = options.tags
-    directory = options.dir
-    
-    
-    
-
-    page_num = options.initial_page
-    page_max = options.last_page
+  
     
     logger_config()
     input_id_list = []
@@ -62,12 +53,12 @@ def main():
         dlist = fetcher.search_doujinshi(options)
         
     else:
-        if not login or not password:
+        if not options.login or not options.password:
             logger.critical("Username or password not provided,exiting")
             exit(0)
         
         logger.info("Logging in...")
-        nh_session = auth.login(login,password)
+        nh_session = auth.login(options.login,options.password)
 
         if(nh_session is None):
             logger.critical("Login failure,exiting")
