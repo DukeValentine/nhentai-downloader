@@ -181,14 +181,14 @@ def remove_already_downloaded_cbz(path,url_list):
     
         
 def torrent_pool_manager(options,id_list,session):
-    io_utils.create_path(options.dir)
+    io_utils.create_path(options.directory)
     logger.debug("Starting torrent pool")
     
     downloaded_count = 0
     total_torrents = len(id_list)
     
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
-        results = {executor.submit(torrent_download_worker,options.dir,session,options.delay,options.retry,id) : id for id in id_list}
+        results = {executor.submit(torrent_download_worker,options.directory,session,options.delay,options.retry,id) : id for id in id_list}
         
         for item in completed_threads(results):
             downloaded_count +=1
@@ -206,7 +206,7 @@ def image_pool_manager(options,doujinshi):
     logger.debug(doujinshi.page_ext)
     
     url_list = doujinshi.generate_url_list()
-    doujinshi_path = doujinshi.get_path(options.dir)
+    doujinshi_path = doujinshi.get_path(options.directory)
     
     
     io_utils.create_path(doujinshi_path)
@@ -314,7 +314,7 @@ def search_doujinshi(options,session=None):
     href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrasing out the rest of the link
     
     
-    logger.debug(f"Base directory:{options.directory}")
+    logger.debug(f"Base directory:{options.directoryectory}")
     logger.debug(f"Page {page} to {options.max_page}")
         
     logger.info(f"Search tags: {options.tags}")
@@ -423,7 +423,7 @@ def fetch_id(options,id,session=None):
         if options.download:
             logger.info(f"Downloading doujinshi id[{id_doujinshi.main_id}]")
             
-            if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(options.directory,id_doujinshi.GetFormattedTitle())):
+            if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(options.directoryectory,id_doujinshi.GetFormattedTitle())):
                 continue
         
             image_pool_manager(options,id_doujinshi)

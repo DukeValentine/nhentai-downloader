@@ -42,7 +42,7 @@ def main():
     
     
     if options.id or options.input_filename:
-        ids = io_utils.read_input_file(options.dir,options.input_filename) + options.id
+        ids = io_utils.read_input_file(options.directory,options.input_filename) + options.id
         dlist = fetcher.fetch_id(options,ids)
     
     
@@ -67,7 +67,7 @@ def main():
         
         dlist = fetcher.fetch_favorites(nh_session,options)
         
-    io_utils.write_output(options.directory,options.output_filename,dlist,options.json)
+    io_utils.write_output(options.directoryectory,options.output_filename,dlist,options.json)
         
 
 
