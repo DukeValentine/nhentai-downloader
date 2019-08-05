@@ -36,7 +36,7 @@ def option_parser():
     parser.add_argument("--version",action="version",version = "You are running  : {0} {1} {2} ({3})".format(package,version,commit_date,system()))
 
 
-    file_args.add_argument ("--dir",'-D', action ="store", nargs='?', default=os.path.join(os.getcwd(),"nhentai"),help ='Directory for saved files, defaults to ./nhentai/')
+    file_args.add_argument ("--dir",'-D', dest = "directory", action ="store", nargs='?', default=os.path.join(os.getcwd(),"nhentai"),help ='Directory for saved files, defaults to ./nhentai/')
     file_args.add_argument ('-o','--output', action="store", dest = "output_filename", default = "", help='Output filename, ids.txt by default')
     file_args.add_argument ('-i','--input', action='store', dest = "input_filename", default = "", help = 'Extract doujinshi from input file')
     file_args.add_argument('--json',action = 'store_true', default = False, help = 'Switch between id list and json outputs')
