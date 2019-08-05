@@ -55,7 +55,7 @@ def option_parser():
     search.add_argument ('--id', nargs='*',default=[], help = "Fetch doujinshi from supplied ids")
     search.add_argument ('-t','--tags' , action="store", dest = "tags", nargs='*',default=[], help ='Narrow doujinshi down by tags')
     search.add_argument ('--page', action = "store", type=int, dest = "initial_page", default = 1, help = "Initial page")
-    search.add_argument ('--max-page', action = "store", type=int, dest = "last_page", default = 0, help = "Last page")
+    search.add_argument ('--max-page', action = "store", type=int, dest = "max_page", default = 0, help = "Last page")
 
 
     download.add_argument('--download',action = "store_true", default = False, help = "Download found doujinshi")
