@@ -314,7 +314,7 @@ def search_doujinshi(options,session=None):
     href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrasing out the rest of the link
     
     
-    logger.debug(f"Base directory:{options.directoryectory}")
+    logger.debug(f"Base directory:{options.directory}")
     logger.debug(f"Page {page} to {options.max_page}")
         
     logger.info(f"Search tags: {options.tags}")
@@ -423,7 +423,7 @@ def fetch_id(options,id,session=None):
         if options.download:
             logger.info(f"Downloading doujinshi id[{id_doujinshi.main_id}]")
             
-            if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(options.directoryectory,id_doujinshi.GetFormattedTitle())):
+            if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(options.directory,id_doujinshi.GetFormattedTitle())):
                 continue
         
             image_pool_manager(options,id_doujinshi)
