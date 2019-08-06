@@ -67,8 +67,7 @@ class Doujinshi:
         
                 
     def GetFormattedDate(self):
-        return (datetime.utcfromtimestamp(self.upload_date).ctime() ) 
->>>>>>> dev
+        return (datetime.utcfromtimestamp(self.upload_date).ctime() )
         
     def get_path(self,directory):
         title = ''
