@@ -1,2 +1,3 @@
 .gitlab-ci.yml merge=ours
-/nhentai_downloader/__init__.py merge=ours
+nhentai_downloader/__init__.py merge=ours
+.commit_date merge=ours
