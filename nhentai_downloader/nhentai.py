@@ -22,34 +22,19 @@ import json
 def main():
 
     options = cli.option_parser()
-    logger_config()
+    logger_config(options.logging_level)
 
 
-    login = options.login
-    password = options.password
-    tag = options.tags
-    directory = options.dir
-    
-    
-    
-
-    page_num = options.initial_page
-    page_max = options.last_page
+  
     
     logger_config()
     input_id_list = []
     
-    logging.getLogger("NHENTAI").setLevel(logging.INFO)
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-                
-    if options.debug:
-        logging.getLogger("requests").setLevel(logging.DEBUG)
-        logging.getLogger("urllib3").setLevel(logging.DEBUG)
-        logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
+    
+    
+
         
-    elif options.verbose:
-        logging.getLogger("NHENTAI").setLevel(logging.DEBUG)
+    
     
     
     if not options.download:
@@ -57,7 +42,7 @@ def main():
     
     
     if options.id or options.input_filename:
-        ids = io_utils.read_input_file(options.dir,options.input_filename) + options.id
+        ids = io_utils.read_input_file(options.directory,options.input_filename) + options.id
         dlist = fetcher.fetch_id(options,ids)
     
     
@@ -68,12 +53,12 @@ def main():
         dlist = fetcher.search_doujinshi(options)
         
     else:
-        if not login or not password:
+        if not options.login or not options.password:
             logger.critical("Username or password not provided,exiting")
             exit(0)
         
         logger.info("Logging in...")
-        nh_session = auth.login(login,password)
+        nh_session = auth.login(options.login,options.password)
 
         if(nh_session is None):
             logger.critical("Login failure,exiting")
@@ -82,7 +67,7 @@ def main():
         
         dlist = fetcher.fetch_favorites(nh_session,options)
         
-    io_utils.write_output(options.dir,options.output_filename,dlist,options.json)
+    io_utils.write_output(options.directory,options.output_filename,dlist,options.json)
         
 
 

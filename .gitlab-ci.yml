@@ -1,8 +1,8 @@
 image: registry.gitlab.com/dukevalentine/nhentai-downloader:latest
 
 variables:
-    BINARY_BASENAME: "nhentai-downloader"
-    BINARY_NAME: "nhentai-downloader.exe"
+    BINARY_BASENAME: "nhentai-downloader-dev"
+    BINARY_NAME: "nhentai-downloader-dev.exe"
 
 
 before_script:
@@ -103,6 +103,7 @@ test4:
    - ls -la nhentai
    - du -sh nhentai
    
+
 pypi:
   stage: deploy
   only:

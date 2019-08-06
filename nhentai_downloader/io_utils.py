@@ -1,4 +1,5 @@
 import os
+from . import constant
 from .logger import logger
 from .doujinshi import Doujinshi
 from .doujinshi import Tag_count
@@ -17,11 +18,11 @@ def get_filename_from_url(url):
 def get_fullpath(path,filename):
     return os.path.join(path,filename)
 
-def get_cbz_filename(path):
-    return path + ".cbz"
+def get_cbz_filename(directory):
+    return directory + ".cbz"
 
-def cbz_file_already_exists(path,url):
-    fullpath = os.path.join(path,get_filename_from_url(url)) + ".cbz"
+def cbz_file_already_exists(path,directory):
+    fullpath = os.path.join(path, f"{directory}.cbz")
     
     exists = os.path.isfile(fullpath)
     
@@ -32,6 +33,7 @@ def cbz_file_already_exists(path,url):
 
 
 def create_cbz(path,directory,remove_after=False):
+    
     filename = directory + ".cbz"
     filepath = os.path.join(path,filename)
     image_path = os.path.join(path,directory)
@@ -44,6 +46,8 @@ def create_cbz(path,directory,remove_after=False):
     
     except OSError as error:
         logger.error("Couldn't write file, system responded with {0}".format(repr(error)) )
+        logger.error(f"{image_path} : {len(image_path)}")
+        logger.error(f"{fi}")
         
     else:
         if remove_after:
@@ -91,14 +95,16 @@ def write_idlist(directory,id_filename,id_list):
     
     if not id_filename.endswith(".txt"):
         id_filename = id_filename + ".txt"
+        
+    filepath = os.path.join(directory,id_filename)
     
     
-    logger.debug("Filepath:{0}".format(os.path.join(directory,id_filename)))
+    logger.debug(f"Filepath:{filepath}")
             
     try:
-        with open(os.path.join(directory,id_filename),"a+") as id_file:
-            for id in id_list:
-                id_file.write("https://nhentai.net/g/{0}/\n".format(id))
+        with open(filepath,"a+") as id_file:
+            for doujinshi_id in id_list:
+                id_file.write(f'{constant.urls["GALLERY_URL"]}{doujinshi_id}/\n')
     
     except OSError as error:
         logger.error(repr(error))
@@ -114,11 +120,13 @@ def write_doujinshi_json(directory,filename,data):
     If destination directory does not exist, it will be created
     """
     logger.info("Writing json output")
+    filepath = os.path.join(directory,filename)
+    
     
     if not filename.endswith(".json"):
         filename = filename + ".json"
     
-    logger.debug("Filepath:{0}".format(os.path.join(directory,filename)))
+    logger.debug(f"Filepath:{filepath}")
     
     tags = Tag_count()
     
@@ -134,7 +142,7 @@ def write_doujinshi_json(directory,filename,data):
     try:
         create_path(directory)
         
-        with open(os.path.join(directory,filename),"w") as json_file:
+        with open(filepath,"w") as json_file:
             json_file.write(
                 json.dumps(data, default=lambda o: o.__dict__, 
                 sort_keys=True, indent=4))
@@ -160,6 +168,8 @@ def create_path(path,permissions=0o755):
     Creates given path with given permissions
     The user must have permissions to create subdirectories in the given directory
     """
+    logger.debug(f"Doujinshi path : {path}")
+    
     try:
         os.makedirs(path,0o755)
             
@@ -168,7 +178,7 @@ def create_path(path,permissions=0o755):
             logger.error(repr(error))
             raise
         else:
-            logger.warning("Path {0} already exists".format(path))
+            logger.warning(f"Path {path} already exists")
             logger.debug(repr(error))
 
 if __name__ == '__main__':

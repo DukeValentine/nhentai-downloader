@@ -5,6 +5,9 @@ import sys
 from . import __version__ as version
 from . import __package__ as package
 
+from . import constant
+import logging
+
 def option_parser():
     parser = argparse.ArgumentParser (description = "Extract information and download doujinshis \n Fetch them from your favorites, searching by tags or by inputing a file with a list of doujinshi \n Ample configuration options")
 
@@ -33,7 +36,7 @@ def option_parser():
     parser.add_argument("--version",action="version",version = "You are running  : {0} {1} {2} ({3})".format(package,version,commit_date,system()))
 
 
-    file_args.add_argument ("--dir",'-D', action ="store", nargs='?', default=os.path.join(os.getcwd(),"nhentai"),help ='Directory for saved files, defaults to ./nhentai/')
+    file_args.add_argument ("--dir",'-D', dest = "directory", action ="store", nargs='?', default=os.path.join(os.getcwd(),"nhentai"),help ='Directory for saved files, defaults to ./nhentai/')
     file_args.add_argument ('-o','--output', action="store", dest = "output_filename", default = "", help='Output filename, ids.txt by default')
     file_args.add_argument ('-i','--input', action='store', dest = "input_filename", default = "", help = 'Extract doujinshi from input file')
     file_args.add_argument('--json',action = 'store_true', default = False, help = 'Switch between id list and json outputs')
@@ -45,14 +48,14 @@ def option_parser():
     auth.add_argument ('-p','--password', action="store", dest = "password",default = '')
     
 
-    debug.add_argument('-V','--verbose', action = "store_true", dest = "verbose", default = False, help = "Print aditional debug information")
-    debug.add_argument('--debug', action = "store_true", dest = "debug", default = False, help = "Enable debug information for http requests") 
+    debug.add_argument('-V','--verbose', action = "store_const", dest = "logging_level", const = constant.VERBOSE_LEVEL,default = logging.INFO, help = "Print aditional debug information")
+    debug.add_argument('--debug', action = "store_const", dest = "logging_level", const = logging.DEBUG, help = "Enable debug information for http requests") 
 
     search.add_argument ('--search', action = "store_true", default = False, help = "Sets whether it will get doujinshi from favorites or site-wide search")
     search.add_argument ('--id', nargs='*',default=[], help = "Fetch doujinshi from supplied ids")
     search.add_argument ('-t','--tags' , action="store", dest = "tags", nargs='*',default=[], help ='Narrow doujinshi down by tags')
     search.add_argument ('--page', action = "store", type=int, dest = "initial_page", default = 1, help = "Initial page")
-    search.add_argument ('--max-page', action = "store", type=int, dest = "last_page", default = 0, help = "Last page")
+    search.add_argument ('--max-page', action = "store", type=int, dest = "max_page", default = 0, help = "Last page")
 
 
     download.add_argument('--download',action = "store_true", default = False, help = "Download found doujinshi")

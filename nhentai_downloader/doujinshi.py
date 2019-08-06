@@ -46,54 +46,54 @@ class Doujinshi:
         Receives a dictionary containing all the information about the doujinshi
         """
         self.title = json_data ['title']['english']
-        self.compact_title = json_data['title']['pretty']
+        self.title = self.title.replace("\\t","")
+        self.title = self.title.replace("&#039;","'")
+        self.compact_title = json_data['title']['pretty'].replace("&#039;","'").replace("\\t","")
         self.media_id = json_data['media_id']
         self.pages = json_data['num_pages']
         self.num_favorites = json_data['num_favorites']
         self.upload_date = json_data['upload_date']
         
-        if len(self.page_ext):
-            del self.page_ext[:]
-        
-        if len(self.tags):
-            for tag_type in self.tags:
-                self.tags[tag_type].clear()
-        
-        for page in json_data['images']['pages']:
-            
-            self.page_ext.append(self.ext[page['t']])
+        self.page_ext = [page['t'] for page in json_data['images']['pages']]
         
         
         for data_tag in json_data['tags']:
-            if (data_tag['name'] != 'translated'):
+            if (data_tag['name'] != 'translated' and len(data_tag['name']) > 0):
                 self.tags[ data_tag['type'] ].append(data_tag['name'])
                 
+
+    def format_tags(self,tag_type):
+        return ",".join(self.tags[tag_type])
+        
+                
     def GetFormattedDate(self):
-        return (datetime.utcfromtimestamp(self.upload_date).strftime('[%Y-%m-%d] (%a,%H:%M:%S)%Z') ) 
+        return (datetime.utcfromtimestamp(self.upload_date).ctime() ) 
+>>>>>>> dev
         
     def get_path(self,directory):
         title = ''
         
         if system() is "Windows":
             title = self.GetWindowsFormattedName(self.title)
-            leng_dir = len(directory)
-    
-            # MAX_PATH is 260 chars on windows (assuming program isn't run from an UNC path)	
-            if leng_dir + len(title) > 255:
-                title = title[:255 - leng_dir]
+            # MAX_PATH is 260 chars on windows (assuming program isn't run from an UNC path)
+	
+            if len(directory) + len(title) > constant.WINDOWS_MAX_PATH_LENGHT:
+                title = title[:constant.WINDOWS_MAX_PATH_LENGHT - len(directory)]
             
-
         else:
             title = self.title.replace("/"," ")
+            
+            if(len(self.title) > constant.LINUX_MAX_FILENAME_LENGHT):
+                title = title[:constant.LINUX_MAX_FILENAME_LENGHT]
+            
+            
+
         
         
         return os.path.join(directory, title)
     
     def GetFormattedTitle(self):
         if system() is "Windows":
-            
-            
-            
             return( self.GetWindowsFormattedName(self.title))
             
         else:
@@ -112,24 +112,25 @@ class Doujinshi:
         url_list = []
         
         for index,ext in enumerate(self.page_ext,1):
-                filename = "{0}{1}".format(index,ext)
+                filename = f"{index}{ext}"
                 #url_list.append(os.path.join(constant.urls['MEDIA_URL'],self.media_id,filename))
-                url_list.append(constant.urls['MEDIA_URL'] + self.media_id + "/{0}".format(filename))
+                url_list.append(f"{constant.urls['MEDIA_URL']}{self.media_id}/{filename}")
                 
         return url_list
     
     def PrintDoujinshiInfo(self,verbose=False):
-        logger.info("Title: {0}".format(self.title))
-        logger.info("Language: {0}".format(', '.join(self.tags['language']) ))
-        logger.info("Parody: {0}".format(', '.join(self.tags['parody']) ))
-        logger.info("Artist: {0}".format(', '.join(self.tags['artist']) ))
-        logger.info("Group: {0}".format(', '.join(self.tags['group']) ))
-        logger.info("Total pages : {0}".format(self.pages))
+        logger.verbose(f"Media id : {self.media_id}")
+        logger.info(f"Title: {self.title}")
+        logger.info(f"Language: {self.format_tags('language')}")
+        logger.info(f"Parody: {self.format_tags('parody')}")
+        logger.info(f"Artist: {self.format_tags('artist')}")
+        logger.info(f"Group: {self.format_tags('group')}")
+        logger.info(f"Total pages : {self.pages}")
         
-        if verbose:
-            logger.info("Characters : {0}".format(', '.join(self.tags['character']) ))
-            logger.info("Tags : {0}".format(', '.join(self.tags['tag']) ))
-            logger.info("Upload date: {0}".format(self.GetFormattedDate()) )
+        logger.verbose(f"Characters: {self.format_tags('character')}")
+        logger.verbose(f"Tags: {self.tags['tag']}")
+        logger.verbose(f"Upload_date: {self.GetFormattedDate()}")
+        logger.verbose(f"Total favorites : {self.num_favorites}")
         
     
     def toJSON(self):
