@@ -223,7 +223,7 @@ def image_pool_manager(options,doujinshi):
     
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
         results = {executor.submit(download_worker,doujinshi_path,options.overwrite,options.delay,options.retry,url) : url for url in url_list}
-        download_progress_bar = tqdm(total = total_images, desc = "Downloading doujinshi ", unit = "Images")
+        download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Images")
         
         for item in completed_threads(results):
             download_progress_bar.update(1)
@@ -429,7 +429,7 @@ def fetch_id(options,id,session=None):
             image_pool_manager(options,id_doujinshi)
             
             if options.cbz:
-                io_utils.create_cbz(directory,id_doujinshi.GetFormattedTitle(),options.remove_after)
+                io_utils.create_cbz(options.directory,id_doujinshi.GetFormattedTitle(),options.remove_after)
             
             
     if options.torrent:
