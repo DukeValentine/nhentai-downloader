@@ -54,8 +54,7 @@ class Doujinshi:
         self.num_favorites = json_data['num_favorites']
         self.upload_date = json_data['upload_date']
         
-        self.page_ext = [page['t'] for page in json_data['images']['pages']]
-        
+        self.page_ext = [self.ext[page['t']] for page in json_data['images']['pages']]
         
         for data_tag in json_data['tags']:
             if (data_tag['name'] != 'translated' and len(data_tag['name']) > 0):

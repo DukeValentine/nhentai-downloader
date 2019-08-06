@@ -370,7 +370,7 @@ def search_doujinshi(options,session=None):
             
             
         doujinshi_list = doujinshi_list + fetch_id(options,id_list)
-        logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
+        logger.info("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
             
         page = page + 1
         
