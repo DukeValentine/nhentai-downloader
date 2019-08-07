@@ -429,7 +429,7 @@ def fetch_id(options,id,session=None):
             image_pool_manager(options,id_doujinshi)
             
             if options.cbz:
-                io_utils.create_cbz(options.directory,id_doujinshi.GetFormattedTitle(),options.remove_after)
+                io_utils.create_cbz(options.directory,id_doujinshi,options.remove_after)
             
             
     if options.torrent:

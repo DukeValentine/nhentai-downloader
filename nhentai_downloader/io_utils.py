@@ -32,11 +32,10 @@ def cbz_file_already_exists(path,directory):
     return  exists
 
 
-def create_cbz(path,directory,remove_after=False):
+def create_cbz(directory,doujinshi,remove_after=False):
     
-    filename = directory + ".cbz"
-    filepath = os.path.join(path,filename)
-    image_path = os.path.join(path,directory)
+    filepath = doujinshi.get_path(directory,".cbz")
+    image_path = doujinshi.get_path(directory)
     
     try:
         with  ZipFile(filepath,"w") as cbz_doujinshi:
@@ -47,7 +46,6 @@ def create_cbz(path,directory,remove_after=False):
     except OSError as error:
         logger.error("Couldn't write file, system responded with {0}".format(repr(error)) )
         logger.error(f"{image_path} : {len(image_path)}")
-        logger.error(f"{fi}")
         
     else:
         if remove_after:
