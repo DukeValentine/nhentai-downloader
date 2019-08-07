@@ -21,3 +21,12 @@ FILE_EXTENSION_LENGHT = 5
 WINDOWS_MAX_PATH_LENGHT = 260 - FILE_EXTENSION_LENGHT
 LINUX_MAX_FILENAME_LENGHT = 255 - FILE_EXTENSION_LENGHT
 
+
+def bytes_to_si(value,target_unit):
+    units = {
+        'K' : 1024,
+        'M' : 1024*1024,
+        'G' : 1024*1024*1024
+    }
+    
+    return value/units[target_unit]

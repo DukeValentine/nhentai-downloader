@@ -37,9 +37,16 @@ def create_cbz(directory,doujinshi,remove_after=False):
     filepath = doujinshi.get_path(directory,".cbz")
     image_path = doujinshi.get_path(directory)
     
+    if(check_freespace_available(image_path)):
+        logger.critical(f"No space available for {filepath}")
+        return
+    
+    
+    
+    
    
     with  ZipFile(filepath,"w") as cbz_doujinshi:
-        logger.info("Writing:{0}".format(filepath))
+        logger.verbose("Writing:{0}\n".format(filepath))
         for image in os.listdir(image_path):
             try:
                 cbz_doujinshi.write(os.path.join(image_path,image))
@@ -51,6 +58,7 @@ def create_cbz(directory,doujinshi,remove_after=False):
         
     
     if remove_after:
+        logger.debug(f"Removing {image_path}")
         try:
             shutil.rmtree(image_path)
         
@@ -58,6 +66,24 @@ def create_cbz(directory,doujinshi,remove_after=False):
             logger.error("Couldn't remove directory, system responded with {0}".format(repr(error)) )
 
 
+def check_freespace_available(path = ".",unit = "M"):
+    return (get_path_size(path,unit) > get_freespace(path,unit))
+
+
+def get_path_size(path = ".",unit = "M"):
+    """Return total size of files in given path and subdirs."""
+    total = 0
+    for entry in os.scandir(path):
+        if entry.is_dir(follow_symlinks=False):
+            total += get_path_size(entry.path,unit)
+        else:
+            total += entry.stat(follow_symlinks=False).st_size
+            
+    return constant.bytes_to_si(total,unit)
+
+
+def get_freespace(path = ".", unit = "M"):
+    return constant.bytes_to_si(shutil.disk_usage(path).free,unit)  
 
 
 def read_input_file(directory,filename):

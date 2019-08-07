@@ -34,6 +34,7 @@ test0:
     - ls
     - nhentai-downloader --search --verbose -t sword english --json --output test0.json --max-page 1 --download --cbz --remove-after
     - ls nhentai
+    - du -sh nhentai
     
 test1:
   stage: test
@@ -43,6 +44,7 @@ test1:
     - ls
     - nhentai-downloader --search --verbose -t english --max-page 4 --json --output test1.json
     - ls nhentai
+    - du -sh nhentai
     
 test2:
   stage: test
@@ -52,6 +54,7 @@ test2:
     - ls
     - nhentai-downloader --verbose --id 253293 251830 248899 232365 233068 --json --output test2.json
     - ls nhentai
+    - du -sh nhentai
     
 test3:
   stage: test

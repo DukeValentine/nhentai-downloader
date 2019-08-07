@@ -62,6 +62,13 @@ class Doujinshi:
 
     def format_tags(self,tag_type):
         return ",".join(self.tags[tag_type])
+    
+    def get_estimated_size(self,unit):
+        estimated_image_size = constant.bytes_to_si(500*1024, unit)
+        
+        return self.pages * estimated_image_size
+        
+        
         
                 
     def GetFormattedDate(self):
@@ -121,7 +128,7 @@ class Doujinshi:
         logger.verbose(f"Total pages : {self.pages}")
         
         logger.verbose(f"Characters: {self.format_tags('character')}")
-        logger.verbose(f"Tags: {self.tags['tag']}")
+        logger.verbose(f"Tags: {self.format_tags('tag')}")
         logger.verbose(f"Upload_date: {self.GetFormattedDate()}")
         logger.verbose(f"Total favorites : {self.num_favorites}")
         

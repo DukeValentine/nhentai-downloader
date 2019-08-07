@@ -42,6 +42,11 @@ def image_pool_manager(options,doujinshi):
     
     io_utils.create_path(doujinshi_path)
     
+    if(doujinshi.get_estimated_size("M") > io_utils.get_freespace(doujinshi_path,"M")):
+        logger.critical(f"No freespace available for {doujinshi.main_id}")
+        return
+    
+    
     
     logger.debug("Starting image pool")
     logger.debug(url_list)

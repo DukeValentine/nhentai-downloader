@@ -68,6 +68,8 @@ def main():
         dlist = fetcher.fetch_favorites(nh_session,options)
         
     io_utils.write_output(options.directory,options.output_filename,dlist,options.json)
+    
+    logger.info("Finished")
         
 
 

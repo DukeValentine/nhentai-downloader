@@ -299,7 +299,7 @@ def fetch_id(options,id,session=None):
     doujinshi_list = batch_doujinshi_info_fetch(options,id_list)
     
     
-    doujinshi_counter = tqdm(total = len(doujinshi_list), desc = "Downloading doujinshi", unit = "Doujinshi")
+    doujinshi_counter = tqdm(total = len(doujinshi_list), desc = "Downloading doujinshi list", unit = "Doujinshi")
     
     download_counter  = 0
     for id_doujinshi in doujinshi_list:
@@ -323,6 +323,7 @@ def fetch_id(options,id,session=None):
                 io_utils.create_cbz(options.directory,id_doujinshi,options.remove_after)
         doujinshi_counter.update(1)
     doujinshi_counter.close()
+    logger.info("Finished downloading doujinshi list")
             
     if options.torrent:
         if not (options.login and options.password):
