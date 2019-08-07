@@ -84,7 +84,7 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
             return None
             
         else:
-            logger.info(f"Getting info from doujinshi id[{doujinshi_id}]")
+            logger.verbose(f"Getting info from doujinshi id[{doujinshi_id}]")
             
             page_content = response.content
             page_html = bs4.BeautifulSoup(page_content, 'html.parser')
@@ -107,7 +107,19 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
         
         
 
+def batch_doujinshi_info_fetch(options,id_list):
+    doujinshi_list = []
+    
+    with ThreadPoolExecutor(max_workers=options.threads) as executor:
+        results = {executor.submit(get_doujinshi_data, id,options.delay,options.retry): id for id in id_list}
+        info_bar = tqdm(total = len(id_list), desc = f"Fetching doujinshi info", unit = "Doujinshi")
+
+        for future in completed_threads(results):
+            info_bar.update(1)
+            logger.debug(f"{future.result().main_id} has {len(future.result().page_ext)} images")
+            doujinshi_list.append(future.result())
             
+    return doujinshi_list
 
 
         
@@ -282,21 +294,17 @@ def fetch_id(options,id,session=None):
         logger.critical("Fetch id: No ids were given")
         return doujinshi_list
     
-    logger.debug("Id batch: {0}".format(id_list))
+    logger.verbose("Id batch: {0}".format(id_list))
+    
+    doujinshi_list = batch_doujinshi_info_fetch(options,id_list)
     
     
-    with ThreadPoolExecutor(max_workers=options.threads) as executor:
-        results = {executor.submit(get_doujinshi_data, id,options.delay,options.retry): id for id in id_list}
-        
-        for future in completed_threads(results):
-            logger.debug(f"{future.result().main_id} has {len(future.result().page_ext)} images")
-            doujinshi_list.append(future.result())
-    
+    doujinshi_counter = tqdm(total = len(doujinshi_list), desc = "Downloading doujinshi", unit = "Doujinshi")
     
     download_counter  = 0
     for id_doujinshi in doujinshi_list:
         download_counter+=1
-        logger.info(f"Fetching {download_counter} of {len(doujinshi_list)}")
+        logger.debug(f"Fetching {download_counter} of {len(doujinshi_list)}")
         
         if id_doujinshi is None:
             continue
@@ -304,7 +312,7 @@ def fetch_id(options,id,session=None):
         id_doujinshi.PrintDoujinshiInfo(verbose=True)
     
         if options.download:
-            logger.info(f"Downloading doujinshi id[{id_doujinshi.main_id}]")
+            logger.debug(f"Downloading doujinshi id[{id_doujinshi.main_id}]")
             
             if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(options.directory,id_doujinshi)):
                 continue
@@ -313,7 +321,8 @@ def fetch_id(options,id,session=None):
             
             if options.cbz:
                 io_utils.create_cbz(options.directory,id_doujinshi,options.remove_after)
-            
+        doujinshi_counter.update(1)
+    doujinshi_counter.close()
             
     if options.torrent:
         if not (options.login and options.password):

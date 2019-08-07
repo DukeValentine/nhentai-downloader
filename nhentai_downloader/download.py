@@ -52,15 +52,15 @@ def image_pool_manager(options,doujinshi):
     
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
         results = {executor.submit(download_worker,doujinshi_path,options.overwrite,options.delay,options.retry,url) : url for url in url_list}
-        download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Images")
+        download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image")
         
         for item in completed_threads(results):
             download_progress_bar.update(1)
             downloaded_count +=1
-            logger.verbose(f"Downloaded {downloaded_count} of {total_images}")
+            logger.debug(f"Downloaded {downloaded_count} of {total_images}")
         
         download_progress_bar.close()
-        logger.verbose(f"Finished downloading doujinshi id[{doujinshi.main_id}]")
+        logger.debug(f"Finished downloading doujinshi id[{doujinshi.main_id}]")
 
 
 def download_worker (path,overwrite,delay,retry,url):

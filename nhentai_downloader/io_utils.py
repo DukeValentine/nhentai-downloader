@@ -37,23 +37,25 @@ def create_cbz(directory,doujinshi,remove_after=False):
     filepath = doujinshi.get_path(directory,".cbz")
     image_path = doujinshi.get_path(directory)
     
-    try:
-        with  ZipFile(filepath,"w") as cbz_doujinshi:
-            logger.info("Writing:{0}".format(filepath))
-            for image in os.listdir(image_path):
+   
+    with  ZipFile(filepath,"w") as cbz_doujinshi:
+        logger.info("Writing:{0}".format(filepath))
+        for image in os.listdir(image_path):
+            try:
                 cbz_doujinshi.write(os.path.join(image_path,image))
     
-    except OSError as error:
-        logger.error("Couldn't write file, system responded with {0}".format(repr(error)) )
-        logger.error(f"{image_path} : {len(image_path)}")
-        
-    else:
-        if remove_after:
-            try:
-                shutil.rmtree(image_path)
-            
             except OSError as error:
-                logger.error("Couldn't remove directory, system responded with {0}".format(repr(error)) )
+                logger.error("Couldn't write file, system responded with {0}".format(repr(error)) )
+                logger.error(f"{image_path} : {len(image_path)}")
+                return
+        
+    
+    if remove_after:
+        try:
+            shutil.rmtree(image_path)
+        
+        except OSError as error:
+            logger.error("Couldn't remove directory, system responded with {0}".format(repr(error)) )
 
 
 
