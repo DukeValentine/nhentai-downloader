@@ -21,13 +21,13 @@ def get_fullpath(path,filename):
 def get_cbz_filename(directory):
     return directory + ".cbz"
 
-def cbz_file_already_exists(path,directory):
-    fullpath = os.path.join(path, f"{directory}.cbz")
+def cbz_file_already_exists(directory,doujinshi):
+    fullpath = doujinshi.get_path(directory)
     
     exists = os.path.isfile(fullpath)
     
     if(exists == True):
-        logger.debug(f"{path} already exists")
+        logger.warning(f"{fullpath} already exists")
     
     return  exists
 

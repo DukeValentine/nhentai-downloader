@@ -231,7 +231,7 @@ def image_pool_manager(options,doujinshi):
             logger.verbose(f"Downloaded {downloaded_count} of {total_images}")
         
         download_progress_bar.close()
-        logger.info(f"Finished downloading doujinshi id[{doujinshi.main_id}]")
+        logger.verbose(f"Finished downloading doujinshi id[{doujinshi.main_id}]")
         
 
     
@@ -423,7 +423,7 @@ def fetch_id(options,id,session=None):
         if options.download:
             logger.info(f"Downloading doujinshi id[{id_doujinshi.main_id}]")
             
-            if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(options.directory,id_doujinshi.GetFormattedTitle())):
+            if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(options.directory,id_doujinshi)):
                 continue
         
             image_pool_manager(options,id_doujinshi)

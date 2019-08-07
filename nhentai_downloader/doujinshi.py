@@ -68,18 +68,15 @@ class Doujinshi:
         return (datetime.utcfromtimestamp(self.upload_date).ctime() ) 
         
     def get_path(self,directory, extension = ""):
-        title = ''
+        title = self.GetFormattedTitle()
         
         if system() is "Windows":
-            title = self.GetWindowsFormattedName(self.title)
             # MAX_PATH is 260 chars on windows (assuming program isn't run from an UNC path)
 	
             if len(directory) + len(title) > constant.WINDOWS_MAX_PATH_LENGHT:
                 title = title[:constant.WINDOWS_MAX_PATH_LENGHT - len(directory)]
             
         else:
-            title = self.title.replace("/"," ")
-            
             if(len(title) > constant.LINUX_MAX_FILENAME_LENGHT):
                 title = title[:constant.LINUX_MAX_FILENAME_LENGHT]
             
@@ -89,7 +86,6 @@ class Doujinshi:
         return os.path.join(directory, title + extension)
     
     def GetFormattedTitle(self):
-        
         if system() is "Windows":
             return( self.GetWindowsFormattedName(self.title))
             
