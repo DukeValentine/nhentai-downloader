@@ -53,7 +53,10 @@ class Doujinshi:
         self.pages = json_data['num_pages']
         self.num_favorites = json_data['num_favorites']
         self.upload_date = json_data['upload_date']
+<<<<<<< HEAD
         
+=======
+>>>>>>> dev
         self.page_ext = [self.ext[page['t']] for page in json_data['images']['pages']]
         
         for data_tag in json_data['tags']:
@@ -69,18 +72,15 @@ class Doujinshi:
         return (datetime.utcfromtimestamp(self.upload_date).ctime() )
         
     def get_path(self,directory, extension = ""):
-        title = ''
+        title = self.GetFormattedTitle()
         
         if system() is "Windows":
-            title = self.GetWindowsFormattedName(self.title)
             # MAX_PATH is 260 chars on windows (assuming program isn't run from an UNC path)
 	
             if len(directory) + len(title) > constant.WINDOWS_MAX_PATH_LENGHT:
                 title = title[:constant.WINDOWS_MAX_PATH_LENGHT - len(directory)]
             
         else:
-            title = self.title.replace("/"," ")
-            
             if(len(title) > constant.LINUX_MAX_FILENAME_LENGHT):
                 title = title[:constant.LINUX_MAX_FILENAME_LENGHT]
             
@@ -119,11 +119,11 @@ class Doujinshi:
     def PrintDoujinshiInfo(self,verbose=False):
         logger.verbose(f"Media id : {self.media_id}")
         logger.info(f"Title: {self.title}")
-        logger.info(f"Language: {self.format_tags('language')}")
-        logger.info(f"Parody: {self.format_tags('parody')}")
-        logger.info(f"Artist: {self.format_tags('artist')}")
-        logger.info(f"Group: {self.format_tags('group')}")
-        logger.info(f"Total pages : {self.pages}")
+        logger.verbose(f"Language: {self.format_tags('language')}")
+        logger.verbose(f"Parody: {self.format_tags('parody')}")
+        logger.verbose(f"Artist: {self.format_tags('artist')}")
+        logger.verbose(f"Group: {self.format_tags('group')}")
+        logger.verbose(f"Total pages : {self.pages}")
         
         logger.verbose(f"Characters: {self.format_tags('character')}")
         logger.verbose(f"Tags: {self.tags['tag']}")
@@ -150,5 +150,6 @@ class Tag_count:
         else:
             self.tags[tag] = 1
     
+
 
 

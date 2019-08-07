@@ -116,6 +116,7 @@ pypi:
    
   before_script:
   - python setup.py sdist
+  - wine pip install -r requirements.txt
   - wine pyinstaller ./nhentai_downloader/nhentai.py -F -p ./nhentai_downloader --hidden-import=requests,bs4 --clean --add-data ".commit_date;data" --name $BINARY_BASENAME
   - ls ./dist
    
