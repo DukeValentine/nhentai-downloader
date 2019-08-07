@@ -115,6 +115,7 @@ def torrent_download_worker(path,session,delay,retry,doujinshi_id):
     fullpath = os.path.join(path, f"{doujinshi_id}.torrent")
     
     logger.info(f"Downloading {doujinshi_id}.torrent")
+    logger.debug(f"Path : {fullpath}")
     logger.debug(url)
     
     for attempt in range(1,retry+1):
@@ -123,10 +124,7 @@ def torrent_download_worker(path,session,delay,retry,doujinshi_id):
         req = session.get(url, stream=True)
         logger.debug(f"Nhentai responded with {req.status_code} for {doujinshi_id}.torrent")
         
-        if session.history:
-            session.post(session.url)
-        
-        elif req.status_code == constant.ok_code:
+        if req.status_code == constant.ok_code:
             break
         else:
             sleep(delay)

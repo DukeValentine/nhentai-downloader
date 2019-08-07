@@ -24,7 +24,7 @@ test:
   script:
     - ls
     - nhentai-downloader --help
-    - nhentai-downloader --login $NHENTAI_USER --password $NHENTAI_PASS --verbose --debug --max-page 3 --torrent
+    - nhentai-downloader --login $NHENTAI_USER --password $NHENTAI_PASS --debug --max-page 3 --torrent
     - ls nhentai
     - du -sh nhentai
     
