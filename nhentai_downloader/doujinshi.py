@@ -53,10 +53,6 @@ class Doujinshi:
         self.pages = json_data['num_pages']
         self.num_favorites = json_data['num_favorites']
         self.upload_date = json_data['upload_date']
-<<<<<<< HEAD
-        
-=======
->>>>>>> dev
         self.page_ext = [self.ext[page['t']] for page in json_data['images']['pages']]
         
         for data_tag in json_data['tags']:
