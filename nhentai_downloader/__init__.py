@@ -1,11 +1,10 @@
-<<<<<<< HEAD
-__version__ = '0.5.3.7-dev'
-__author__ = 'DukeValentine'
-=======
-__version__ = '0.5.4.1'
+__version__ = '0.5.4.1-dev'
+
+
+
 __author__ = 'DukeValentine' 
->>>>>>> 7554635... Fix image extension parsing
 __email__ = 'humanix@posteo.de'
+
 
 
 #from .auth import login
