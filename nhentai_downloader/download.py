@@ -1,6 +1,7 @@
 from . import constant
 from .import io_utils
 from .logger import logger
+from platform import system
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from concurrent.futures import as_completed as completed_threads
@@ -58,6 +59,7 @@ def image_pool_manager(options,doujinshi):
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
         results = {executor.submit(download_worker,doujinshi_path,options.overwrite,options.delay,options.retry,url) : url for url in url_list}
         download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image")
+        
         
         for item in completed_threads(results):
             download_progress_bar.update(1)
