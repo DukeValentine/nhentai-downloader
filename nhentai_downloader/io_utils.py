@@ -204,7 +204,7 @@ def create_path(path,permissions=0o755):
             logger.error(repr(error))
             raise
         else:
-            logger.warning(f"Path {path} already exists")
+            logger.verbose(f"Path {path} already exists")
             logger.debug(repr(error))
 
 if __name__ == '__main__':

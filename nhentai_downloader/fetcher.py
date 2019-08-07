@@ -323,6 +323,7 @@ def fetch_id(options,id,session=None):
                 io_utils.create_cbz(options.directory,id_doujinshi,options.remove_after)
         doujinshi_counter.update(1)
     doujinshi_counter.close()
+    print("\r")
     logger.info("Finished downloading doujinshi list")
             
     if options.torrent:

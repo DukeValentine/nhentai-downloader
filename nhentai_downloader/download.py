@@ -84,6 +84,11 @@ def download_worker (path,overwrite,delay,retry,url):
     logger.debug(f"URL: {url}")
     logger.debug(f"Fullpath: {fullpath}")
     
+    if (overwrite == False and os.path.isfile(fullpath) == True):
+        logger.debug(f"File {filename} exists, overwriting disabled")
+        return False
+        
+    
     for attempt in range(1,retry+1):
         sleep(delay)
         req = requests.get(url, stream=True)
@@ -94,16 +99,13 @@ def download_worker (path,overwrite,delay,retry,url):
             sleep(delay)
         
     if req.status_code == constant.ok_code:
-        if (overwrite == True or os.path.isfile(fullpath) == False):
-            logger.debug(f"Downloading {filename}")
-            with open(fullpath, 'wb') as f:
-                shutil.copyfileobj(req.raw, f)
-                
-            return True
-                
-        else:
-            logger.debug(f"File {filename} exists, overwriting disabled")
-            return False
+        logger.debug(f"Downloading {filename}")
+        with open(fullpath, 'wb') as f:
+            shutil.copyfileobj(req.raw, f)
+            
+        return True
+    
+    return False
             
     
     

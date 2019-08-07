@@ -119,8 +119,10 @@ class Doujinshi:
         return url_list
     
     def PrintDoujinshiInfo(self,verbose=False):
-        logger.verbose(f"Media id : {self.media_id}")
+        
         logger.info(f"Title: {self.title}")
+        logger.verbose(f"Main id : {self.main_id}")
+        logger.verbose(f"Media id : {self.media_id}")
         logger.verbose(f"Language: {self.format_tags('language')}")
         logger.verbose(f"Parody: {self.format_tags('parody')}")
         logger.verbose(f"Artist: {self.format_tags('artist')}")
