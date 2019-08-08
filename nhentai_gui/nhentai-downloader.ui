@@ -429,6 +429,18 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>CancelButton</tabstop>
+  <tabstop>StartButton</tabstop>
+  <tabstop>initia_page_num</tabstop>
+  <tabstop>location_selection</tabstop>
+  <tabstop>select_tags_button</tabstop>
+  <tabstop>search_query_content</tabstop>
+  <tabstop>last_page_num</tabstop>
+  <tabstop>search_type_selection</tabstop>
+  <tabstop>location_directory</tabstop>
+  <tabstop>LoginButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
  <slots>
