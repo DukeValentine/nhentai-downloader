@@ -10,10 +10,13 @@ before_script:
     
 install:
   stage: build
+  only:
+  - dev
   script:
       - ls
       - python setup.py develop
       - nhentai-downloader --help
+      - nhentai-downloader --version
       - ls
     
 
