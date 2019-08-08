@@ -1,6 +1,7 @@
 from . import constant
 from .import io_utils
 from .logger import logger
+from platform import system
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from concurrent.futures import as_completed as completed_threads
@@ -42,6 +43,11 @@ def image_pool_manager(options,doujinshi):
     
     io_utils.create_path(doujinshi_path)
     
+    if(doujinshi.get_estimated_size("M") > io_utils.get_freespace(doujinshi_path,"M")):
+        logger.critical(f"No freespace available for {doujinshi.main_id}")
+        return
+    
+    
     
     logger.debug("Starting image pool")
     logger.debug(url_list)
@@ -53,6 +59,7 @@ def image_pool_manager(options,doujinshi):
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
         results = {executor.submit(download_worker,doujinshi_path,options.overwrite,options.delay,options.retry,url) : url for url in url_list}
         download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image")
+        
         
         for item in completed_threads(results):
             download_progress_bar.update(1)
@@ -77,6 +84,11 @@ def download_worker (path,overwrite,delay,retry,url):
     logger.debug(f"URL: {url}")
     logger.debug(f"Fullpath: {fullpath}")
     
+    if (overwrite == False and os.path.isfile(fullpath) == True):
+        logger.debug(f"File {filename} exists, overwriting disabled")
+        return False
+        
+    
     for attempt in range(1,retry+1):
         sleep(delay)
         req = requests.get(url, stream=True)
@@ -87,16 +99,13 @@ def download_worker (path,overwrite,delay,retry,url):
             sleep(delay)
         
     if req.status_code == constant.ok_code:
-        if (overwrite == True or os.path.isfile(fullpath) == False):
-            logger.debug(f"Downloading {filename}")
-            with open(fullpath, 'wb') as f:
-                shutil.copyfileobj(req.raw, f)
-                
-            return True
-                
-        else:
-            logger.debug(f"File {filename} exists, overwriting disabled")
-            return False
+        logger.debug(f"Downloading {filename}")
+        with open(fullpath, 'wb') as f:
+            shutil.copyfileobj(req.raw, f)
+            
+        return True
+    
+    return False
             
     
     
@@ -106,6 +115,7 @@ def torrent_download_worker(path,session,delay,retry,doujinshi_id):
     fullpath = os.path.join(path, f"{doujinshi_id}.torrent")
     
     logger.info(f"Downloading {doujinshi_id}.torrent")
+    logger.debug(f"Path : {fullpath}")
     logger.debug(url)
     
     for attempt in range(1,retry+1):
@@ -114,10 +124,7 @@ def torrent_download_worker(path,session,delay,retry,doujinshi_id):
         req = session.get(url, stream=True)
         logger.debug(f"Nhentai responded with {req.status_code} for {doujinshi_id}.torrent")
         
-        if session.history:
-            session.post(session.url)
-        
-        elif req.status_code == constant.ok_code:
+        if req.status_code == constant.ok_code:
             break
         else:
             sleep(delay)

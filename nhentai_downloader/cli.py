@@ -18,18 +18,29 @@ def option_parser():
     download = parser.add_argument_group('Download options')
     
     
+    
+    
     commit_date = ""
     commit_filepath = ""
     if system() is "Windows":
-        commit_filepath = os.path.join(sys._MEIPASS,"data")
+        try:
+            commit_filepath = os.path.join(sys._MEIPASS,"data")
+        except AttributeError as error:
+            commit_filepath = os.path.dirname(os.path.dirname(__file__))
               
-        with open(os.path.join(commit_filepath,".commit_date"),"r") as file:
+        with open(os.path.join(commit_filepath,"nhentai_data",".commit_date"),"r") as file:
             commit_date +="|"
             commit_date += file.readline()
         
     else:
         commit_filepath= os.path.dirname(os.path.dirname(__file__))
-        with open(os.path.join(commit_filepath,".commit_date")) as file:
+        
+        if(os.path.isfile(os.path.join(commit_filepath,".commit_date")) == False):
+            commit_filepath = os.path.join(commit_filepath,"nhentai_data",".commit_date")
+        else:
+            commit_filepath = os.path.join(commit_filepath,".commit_date")
+            
+        with open(commit_filepath) as file:
             commit_date +="|"
             commit_date += file.readline()
     
