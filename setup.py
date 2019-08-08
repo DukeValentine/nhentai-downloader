@@ -11,14 +11,19 @@ with open("README.md", encoding='utf-8') as f:
 
 setup(
     name='nhentai-downloader',
-    data_files = [("", [".commit_date","requirements.txt"])],
+   
     version = __version__,
     packages = find_packages(),
     author=__author__,
     author_email=__email__,
     keywords='nhentai, doujinshi',
     description="Nhentai doujinshi fetcher and downloader",
-    include_package_data=True,
+    package_data = {
+        "nhentai_data" : [".commit_date","requirements.txt","LICENSE","README.md"]
+        },
+    #include_package_data=True,
+    
+     #data_files = [("", [".commit_date","requirements.txt"])],
      zip_safe=False,
     install_requires=requirements,
     license = 'Apache',
