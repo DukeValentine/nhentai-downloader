@@ -81,7 +81,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QComboBox" name="comboBox">
+   <widget class="QComboBox" name="search_type_selection">
     <property name="geometry">
      <rect>
       <x>40</x>
