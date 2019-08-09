@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt , pyqtSlot
 from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget,QMessageBox,QMainWindow,QAction, QMenu,QTableWidget,QTableWidgetItem, QFileDialog,QDialog,QCheckBox,QHeaderView, QLineEdit
+from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget,QMessageBox,QMainWindow,QAction, QActionGroup,QMenu,QTableWidget,QTableWidgetItem, QFileDialog,QDialog,QCheckBox,QHeaderView, QLineEdit,QStyleFactory
 import sys
 from platform import system
 from PyQt5 import uic
@@ -9,6 +9,8 @@ from PyQt5 import uic
 
 form_class = uic.loadUiType("nhentai-downloader.ui")[0]
 tag_dialog_class = uic.loadUiType("tags_selection.ui")[0]
+settings_dialog_class = uic.loadUiType("config_dialog.ui")[0]
+
 
 ALL_LANGUAGES = ["english","japanese","chinese","translated"]
 
@@ -16,9 +18,11 @@ COMMON_TAGS = ["incest","lolicon","ahegao","shotacon","sweat","blowjob","nakadas
 
 
 
-class tagCheckBox(QCheckBox):
-    def __init__(self):
-        return
+class ConfigDialog(QDialog, settings_dialog_class):
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
+    
     
 
 
@@ -27,7 +31,7 @@ class TagDialog(QDialog, tag_dialog_class):
     
     
     def __init__(self, parent=None,columns = 8, languages = ALL_LANGUAGES):
-        QMainWindow.__init__(self, parent)
+        QDialog.__init__(self, parent)
         self.setupUi(self)
         
         
@@ -96,8 +100,28 @@ class MyWindowClass(QMainWindow, form_class):
         self.setupUi(self)
         
         self.location_selection.clicked.connect(self.location_selection_click)
-        
         self.select_tags_button.clicked.connect(self.tags_selection_click)
+        
+        
+        self.actionSettings.triggered.connect(self.settings_click)
+        
+        
+        available_styles_group = QActionGroup(self)
+        available_styles_group.setExclusive(True)
+        
+        for style in QStyleFactory.keys():
+            action = QAction(style)
+            action.setCheckable(True)
+            available_styles_group.addAction(action)
+        
+        
+        self.menuAppearance.addActions(available_styles_group.actions())
+        
+    
+    def settings_click(self):
+        config_dialog = ConfigDialog(None)
+        config_dialog.show()
+        config_dialog.exec_()
         
         
     def tags_selection_click(self):
@@ -109,8 +133,10 @@ class MyWindowClass(QMainWindow, form_class):
         
     def location_selection_click(self):
         options = QFileDialog.Options()
-        directory = QFileDialog.getExistingDirectory(self,"Select save location", "", options=QFileDialog.ShowDirsOnly)#
+        directory = QFileDialog.getExistingDirectory(self,"Select save location", "", options=QFileDialog.ShowDirsOnly)
         self.location_directory.setText(directory)
+        
+        
             
 
             

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>Nhentai_downloader</class>
+ <widget class="QMainWindow" name="Nhentai_downloader">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -56,9 +56,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>400</y>
+      <y>397</y>
       <width>811</width>
-      <height>38</height>
+      <height>41</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -69,7 +69,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignVCenter">
       <widget class="QLineEdit" name="search_query_content"/>
      </item>
      <item>
@@ -248,65 +248,22 @@
     <addaction name="actionGitlab_page"/>
     <addaction name="actionOpen_an_issue"/>
    </widget>
-   <widget class="QMenu" name="menuConfig">
+   <widget class="QMenu" name="menuEdit">
     <property name="focusPolicy">
      <enum>Qt::ClickFocus</enum>
     </property>
     <property name="title">
-     <string>Config</string>
+     <string>Edit</string>
     </property>
-    <widget class="QMenu" name="menuSave">
-     <property name="focusPolicy">
-      <enum>Qt::ClickFocus</enum>
-     </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::ActionsContextMenu</enum>
-     </property>
-     <property name="acceptDrops">
-      <bool>true</bool>
-     </property>
-     <property name="toolTipDuration">
-      <number>-1</number>
-     </property>
+    <widget class="QMenu" name="menuAppearance">
      <property name="title">
-      <string>Save</string>
+      <string>Appearance</string>
      </property>
-     <addaction name="actionSave_Location"/>
-     <addaction name="actionLog_Location"/>
-     <addaction name="actionGenerate_cbz"/>
-     <addaction name="actionRemove_after"/>
     </widget>
-    <widget class="QMenu" name="menuDownload">
-     <property name="title">
-      <string>Download</string>
-     </property>
-     <addaction name="actionDownload_torrent"/>
-     <addaction name="actionDownload_2"/>
-     <addaction name="actionOverwrite"/>
-     <addaction name="actionAdvanced_settings"/>
-    </widget>
-    <widget class="QMenu" name="menuAuthentication">
-     <property name="title">
-      <string>Authentication</string>
-     </property>
-     <addaction name="actionSave_login_details"/>
-     <addaction name="actionSet_login_details"/>
-    </widget>
-    <widget class="QMenu" name="menuSearch">
-     <property name="title">
-      <string>Search</string>
-     </property>
-     <addaction name="actionExcluded_tags"/>
-     <addaction name="actionIncluded_tags"/>
-    </widget>
-    <addaction name="menuSave"/>
-    <addaction name="menuDownload"/>
-    <addaction name="menuAuthentication"/>
-    <addaction name="menuSearch"/>
-    <addaction name="actionOutput"/>
-    <addaction name="actionInput"/>
+    <addaction name="menuAppearance"/>
+    <addaction name="actionSettings"/>
    </widget>
-   <addaction name="menuConfig"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -426,6 +383,19 @@
   <action name="actionInput">
    <property name="text">
     <string>Input</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actiona">
+   <property name="text">
+    <string>a</string>
    </property>
   </action>
  </widget>
