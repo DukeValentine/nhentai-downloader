@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>857</width>
+    <width>859</width>
     <height>673</height>
    </rect>
   </property>
@@ -37,9 +37,15 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>851</width>
-     <height>631</height>
+     <width>871</width>
+     <height>641</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
   </widget>
  </widget>

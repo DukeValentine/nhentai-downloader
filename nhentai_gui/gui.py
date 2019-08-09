@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt , pyqtSlot
 from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget,QMessageBox,QMainWindow,QAction, QMenu,QTableWidget,QTableWidgetItem, QFileDialog,QDialog
+from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget,QMessageBox,QMainWindow,QAction, QMenu,QTableWidget,QTableWidgetItem, QFileDialog,QDialog,QCheckBox,QHeaderView
 import sys
 from platform import system
 from PyQt5 import uic
@@ -10,12 +10,37 @@ from PyQt5 import uic
 form_class = uic.loadUiType("nhentai-downloader.ui")[0]
 tag_dialog_class = uic.loadUiType("tags_selection.ui")[0]
 
+ALL_LANGUAGES = ["english","japanese","chinese","translated"]
+
 
 
 class TagDialog(QDialog, tag_dialog_class):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,columns = 8, languages = ALL_LANGUAGES):
         QMainWindow.__init__(self, parent)
         self.setupUi(self)
+        
+        
+        self.tableWidget.horizontalHeader().hide()
+        self.tableWidget.verticalHeader().hide()
+        
+        self.tableWidget.setColumnCount(columns)
+        self.tableWidget.setRowCount(2)
+        
+        self.tableWidget.setSpan(0,0,1,8)
+        self.tableWidget.setSpan(1,len(languages), 1, columns - len(languages))
+        
+        language_item = QTableWidgetItem("Languages")
+        language_item.setTextAlignment(Qt.AlignHCenter)
+        self.tableWidget.setItem(0,0,language_item)
+        
+        self.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        
+        for column,language in enumerate(languages,0):
+            self.tableWidget.setCellWidget(1,column, QCheckBox(language))
+        
+        
+        
+        
 
 
 
