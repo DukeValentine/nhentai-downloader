@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt , pyqtSlot
 from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget,QMessageBox,QMainWindow,QAction, QActionGroup,QMenu,QTableWidget,QTableWidgetItem, QFileDialog,QDialog,QCheckBox,QHeaderView, QLineEdit,QStyleFactory,QFrame
+from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget,QMessageBox,QMainWindow,QAction, QActionGroup,QMenu,QTableWidget,QTableWidgetItem, QFileDialog,QDialog,QCheckBox,QHeaderView, QLineEdit,QStyleFactory,QFrame,QComboBox
 import sys
 from platform import system
 from PyQt5 import uic
@@ -18,10 +18,46 @@ COMMON_TAGS = ["incest","lolicon","ahegao","shotacon","sweat","blowjob","nakadas
 
 
 
+
+    
+
+
 class ConfigDialog(QDialog, settings_dialog_class):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None):
+
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        
+        self.download_end_choice.currentIndexChanged.connect(self.download_choice_change)
+        self.download_image_checkbox.stateChanged.connect(self.download_image_check)
+        
+        self.location_selection_save_config_dialog.clicked.connect(self.location_save_click)
+        self.location_selection_log_config_dialog.clicked.connect(self.location_log_click)
+        
+        
+    def download_choice_change(self):
+        self.remove_after_checkbox.setEnabled(self.download_end_choice.currentIndex() > 0)
+        
+    def download_image_check(self):
+        self.overwrite_checkbox.setEnabled( self.download_image_checkbox.isChecked())
+        
+        if(self.overwrite_checkbox.isChecked()):
+            self.overwrite_checkbox.setChecked( self.download_image_checkbox.isChecked() == True)
+            
+    def location_save_click(self):
+
+        options = QFileDialog.Options()
+        directory = QFileDialog.getExistingDirectory(self,"Select save location", "", options=QFileDialog.ShowDirsOnly)
+        self.location_save_config_dialog.setText(directory)
+        
+    def location_log_click(self):
+
+        options = QFileDialog.Options()
+        directory = QFileDialog.getExistingDirectory(self,"Select log location", "", options=QFileDialog.ShowDirsOnly)
+        self.location_log_config_dialog.setText(directory)
+        
+        
+        
     
     
 
@@ -30,7 +66,8 @@ class ConfigDialog(QDialog, settings_dialog_class):
 class TagDialog(QDialog, tag_dialog_class):
     
     
-    def __init__(self, parent=None,columns = 8, languages = ALL_LANGUAGES):
+    def __init__(self, parent=None,columns = 8, languages = ALL_LANGUAGES):
+
         QDialog.__init__(self, parent)
         self.setupUi(self)
         
@@ -133,19 +170,30 @@ class ThemeAction(QAction):
 
 
 
-class MyWindowClass(QMainWindow, form_class):
-    def __init__(self, parent=None):
+class MyWindowClass(QMainWindow, form_class):
+
+    def __init__(self, parent=None):
+
         QMainWindow.__init__(self, parent)
         self.setupUi(self)
+        
+        self.tag_dialog = None
+        self.config_dialog = None
+        self.frame_search = self.frame_2
+        self.frame_id = self.control_frame2
+    
         
         self.location_selection.clicked.connect(self.location_selection_click)
         self.select_tags_button.clicked.connect(self.tags_selection_click)
         
         
         self.actionSettings.triggered.connect(self.settings_click)
+        self.control_frame2.hide()
         
-        self.frame_6.setStyleSheet("#frame_6 {border:0;}")
-        self.frame_5.setStyleSheet("#frame_5 {border:0;}")
+        #self.frame_6.setStyleSheet("#frame_6 {border:0;}")
+        #self.frame_5.setStyleSheet("#frame_5 {border:0;}")
+        
+        
         
         available_styles_group = QActionGroup(self)
         available_styles_group.setExclusive(True)
@@ -156,35 +204,66 @@ class MyWindowClass(QMainWindow, form_class):
             
         available_styles_group.addAction(ThemeAction("NhentaiDark",self))
         
+        self.search_type_selection.currentIndexChanged.connect(self.search_type_change)
+        
         
         self.menuAppearance.addActions(available_styles_group.actions())
         
+    def closeEvent(self, event):
+
+        print ("User has clicked the red x on the main window")
+        print(self.tag_dialog)
+         
+        if(self.tag_dialog):
+            self.tag_dialog.accept()
+            
+        if(self.config_dialog):
+            self.config_dialog.accept()
+            
+        event.accept()
+        
+    def search_type_change(self):
+        print(f"now it's {self.search_type_selection.currentIndex()}")
+        if(self.search_type_selection.currentIndex() == 1):
+            self.frame_2 = self.frame_id
+            self.control_frame2.show()
+            
+        else:
+            self.frame_2 = self.frame_search
+            self.control_frame2.hide()
+        
     
     def settings_click(self):
-        config_dialog = ConfigDialog(None)
-        config_dialog.show()
-        config_dialog.exec_()
+        self.config_dialog = ConfigDialog(None)
+        self.config_dialog.show()
+        self.config_dialog.exec_()
         
         
     def tags_selection_click(self):
         print("tags selection")
-        tag_dialog = TagDialog(None)
-        tag_dialog.show()
-        tag_dialog.exec_()
+        self.tag_dialog = TagDialog(None)
+        self.tag_dialog.show()
+        self.tag_dialog.exec_()
         
         
-    def location_selection_click(self):
-        options = QFileDialog.Options()
-        directory = QFileDialog.getExistingDirectory(self,"Select save location", "", options=QFileDialog.ShowDirsOnly)
+    def location_selection_click(self):
+
+        options = QFileDialog.Options()
+
+        directory = QFileDialog.getExistingDirectory(self,"Select save location", "", options=QFileDialog.ShowDirsOnly)
+
         self.location_directory.setText(directory)
         
         
             
 
             
-app = QApplication(sys.argv)
+app = QApplication(sys.argv)
+
 ThemeAction.App = app
 
-myWindow = MyWindowClass(None)
-myWindow.show()
-app.exec_()
+myWindow = MyWindowClass(None)
+
+myWindow.show()
+
+sys.exit(app.exec_())
