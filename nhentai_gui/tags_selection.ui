@@ -47,6 +47,15 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="sizeAdjustPolicy">
+    <enum>QAbstractScrollArea::AdjustToContents</enum>
+   </property>
+   <property name="showGrid">
+    <bool>false</bool>
+   </property>
+   <property name="sortingEnabled">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <resources/>

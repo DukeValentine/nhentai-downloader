@@ -300,7 +300,7 @@
     <item row="1" column="0" colspan="2">
      <widget class="QFrame" name="middle_frame">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>1</verstretch>
        </sizepolicy>
@@ -314,42 +314,27 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QStackedWidget" name="stackedWidget">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>811</width>
-         <height>191</height>
-        </rect>
-       </property>
-       <widget class="QWidget" name="page_3">
-        <widget class="QGraphicsView" name="graphicsView">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>141</width>
-           <height>192</height>
-          </rect>
-         </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QStackedWidget" name="stackedWidget">
+         <widget class="QWidget" name="page_3">
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QTableWidget" name="tableWidget">
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
+             </property>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_4"/>
         </widget>
-        <widget class="QCheckBox" name="checkBox">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>21</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>CheckBox</string>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="page_4"/>
-      </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item row="0" column="0">
@@ -426,12 +411,12 @@
        <widget class="QComboBox" name="search_type_selection">
         <item>
          <property name="text">
-          <string>Site wide search</string>
+          <string>Id List</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Id List</string>
+          <string>Site wide search</string>
          </property>
         </item>
         <item>

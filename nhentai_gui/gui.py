@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt , pyqtSlot,pyqtSignal,QObject
-from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtGui import QPalette, QColor,QPixmap
 from PyQt5.QtWidgets import *
 import sys
 from platform import system
@@ -13,6 +13,8 @@ from enum import Enum
 form_class = uic.loadUiType("nhentai-downloader.ui")[0]
 tag_dialog_class = uic.loadUiType("tags_selection.ui")[0]
 settings_dialog_class = uic.loadUiType("config_dialog.ui")[0]
+thumbnail_class = uic.loadUiType("doujinshi_thumbnail.ui")[0]
+
 
 
 ALL_LANGUAGES = ["english","japanese","chinese","translated"]
@@ -22,6 +24,13 @@ COMMON_TAGS = ["incest","lolicon","ahegao","shotacon","sweat","blowjob","nakadas
 
 DOWNLOAD_ACTION = Enum('action','search id favorite')
 AFTER_DOWNLOAD = Enum('action','Nothing .cbz .zip')
+
+
+class DoujinshiThumbnail(QWidget,thumbnail_class):
+    def __init__(self, parent=None):
+        QWidget.__init__(self,parent)
+        self.setupUi(self)
+
 
 
 
@@ -270,8 +279,22 @@ class MyWindowClass(QMainWindow, form_class):
         self.actionSettings.triggered.connect(self.settings_click)
         #self.control_frame2.hide()
         
-        #self.frame_6.setStyleSheet("#frame_6 {border:0;}")
-        #self.frame_5.setStyleSheet("#frame_5 {border:0;}")
+        self.tableWidget.horizontalHeader().hide()
+        self.tableWidget.verticalHeader().hide()
+        
+        
+        self.tableWidget.setColumnCount(6)
+        self.tableWidget.setRowCount(2)
+        
+        pixmap = QPixmap("/home/nelarus-pc/Pictures/photos.png")
+        
+        
+        
+        self.tableWidget.setCellWidget(0,0, QLabel(self.tableWidget).setPixmap(pixmap))
+        self.tableWidget.setCellWidget(1,0, QLabel(self.tableWidget).setPixmap(pixmap))
+        
+        
+        
         
         
         
@@ -303,15 +326,12 @@ class MyWindowClass(QMainWindow, form_class):
         
     def search_type_change(self):
         print(f"now it's {self.search_type_selection.currentIndex()}")
-        if(self.search_type_selection.currentIndex() == 1):
-            print(1)
-            self.search_type.setCurrentIndex(0)
-            #self.control_frame2.show()
+        self.search_type.setCurrentIndex(self.search_type_selection.currentIndex())
+        if(self.search_type_selection.currentIndex() > 0):
+            self.search_type.setCurrentIndex(1)
             
         else:
-            self.search_type.setCurrentIndex(1)
-            print(2)
-            #self.control_frame2.hide()
+            self.search_type.setCurrentIndex(0)
         
     
     def settings_click(self):
@@ -339,6 +359,7 @@ class MyWindowClass(QMainWindow, form_class):
         selected_tags = " ".join(self.tag_dialog.retrieve_checked_cells())
         self.search_query_content.setText(selected_tags)
         self.tag_dialog.deleteLater()
+        self.tag_dialog = None
         
     def location_selection_click(self):
 
