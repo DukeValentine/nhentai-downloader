@@ -5,6 +5,7 @@ import sys
 from platform import system
 from PyQt5 import uic
 import os
+import webbrowser
 from enum import Enum
 
 
@@ -33,6 +34,7 @@ class NhentaiSettings(QObject):
         self.overwrite = False
         self.download = True
         self.torrent = False
+        self.remove_after = False
         self.delay = 1.0
         self.threads = 4
         self.retry = 5
@@ -57,7 +59,7 @@ class ConfigDialog(QDialog, settings_dialog_class):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         
-        self.settings = settings
+        #self.settings = settings
         self.initial_config(settings)
         
         
@@ -78,23 +80,44 @@ class ConfigDialog(QDialog, settings_dialog_class):
     def initial_config(self,settings):
         self.location_save_config_dialog.setText(settings.save_directory)
         self.location_log_config_dialog.setText(settings.log_directory)
+        self.download_threads.setValue(settings.threads)
+        self.delay.setValue(settings.delay)
+        self.retry.setValue(settings.retry)
+        self.download_image_checkbox.setChecked(settings.download)
+        self.overwrite_checkbox.setChecked(settings.overwrite)
+        self.download_torrent_checkbox.setChecked(settings.torrent)
+        self.remove_after_checkbox.setChecked(settings.remove_after)
+        self.download_end_choice.setCurrentIndex(settings.after_download.value - 1)
+        self.username.setText(settings.login)
+        self.password.setText(settings.password)
+        
+        
+        
         
         
         
     def apply_settings(self):
-        self.settings.save_directory = self.location_save_config_dialog.text()
-        self.settings.log_directory = self.location_log_config_dialog.text()
-        self.settingsChanged.emit(self.settings)
-        #self.settingsChanged.emit()
+        new_settings = NhentaiSettings()
+        new_settings.save_directory = self.location_save_config_dialog.text()
+        new_settings.log_directory = self.location_log_config_dialog.text()
+        new_settings.threads = self.download_threads.value()
+        new_settings.delay = self.delay.value()
+        new_settings.retry = self.retry.value()
+        new_settings.download = self.download_image_checkbox.isChecked()
+        new_settings.overwrite =  self.overwrite_checkbox.isChecked()
+        new_settings.torrent = self.download_torrent_checkbox.isChecked()
+        new_settings.remove_after = self.remove_after_checkbox.isChecked()
+        new_settings.after_download = AFTER_DOWNLOAD(self.download_end_choice.currentIndex()+1)
+        new_settings.login = self.username.text()
+        new_settings.password = self.password.text()
         
-        
-        print("apply")
+        self.settingsChanged.emit(new_settings)
     
     def default_settings(self):
-        print("defaults")
+        self.initial_config(NhentaiSettings())
     
     def open_help(self):
-        print("help")
+        webbrowser.open("https://gitlab.com/DukeValentine/nhentai-downloader/issues")
         
         
     def download_choice_change(self):
@@ -130,9 +153,6 @@ class TagDialog(QDialog, tag_dialog_class):
         self.setupUi(self)
         
         
-        self.buttonBox.accepted.connect(self.retrieve_checked_cells)
-        
-        
         self.tableWidget.horizontalHeader().hide()
         self.tableWidget.verticalHeader().hide()
         
@@ -162,25 +182,18 @@ class TagDialog(QDialog, tag_dialog_class):
             
     
     def retrieve_checked_cells(self):
-        checked_cells = []
+        tags = []
         
         for row in range(self.tableWidget.rowCount()):
             for column in range(self.tableWidget.columnCount()):
                 try:
                     if(self.tableWidget.cellWidget(row,column).isChecked()):
-                        checked_cells.append(self.tableWidget.cellWidget(row,column).text())
+                        tags.append(self.tableWidget.cellWidget(row,column).text())
                         
                 except AttributeError:
                     pass
-                    
-                
         
-        
-        
-        
-        print(checked_cells)
-        
-        
+        return tags
         
         
         
@@ -238,12 +251,11 @@ class MyWindowClass(QMainWindow, form_class):
         self.setupUi(self)
         
         self.tag_dialog = None
-        self.config_dialog = ConfigDialog(None)
-        self.config_dialog.settingsChanged.connect(self.update_settings)
-        
-        self.frame_search = self.frame_2
-        self.frame_id = self.control_frame2
         self.settings = NhentaiSettings()
+        self.config_dialog = None
+        
+        self.location_directory.setText(self.settings.save_directory)
+        
     
         
         self.location_selection.clicked.connect(self.location_selection_click)
@@ -280,34 +292,34 @@ class MyWindowClass(QMainWindow, form_class):
     def closeEvent(self, event):
 
         print ("User has clicked the red x on the main window")
-        print(self.tag_dialog)
          
         if(self.tag_dialog):
-            self.tag_dialog.accept()
+            self.tag_dialog.close()
             
         if(self.config_dialog):
-            self.config_dialog.accept()
+            self.config_dialog.close()
             
         event.accept()
         
     def search_type_change(self):
         print(f"now it's {self.search_type_selection.currentIndex()}")
         if(self.search_type_selection.currentIndex() == 1):
-            self.frame_2 = self.frame_id
             self.control_frame2.show()
             
         else:
-            self.frame_2 = self.frame_search
             self.control_frame2.hide()
         
     
     def settings_click(self):
+        self.config_dialog = ConfigDialog(None,self.settings)
+        self.config_dialog.settingsChanged.connect(self.update_settings)
         self.config_dialog.show()
         self.config_dialog.exec_()
         
     def update_settings(self,new_settings):
         self.settings = new_settings
-        print(self.settings.save_directory)
+        self.location_directory.setText(self.settings.save_directory)
+        
         
         
         
@@ -315,9 +327,14 @@ class MyWindowClass(QMainWindow, form_class):
     def tags_selection_click(self):
         print("tags selection")
         self.tag_dialog = TagDialog(None)
+        self.tag_dialog.accepted.connect(self.get_tags)
         self.tag_dialog.show()
         self.tag_dialog.exec_()
         
+    def get_tags(self):
+        selected_tags = " ".join(self.tag_dialog.retrieve_checked_cells())
+        self.search_query_content.setText(selected_tags)
+        self.tag_dialog.deleteLater()
         
     def location_selection_click(self):
 
@@ -326,6 +343,7 @@ class MyWindowClass(QMainWindow, form_class):
         directory = QFileDialog.getExistingDirectory(self,"Select save location", "", options=QFileDialog.ShowDirsOnly)
 
         self.location_directory.setText(directory)
+        self.settings.save_directory = directory
         
         
             
