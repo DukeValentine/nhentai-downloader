@@ -305,9 +305,11 @@ class MyWindowClass(QMainWindow, form_class):
         print(f"now it's {self.search_type_selection.currentIndex()}")
         if(self.search_type_selection.currentIndex() == 1):
             print(1)
+            self.search_type.setCurrentIndex(0)
             #self.control_frame2.show()
             
         else:
+            self.search_type.setCurrentIndex(1)
             print(2)
             #self.control_frame2.hide()
         
