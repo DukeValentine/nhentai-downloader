@@ -1,9 +1,11 @@
-from PyQt5.QtCore import Qt , pyqtSlot
+from PyQt5.QtCore import Qt , pyqtSlot,pyqtSignal,QObject
 from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget,QMessageBox,QMainWindow,QAction, QActionGroup,QMenu,QTableWidget,QTableWidgetItem, QFileDialog,QDialog,QCheckBox,QHeaderView, QLineEdit,QStyleFactory,QFrame,QComboBox
+from PyQt5.QtWidgets import *
 import sys
 from platform import system
 from PyQt5 import uic
+import os
+from enum import Enum
 
 
 
@@ -17,22 +19,82 @@ ALL_LANGUAGES = ["english","japanese","chinese","translated"]
 COMMON_TAGS = ["incest","lolicon","ahegao","shotacon","sweat","blowjob","nakadashi","impregnation","dark skin","footjob","harem","stockings","paizuri"]
 
 
+DOWNLOAD_ACTION = Enum('action','search id favorite')
+AFTER_DOWNLOAD = Enum('action','Nothing .cbz .zip')
 
+
+
+class NhentaiSettings(QObject):
+    def __init__(self):
+        QObject.__init__(self)
+        self.save_directory = os.getcwd()
+        self.log_directory = os.getcwd()
+        self.directory = self.save_directory
+        self.overwrite = False
+        self.download = True
+        self.torrent = False
+        self.delay = 1.0
+        self.threads = 4
+        self.retry = 5
+        self.after_download = AFTER_DOWNLOAD.Nothing
+        self.initial_page = 1
+        self.max_page = 0
+        self.download_action = DOWNLOAD_ACTION.search
+        self.login = None
+        self.password = None
+        
+    
 
     
 
 
 class ConfigDialog(QDialog, settings_dialog_class):
-    def __init__(self, parent=None):
-
+    settingsChanged = pyqtSignal(NhentaiSettings)
+    #settingsChanged = pyqtSignal()
+    
+    
+    def __init__(self, parent=None,settings = NhentaiSettings()):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        
+        self.settings = settings
+        self.initial_config(settings)
+        
+        
         
         self.download_end_choice.currentIndexChanged.connect(self.download_choice_change)
         self.download_image_checkbox.stateChanged.connect(self.download_image_check)
         
         self.location_selection_save_config_dialog.clicked.connect(self.location_save_click)
         self.location_selection_log_config_dialog.clicked.connect(self.location_log_click)
+        
+       
+        
+        
+        self.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(self.apply_settings)
+        self.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked.connect(self.default_settings)
+        self.buttonBox.button(QDialogButtonBox.Help).clicked.connect(self.open_help)
+    
+    def initial_config(self,settings):
+        self.location_save_config_dialog.setText(settings.save_directory)
+        self.location_log_config_dialog.setText(settings.log_directory)
+        
+        
+        
+    def apply_settings(self):
+        self.settings.save_directory = self.location_save_config_dialog.text()
+        self.settings.log_directory = self.location_log_config_dialog.text()
+        self.settingsChanged.emit(self.settings)
+        #self.settingsChanged.emit()
+        
+        
+        print("apply")
+    
+    def default_settings(self):
+        print("defaults")
+    
+    def open_help(self):
+        print("help")
         
         
     def download_choice_change(self):
@@ -45,14 +107,10 @@ class ConfigDialog(QDialog, settings_dialog_class):
             self.overwrite_checkbox.setChecked( self.download_image_checkbox.isChecked() == True)
             
     def location_save_click(self):
-
-        options = QFileDialog.Options()
         directory = QFileDialog.getExistingDirectory(self,"Select save location", "", options=QFileDialog.ShowDirsOnly)
         self.location_save_config_dialog.setText(directory)
         
     def location_log_click(self):
-
-        options = QFileDialog.Options()
         directory = QFileDialog.getExistingDirectory(self,"Select log location", "", options=QFileDialog.ShowDirsOnly)
         self.location_log_config_dialog.setText(directory)
         
@@ -168,6 +226,8 @@ class ThemeAction(QAction):
     
 
 
+def login_action():
+    print("login")
 
 
 class MyWindowClass(QMainWindow, form_class):
@@ -178,13 +238,21 @@ class MyWindowClass(QMainWindow, form_class):
         self.setupUi(self)
         
         self.tag_dialog = None
-        self.config_dialog = None
+        self.config_dialog = ConfigDialog(None)
+        self.config_dialog.settingsChanged.connect(self.update_settings)
+        
         self.frame_search = self.frame_2
         self.frame_id = self.control_frame2
+        self.settings = NhentaiSettings()
     
         
         self.location_selection.clicked.connect(self.location_selection_click)
         self.select_tags_button.clicked.connect(self.tags_selection_click)
+        self.login_button.clicked.connect(login_action)
+        
+        
+        
+        
         
         
         self.actionSettings.triggered.connect(self.settings_click)
@@ -234,9 +302,14 @@ class MyWindowClass(QMainWindow, form_class):
         
     
     def settings_click(self):
-        self.config_dialog = ConfigDialog(None)
         self.config_dialog.show()
         self.config_dialog.exec_()
+        
+    def update_settings(self,new_settings):
+        self.settings = new_settings
+        print(self.settings.save_directory)
+        
+        
         
         
     def tags_selection_click(self):

@@ -82,7 +82,7 @@
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QPushButton" name="LoginButton">
+        <widget class="QPushButton" name="login_button">
          <property name="text">
           <string>Login</string>
          </property>
@@ -360,9 +360,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>159</y>
+         <y>150</y>
          <width>801</width>
-         <height>41</height>
+         <height>50</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -371,25 +371,24 @@
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QLabel" name="search_query_label_2">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>0</y>
-          <width>87</width>
-          <height>36</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Id List</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="search_query_label_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Id List</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -579,7 +578,7 @@
   <tabstop>search_query_content</tabstop>
   <tabstop>last_page_num</tabstop>
   <tabstop>location_directory</tabstop>
-  <tabstop>LoginButton</tabstop>
+  <tabstop>login_button</tabstop>
  </tabstops>
  <resources/>
  <connections/>
