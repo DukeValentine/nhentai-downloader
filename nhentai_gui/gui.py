@@ -268,7 +268,7 @@ class MyWindowClass(QMainWindow, form_class):
         
         
         self.actionSettings.triggered.connect(self.settings_click)
-        self.control_frame2.hide()
+        #self.control_frame2.hide()
         
         #self.frame_6.setStyleSheet("#frame_6 {border:0;}")
         #self.frame_5.setStyleSheet("#frame_5 {border:0;}")
@@ -304,10 +304,12 @@ class MyWindowClass(QMainWindow, form_class):
     def search_type_change(self):
         print(f"now it's {self.search_type_selection.currentIndex()}")
         if(self.search_type_selection.currentIndex() == 1):
-            self.control_frame2.show()
+            print(1)
+            #self.control_frame2.show()
             
         else:
-            self.control_frame2.hide()
+            print(2)
+            #self.control_frame2.hide()
         
     
     def settings_click(self):
