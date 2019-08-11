@@ -149,8 +149,8 @@ def get_page(delay,retry,url,logger = logging.getLogger(),session = requests):
     for attempt in range(1,retry+1):
         sleep(delay)
         
-        current_page_url = f"{constant.urls['FAV_URL']}{search_query}&page={page}"
-        response = session.get(current_page_url)
+        
+        response = session.get(url)
         
         if response.status_code == constant.ok_code:
             return response
