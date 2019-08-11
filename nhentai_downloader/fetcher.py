@@ -213,9 +213,11 @@ def search_doujinshi(options,session=None):
     logger.info(f"Search tags: {options.tags}")
     
     doujinshi_list = []
-    id_list = []
+    
     
     while (page <= options.max_page or not options.max_page):
+        
+        
         logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
         
         search_url = constant.urls['SEARCH'] +  search_string + "&page={0}".format(page)
@@ -226,24 +228,6 @@ def search_doujinshi(options,session=None):
         
             if response.status_code is not constant.ok_code:
                 logger.error("Error getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
-                
-                
-            elif response.history:
-                logger.debug("Redirect")
-                logger.debug(response.content)
-                
-                response_html = bs4.BeautifulSoup(response.content, 'html.parser')
-                csrf_token = response_html.find('input', attrs={"name":'csrfmiddlewaretoken'}).attrs['value']
-                next = response_html.find('input',attrs={"name":"next"}).attrs['value']
-                url = "https://nhentai.net" + next
-                payload = {
-                    'csrfmiddlewaretoken' : csrf_token,
-                    'next' : next
-                }
-                logger.debug(payload)
-                logger.debug(response.url)
-                logger.debug(requests.post(url,data=payload) )
-                print()
             else:
                 break
         
@@ -258,10 +242,12 @@ def search_doujinshi(options,session=None):
         
         
         sleep(options.delay)
+        id_list = []
         for id in search_elem:
             id_list.append(href_regex.search(id.get('href')).group())
             
-            
+        
+        
         doujinshi_list = doujinshi_list + fetch_id(options,id_list)
         logger.info("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
             
@@ -299,7 +285,8 @@ def fetch_id(options,id,session=None):
     doujinshi_list = batch_doujinshi_info_fetch(options,id_list)
     
     
-    doujinshi_counter = tqdm(total = len(doujinshi_list), desc = "Downloading doujinshi list", unit = "Doujinshi")
+    doujinshi_counter = tqdm(total = len(doujinshi_list), desc = "Downloading doujinshi list", unit = "Doujinshi",dynamic_ncols = True, leave = False)
+    doujinshi_counter.leave = False
     
     download_counter  = 0
     for id_doujinshi in doujinshi_list:
@@ -322,9 +309,14 @@ def fetch_id(options,id,session=None):
             if options.cbz:
                 io_utils.create_cbz(options.directory,id_doujinshi,options.remove_after)
         doujinshi_counter.update(1)
+        
+    
     doujinshi_counter.close()
-    print("\r")
-    logger.info("Finished downloading doujinshi list")
+    print("\r\n")
+    
+   
+    
+    logger.verbose("Finished downloading doujinshi list")
             
     if options.torrent:
         if not (options.login and options.password):

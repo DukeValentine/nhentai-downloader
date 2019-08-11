@@ -69,8 +69,7 @@ def logger_config(logging_level = logging.INFO):
         stream_handler.setLevel(logging_level)
         stream_handler.setFormatter(format)
         
-        progress_bar_handler = logging.StreamHandler(stream = TqdmStream)
-        progress_bar_handler.setLevel(0)
+       
         
 
 
