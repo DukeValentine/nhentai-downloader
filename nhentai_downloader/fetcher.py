@@ -147,13 +147,13 @@ def fetch_favorites(session,options):
 
 def fetch_favorite_page_ids(page,delay,retry,session,tags,logger):
     doujinshi_list = []
-    search_string = '+'.join(tags)
+    search_query = '+'.join(tags)
     
     
     for attempt in range(1,retry+1):
         sleep(delay)
         
-        current_page_url = f"{constant.urls['FAV_URL']}{search_string}&page={page}"
+        current_page_url = f"{constant.urls['FAV_URL']}{search_query}&page={page}"
         response = session.get(current_page_url)
         
         if response.status_code == constant.ok_code:
@@ -190,27 +190,28 @@ def search_doujinshi(options,session=None):
     
     
     page = options.initial_page
+    max_page = min(options.max_page, get_max_page_results(options.delay,options.retry,options.tags,logger,session))
     
 
     
     #Nhentai joins search words with a '+' character
-    search_string = '+'.join(options.tags)
+    search_query = '+'.join(options.tags)
     
     href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrasing out the rest of the link
     
     
     logger.debug(f"Base directory:{options.directory}")
-    logger.debug(f"Page {page} to {options.max_page}")
+    logger.debug(f"Page {page} to {max_page}")
         
     logger.info(f"Search tags: {options.tags}")
     
     doujinshi_list = []
     
     
-    while (page <= options.max_page or not options.max_page):
+    while (page <= max_page or not max_page):
         
         
-        logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
+        logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_query) + "&page={0}".format(page))
         
         id_list = fetch_search_page_ids(page,options.delay,options.retry,options.tags,logger,session)
         
@@ -227,16 +228,43 @@ def search_doujinshi(options,session=None):
     return doujinshi_list
 
 
+def get_max_page_results(delay,retry,tags,logger,session = None):
+    if(session is None):
+        session = requests
+    
+    search_query = '+'.join(tags)
+    search_url = f"{constant.urls['SEARCH']}{search_query}"
+    
+    href_regex = re.compile(r'page=([\d]+)')
+    
+    for attempt in range(1,retry+1):
+        sleep(delay)
+        response = session.get(search_url)
+        
+        if response.status_code is not constant.ok_code:
+            logger.error(f"Error getting page from {search_query}")
+            
+        else:
+            break
+        
+    search_page = response.content
+    search_html = bs4.BeautifulSoup(search_page,'html.parser')
+    search_elem = search_html.find('a', class_ = 'last')
+    
+    
+    return int(href_regex.search(search_elem.get('href')).group(1))
+
+
 def fetch_search_page_ids(page,delay,retry,tags,logger,session = None):
     if(session is None):
         session = requests
     
-    search_string = '+'.join(tags)
+    search_query = '+'.join(tags)
     
-    href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrasing out the rest of the link
+    href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrashing out the rest of the link
     
     
-    search_url = constant.urls['SEARCH'] +  search_string + "&page={0}".format(page)
+    search_url = constant.urls['SEARCH'] +  search_query + "&page={0}".format(page)
     
     for attempt in range(1,retry+1):
         sleep(delay)
@@ -244,7 +272,7 @@ def fetch_search_page_ids(page,delay,retry,tags,logger,session = None):
         
     
         if response.status_code is not constant.ok_code:
-            logger.error("Error getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
+            logger.error("Error getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_query) + "&page={0}".format(page))
         else:
             break
     

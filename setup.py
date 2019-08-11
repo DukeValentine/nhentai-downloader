@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from nhentai_downloader import __version__,__author__,__email__
+from nhentai_downloader import __version__,__author__,__email__,__repo_url__
 
 
 with open("requirements.txt") as file:
@@ -27,7 +27,7 @@ setup(
      zip_safe=False,
     install_requires=requirements,
     license = 'Apache',
-    url = 'https://gitlab.com/DukeValentine/nhentai-downloader',
+    url = __repo_url__,
     download_url = 'https://gitlab.com/DukeValentine/nhentai-downloader/-/archive/master/nhentai-downloader-master.tar.gz',
     long_description=long_description,
     long_description_content_type='text/markdown',

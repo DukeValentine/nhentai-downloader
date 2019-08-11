@@ -4,6 +4,7 @@ __version__ = '0.5.5.10-dev'
 
 __author__ = 'DukeValentine' 
 __email__ = 'humanix@posteo.de'
+__repo_url__ = 'https://gitlab.com/DukeValentine/nhentai-downloader'
 
 
 
