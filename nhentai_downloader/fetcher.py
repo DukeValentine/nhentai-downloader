@@ -280,15 +280,7 @@ def fetch_search_page_ids(page,delay,retry,tags,logger,session = None):
     
     search_url = constant.urls['SEARCH'] +  search_query + "&page={0}".format(page)
     
-    for attempt in range(1,retry+1):
-        sleep(delay)
-        response = session.get(search_url)
-        
-    
-        if response.status_code is not constant.ok_code:
-            logger.error("Error getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_query) + "&page={0}".format(page))
-        else:
-            break
+    response = get_page(delay,retry,search_url,logger,session)
     
     search_page = response.content
     search_html = bs4.BeautifulSoup(search_page,'html.parser')
