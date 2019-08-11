@@ -242,17 +242,22 @@ def get_max_page_results(delay,retry,tags,logger,session = None):
         response = session.get(search_url)
         
         if response.status_code is not constant.ok_code:
-            logger.error(f"Error getting page from {search_query}")
+            logger.error(f"Error getting page from {search_url}")
+            logger.error(f"Response : {response.status_code}")
             
         else:
             break
         
-    search_page = response.content
-    search_html = bs4.BeautifulSoup(search_page,'html.parser')
-    search_elem = search_html.find('a', class_ = 'last')
+    if(response.status_code == constant.ok_code):
+        search_page = response.content
+        search_html = bs4.BeautifulSoup(search_page,'html.parser')
+        search_elem = search_html.find('a', class_ = 'last')
+
+
+        return int(href_regex.search(search_elem.get('href')).group(1))
     
-    
-    return int(href_regex.search(search_elem.get('href')).group(1))
+    else:
+        return 0
 
 
 def fetch_search_page_ids(page,delay,retry,tags,logger,session = None):
