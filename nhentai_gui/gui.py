@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt , pyqtSlot,pyqtSignal,QObject
-from PyQt5.QtGui import QPalette, QColor,QPixmap
+from PyQt5.QtGui import QPalette, QColor,QPixmap,QPainter
 from PyQt5.QtWidgets import *
 import sys
 from platform import system
@@ -27,12 +27,24 @@ AFTER_DOWNLOAD = Enum('action','Nothing .cbz .zip')
 
 
 class DoujinshiThumbnail(QWidget,thumbnail_class):
-    def __init__(self, parent=None):
+    def __init__(self, path,parent=None):
         QWidget.__init__(self,parent)
         self.setupUi(self)
+        pic = QPixmap(path)
+        self.label.setPixmap(pic)
+        
+        
+    def mousePressEvent(self, event):
+        self.checkBox.setChecked(not self.checkBox.isChecked())
+        
 
 
-
+class ImgWidget1(QLabel):
+
+    def __init__(self,path,parent=None):
+        super(ImgWidget1, self).__init__(parent)
+        pic = QPixmap(path)
+        self.setPixmap(pic)
 
 class NhentaiSettings(QObject):
     def __init__(self):
@@ -252,6 +264,18 @@ def login_action():
     print("login")
 
 
+        
+class ImgWidget2(QWidget):
+
+    def __init__(self, path,parent=None):
+        super(ImgWidget2, self).__init__(parent)
+        self.pic = QPixmap(path)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.drawPixmap(0, 0, self.pic)
+
+
 class MyWindowClass(QMainWindow, form_class):
 
     def __init__(self, parent=None):
@@ -279,19 +303,25 @@ class MyWindowClass(QMainWindow, form_class):
         self.actionSettings.triggered.connect(self.settings_click)
         #self.control_frame2.hide()
         
-        self.tableWidget.horizontalHeader().hide()
-        self.tableWidget.verticalHeader().hide()
+        #self.tableWidget.horizontalHeader().hide()
+        #self.tableWidget.verticalHeader().hide()
         
         
-        self.tableWidget.setColumnCount(6)
-        self.tableWidget.setRowCount(2)
-        
-        pixmap = QPixmap("/home/nelarus-pc/Pictures/photos.png")
+        #self.tableWidget.setColumnCount(6)
+        #self.tableWidget.setRowCount(2)
         
         
         
-        self.tableWidget.setCellWidget(0,0, QLabel(self.tableWidget).setPixmap(pixmap))
-        self.tableWidget.setCellWidget(1,0, QLabel(self.tableWidget).setPixmap(pixmap))
+        
+        
+        for row in range(self.tableWidget.rowCount()):
+            for column in range(self.tableWidget.columnCount()):
+                self.tableWidget.horizontalHeader().setSectionResizeMode(column,QHeaderView.ResizeToContents)
+                self.tableWidget.verticalHeader().setSectionResizeMode(row,QHeaderView.ResizeToContents)
+                self.tableWidget.setCellWidget(row,column, DoujinshiThumbnail("/home/nelarus-pc/Pictures/photos.png"))
+                
+                
+        
         
         
         
