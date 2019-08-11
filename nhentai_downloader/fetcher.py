@@ -145,11 +145,7 @@ def fetch_favorites(session,options):
     return doujinshi_list
 
 
-def fetch_favorite_page_ids(page,delay,retry,session,tags,logger):
-    doujinshi_list = []
-    search_query = '+'.join(tags)
-    
-    
+def get_page(delay,retry,url,logger = logging.getLogger(),session = requests):
     for attempt in range(1,retry+1):
         sleep(delay)
         
@@ -157,11 +153,24 @@ def fetch_favorite_page_ids(page,delay,retry,session,tags,logger):
         response = session.get(current_page_url)
         
         if response.status_code == constant.ok_code:
-            break
+            return response
         
         elif response.status_code is not constant.ok_code:
             logger.error(f"Nhentai responded with {response.status_code}")
-        
+            
+            
+    return response
+    
+    
+
+
+def fetch_favorite_page_ids(page,delay,retry,session,tags,logger):
+    doujinshi_list = []
+    search_query = '+'.join(tags)
+    
+    current_page_url = f"{constant.urls['FAV_URL']}{search_query}&page={page}"
+    
+    response = get_page(delay,retry,current_page_url, logger, session)
     fav_page = response.content
     fav_html = bs4.BeautifulSoup(fav_page, 'html.parser')
     fav_elem = fav_html.find_all('div' , class_ = 'gallery-favorite')
