@@ -51,35 +51,17 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
         
         for attempt in range(1,retry+1):
             sleep(delay)
-            response = requests.get(f"https://nhentai.net/g/{doujinshi_id}/",allow_redirects=True)
+            response = requests.get(f"https://nhentai.net/g/{doujinshi_id}/")
             
         
             if response.status_code is not constant.ok_code:
                 logger.error(f"Error fetching doujinshi id[{doujinshi_id}]. Nhentai responded with {response.status_code} [Attempt {attempt} of {retry+1}]")
                 
-                
-            elif response.history:
-                logger.debug("Redirect")
-                logger.debug(response.content)
-                
-                response_html = bs4.BeautifulSoup(response, 'html.parser')
-                csrf_token = response_html.find('input', attrs={"name":'csrfmiddlewaretoken'}).attrs['value']
-                next = response_html.find('input',attrs={"name":"next"}).attrs['value']
-    
-                payload = {
-                    'csrfmiddlewaretoken' : csrf_token,
-                    'next' : next
-                }
-                
-                logger.debug(requests.post(response.url,data=payload) )
-                print()
             else:
                 break
             
-        if (response.status_code is not constant.ok_code) or response.history:
+        if (response.status_code is not constant.ok_code):
             logger.error(f"Doujinshi id[{doujinshi_id}] not found after {retry+1} attempts")
-            logger.debug(response.text)
-            print()
             logger.debug(requests.get(f"https://nhentai.net/g/{doujinshi_id}/"))
             return None
             
@@ -92,15 +74,11 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
             
             
             for item in page_html.find_all("script"):
-                
                 if "gallery" in item.get_text():
-                    #logger.debug(item)
                     doujinshi_info_text = item.get_text()
                     
                     
             doujinshi_info_json = info_regex.search(doujinshi_info_text).group().strip('(').strip(')')
-
-            
             doujinshi.FillInfo(json.loads(doujinshi_info_json.encode("UTF-8")))
                     
             return doujinshi
@@ -118,7 +96,8 @@ def batch_doujinshi_info_fetch(options,id_list):
             info_bar.update(1)
             logger.debug(f"{future.result().main_id} has {len(future.result().page_ext)} images")
             doujinshi_list.append(future.result())
-            
+     
+    info_bar.close()
     return doujinshi_list
 
 
@@ -307,9 +286,9 @@ def fetch_id(options,id,session=None):
     
     doujinshi_list = batch_doujinshi_info_fetch(options,id_list)
     
-    
-    doujinshi_counter = tqdm(total = len(doujinshi_list), desc = "Downloading doujinshi list", unit = "Doujinshi",dynamic_ncols = True, leave = False)
-    doujinshi_counter.leave = False
+    if options.download:
+        doujinshi_counter = tqdm(total = len(doujinshi_list), desc = "Downloading doujinshi list", unit = "Doujinshi",dynamic_ncols = True, leave = False)
+        doujinshi_counter.leave = False
     
     download_counter  = 0
     for id_doujinshi in doujinshi_list:
@@ -331,15 +310,14 @@ def fetch_id(options,id,session=None):
             
             if options.cbz:
                 io_utils.create_cbz(options.directory,id_doujinshi,options.remove_after)
-        doujinshi_counter.update(1)
+            doujinshi_counter.update(1)
         
-    
-    doujinshi_counter.close()
-    print("\r\n")
+    if options.download:
+        doujinshi_counter.close()
     
    
     
-    logger.verbose("Finished downloading doujinshi list")
+    logger.debug("Finished downloading doujinshi list")
             
     if options.torrent:
         if not (options.login and options.password):

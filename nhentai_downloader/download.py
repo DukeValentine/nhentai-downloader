@@ -7,11 +7,16 @@ from concurrent.futures import as_completed as completed_threads
 import requests
 import shutil
 from time import sleep
+import logging
 import os
 from tqdm import tqdm 
 
 
 def torrent_pool_manager(logger,options,id_list,session):
+    if(logger is None):
+        logger = logging.getLogger("NoneLogger")
+        
+    
     io_utils.create_path(options.directory)
     logger.debug("Starting torrent pool")
     
@@ -33,6 +38,8 @@ def image_pool_manager(logger,options,doujinshi):
     Create and manage a pool for downloading images
     Receives how many download threads there will be, along with the destination path and the url_list with all the images to download
     """
+    if(logger is None):
+        logger = logging.getLogger("NoneLogger")
     
     logger.debug(doujinshi.page_ext)
     

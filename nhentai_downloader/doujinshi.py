@@ -1,6 +1,8 @@
 from . import constant
 from datetime import datetime
 from platform import system
+import requests
+from time import sleep
 import os
 import json
 from .logger import logger
@@ -40,6 +42,8 @@ class Doujinshi:
         else:    
             for tag in new_tags:
                 self.tags.append(tag)
+                
+    
         
     def FillInfo(self, json_data):
         """
