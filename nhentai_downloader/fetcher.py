@@ -229,34 +229,11 @@ def search_doujinshi(options,session=None):
         
         logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
         
-        search_url = constant.urls['SEARCH'] +  search_string + "&page={0}".format(page)
-        for attempt in range(1,options.retry+1):
-            sleep(options.delay)
-            response = requests.get(search_url)
-            
+        id_list = fetch_search_page_ids(page,options.delay,options.retry,options.tags,logger)
         
-            if response.status_code is not constant.ok_code:
-                logger.error("Error getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
-            else:
-                break
-        
-        search_page = response.content
-        search_html = bs4.BeautifulSoup(search_page,'html.parser')
-        search_elem = search_html.find_all('a', class_ = 'cover')
-        
-        logger.info("Found {0} doujinshi in page".format(len(search_elem)))
-        
-        if (not len(search_elem)): #if there's no more search elements, it must mean the program passed the last page of the search
+        if(id_list is None):
             break
-        
-        
-        sleep(options.delay)
-        id_list = []
-        for id in search_elem:
-            id_list.append(href_regex.search(id.get('href')).group())
             
-        
-        
         doujinshi_list = doujinshi_list + fetch_id(options,id_list)
         logger.info("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
             
@@ -265,6 +242,43 @@ def search_doujinshi(options,session=None):
         
         
     return doujinshi_list
+
+
+def fetch_search_page_ids(page,delay,retry,tags,logger):
+    search_string = '+'.join(tags)
+    
+    href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrasing out the rest of the link
+    
+    
+    search_url = constant.urls['SEARCH'] +  search_string + "&page={0}".format(page)
+    
+    for attempt in range(1,retry+1):
+        sleep(delay)
+        response = requests.get(search_url)
+        
+    
+        if response.status_code is not constant.ok_code:
+            logger.error("Error getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
+        else:
+            break
+    
+    search_page = response.content
+    search_html = bs4.BeautifulSoup(search_page,'html.parser')
+    search_elem = search_html.find_all('a', class_ = 'cover')
+    
+    
+    
+    if (not len(search_elem)): #if there's no more search elements, it must mean the program passed the last page of the search
+        return None
+    
+    
+    
+    id_list = []
+    for id in search_elem:
+        id_list.append(href_regex.search(id.get('href')).group())
+    
+    
+    return id_list
     
 
 
