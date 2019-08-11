@@ -327,7 +327,7 @@ def fetch_id(options,id,session=None):
             if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(options.directory,id_doujinshi)):
                 continue
         
-            download.image_pool_manager(options,id_doujinshi)
+            download.image_pool_manager(logger,options,id_doujinshi)
             
             if options.cbz:
                 io_utils.create_cbz(options.directory,id_doujinshi,options.remove_after)
@@ -352,7 +352,7 @@ def fetch_id(options,id,session=None):
             if session is None:
                 return doujinshi_list
         
-        download.torrent_pool_manager(options,id_list,session)
+        download.torrent_pool_manager(logger,options,id_list,session)
             
         
             

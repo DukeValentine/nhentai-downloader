@@ -1,6 +1,5 @@
 from . import constant
 from .import io_utils
-from .logger import logger
 from platform import system
 
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -12,7 +11,7 @@ import os
 from tqdm import tqdm 
 
 
-def torrent_pool_manager(options,id_list,session):
+def torrent_pool_manager(logger,options,id_list,session):
     io_utils.create_path(options.directory)
     logger.debug("Starting torrent pool")
     
@@ -20,7 +19,7 @@ def torrent_pool_manager(options,id_list,session):
     total_torrents = len(id_list)
     
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
-        results = {executor.submit(torrent_download_worker,options.directory,session,options.delay,options.retry,id) : id for id in id_list}
+        results = {executor.submit(torrent_download_worker,logger,options.directory,session,options.delay,options.retry,id) : id for id in id_list}
         
         for item in completed_threads(results):
             downloaded_count +=1
@@ -29,7 +28,7 @@ def torrent_pool_manager(options,id_list,session):
     logger.debug("End torrent pool")
 
 
-def image_pool_manager(options,doujinshi):
+def image_pool_manager(logger,options,doujinshi):
     """
     Create and manage a pool for downloading images
     Receives how many download threads there will be, along with the destination path and the url_list with all the images to download
@@ -108,7 +107,7 @@ def download_worker (logger,path,overwrite,delay,retry,url):
     
     
 
-def torrent_download_worker(path,session,delay,retry,doujinshi_id):
+def torrent_download_worker(logger,path,session,delay,retry,doujinshi_id):
     url = f"{constant.urls['GALLERY_URL']}{doujinshi_id}/download"
     fullpath = os.path.join(path, f"{doujinshi_id}.torrent")
     
@@ -130,7 +129,5 @@ def torrent_download_worker(path,session,delay,retry,doujinshi_id):
     if req.status_code == constant.ok_code:
         with open(fullpath,"wb") as torrent_file:
             shutil.copyfileobj(req.raw, torrent_file)
-        logger.debug(f"Download of {doujinshi_id}.torrent finished")
-        
-    else:
-        logger.error("Failed to download torrent file")
+    
+    return req.status_code
