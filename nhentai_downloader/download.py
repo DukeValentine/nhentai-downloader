@@ -64,7 +64,7 @@ def image_pool_manager(logger,options,doujinshi):
     
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
         results = {executor.submit(download_worker,logger,doujinshi_path,options.overwrite,options.delay,options.retry,url) : url for url in url_list}
-        download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image")
+        download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image",leave = False)
         
         
         for item in completed_threads(results):

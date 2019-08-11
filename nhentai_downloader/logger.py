@@ -42,6 +42,12 @@ class DummyTqdmFile(object):
 
     def flush(self):
         return getattr(self.file, "flush", lambda: None)()
+    
+    
+
+            
+            
+
 
 def logger_config(logging_level = logging.INFO):
     if not len(logger.handlers):

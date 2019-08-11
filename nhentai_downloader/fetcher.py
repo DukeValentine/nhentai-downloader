@@ -120,12 +120,13 @@ def fetch_favorites(session,options):
     """
  
     page = options.initial_page
+    max_page = min(options.max_page, get_max_page_results(options.delay,options.retry,options.tags,logger,session))
     doujinshi_list = []
     
     logger.debug('+'.join(options.tags))
     
-    #not max_page is for the default max_page value (max_page = 0), which means 'fetch until the last page of favorites
-    while (page <= options.max_page or not options.max_page):  
+   
+    while (page <= max_page or not max_page):  
         logger.info(f"Getting page {page}")
         
         id_list = fetch_favorite_page_ids(page,options.delay,options.retry,session,options.tags,logger)
@@ -137,7 +138,6 @@ def fetch_favorites(session,options):
             break
 
         logger.info(f"{len(id_list)} doujinshi found")
-        
         doujinshi_list = doujinshi_list + fetch_id(options,id_list,session)
         logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
                 
@@ -321,9 +321,9 @@ def fetch_id(options,id,session=None):
     
     doujinshi_list = batch_doujinshi_info_fetch(options,id_list)
     
-    if options.download:
-        doujinshi_counter = tqdm(total = len(doujinshi_list), desc = "Downloading doujinshi list", unit = "Doujinshi",dynamic_ncols = True, leave = False)
-        doujinshi_counter.leave = False
+    
+    
+    doujinshi_counter = tqdm(total = len(doujinshi_list), desc = "Downloading doujinshi list", unit = "Doujinshi",dynamic_ncols = True, leave = True, disable = not options.download)
     
     download_counter  = 0
     for id_doujinshi in doujinshi_list:
@@ -347,8 +347,7 @@ def fetch_id(options,id,session=None):
                 io_utils.create_cbz(options.directory,id_doujinshi,options.remove_after)
             doujinshi_counter.update(1)
         
-    if options.download:
-        doujinshi_counter.close()
+    doujinshi_counter.close()
     
    
     
