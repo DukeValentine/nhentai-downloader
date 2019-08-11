@@ -202,11 +202,7 @@ def search_doujinshi(options,session=None):
     max_page = min(options.max_page, get_max_page_results(options.delay,options.retry,options.tags,logger,session))
     
 
-    
-    #Nhentai joins search words with a '+' character
     search_query = '+'.join(options.tags)
-    
-    href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrasing out the rest of the link
     
     
     logger.debug(f"Base directory:{options.directory}")
