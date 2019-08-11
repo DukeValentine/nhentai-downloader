@@ -143,52 +143,61 @@ def fetch_favorites(session,options):
     page = options.initial_page
     doujinshi_list = []
     
-    
-    search_string = '+'.join(options.tags)
-    
-    logger.debug(search_string)
+    logger.debug('+'.join(options.tags))
     
     #not max_page is for the default max_page value (max_page = 0), which means 'fetch until the last page of favorites
     while (page <= options.max_page or not options.max_page):  
         logger.info(f"Getting page {page}")
         
-        
-        for attempt in range(1,options.retry+1):
-           
-            sleep(options.delay)
-            
-            
-            current_page_url = f"{constant.urls['FAV_URL']}{search_string}&page={page}"
-            response = session.get(current_page_url)
-            
-            if response.status_code == constant.ok_code:
-                break
-            
-            elif response.status_code is not constant.ok_code:
-                logger.error(f"Nhentai responded with {response.status_code}")
-        
-        fav_page = response.content
-        fav_html = bs4.BeautifulSoup(fav_page, 'html.parser')
-        fav_elem = fav_html.find_all('div' , class_ = 'gallery-favorite')
+        id_list = fetch_favorite_page_ids(page,options.delay,options.retry,session,options.tags,logger)
         
         page+=1
         
-        if (not len(fav_elem)): #if there's no more favorite elements, it must mean the program passed the last page of favorites
+        if (id_list is None):
             logger.info("No doujinshi found in page")
             break
 
-        logger.info(f"{len(fav_elem)} doujinshi found")
-        
-        id_list = []
-        
-        for id in fav_elem:
-            id_list.append(id.get('data-id'))
+        logger.info(f"{len(id_list)} doujinshi found")
         
         doujinshi_list = doujinshi_list + fetch_id(options,id_list,session)
         logger.debug("Fetched {0} doujinshi so far".format(len(doujinshi_list)))
                 
         
     return doujinshi_list
+
+
+def fetch_favorite_page_ids(page,delay,retry,session,tags,logger):
+    doujinshi_list = []
+    search_string = '+'.join(tags)
+    
+    
+    for attempt in range(1,retry+1):
+        sleep(delay)
+        
+        current_page_url = f"{constant.urls['FAV_URL']}{search_string}&page={page}"
+        response = session.get(current_page_url)
+        
+        if response.status_code == constant.ok_code:
+            break
+        
+        elif response.status_code is not constant.ok_code:
+            logger.error(f"Nhentai responded with {response.status_code}")
+        
+    fav_page = response.content
+    fav_html = bs4.BeautifulSoup(fav_page, 'html.parser')
+    fav_elem = fav_html.find_all('div' , class_ = 'gallery-favorite')
+    
+    if (not len(fav_elem)): #if there's no more favorite elements, it must mean the program passed the last page of favorites
+        return None
+
+    
+    
+    id_list = []
+    
+    for id in fav_elem:
+        id_list.append(id.get('data-id'))
+    
+    return id_list
 
 
 def search_doujinshi(options,session=None):
