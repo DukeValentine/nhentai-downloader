@@ -57,7 +57,7 @@ def image_pool_manager(options,doujinshi):
     total_images = len(url_list)
     
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
-        results = {executor.submit(download_worker,doujinshi_path,options.overwrite,options.delay,options.retry,url) : url for url in url_list}
+        results = {executor.submit(download_worker,logger,doujinshi_path,options.overwrite,options.delay,options.retry,url) : url for url in url_list}
         download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image")
         
         
@@ -70,7 +70,7 @@ def image_pool_manager(options,doujinshi):
         logger.debug(f"Finished downloading doujinshi id[{doujinshi.main_id}]")
 
 
-def download_worker (path,overwrite,delay,retry,url):
+def download_worker (logger,path,overwrite,delay,retry,url):
     """
     Download file in given url in given path. Url must have the filename with extension (eg: https://i.nhentai.net/galleries/1343630/1.jpg)
     If Overwrite argument is false,the worker will check whether the file exists and skip if so
@@ -103,9 +103,7 @@ def download_worker (path,overwrite,delay,retry,url):
         with open(fullpath, 'wb') as f:
             shutil.copyfileobj(req.raw, f)
             
-        return True
-    
-    return False
+    return req.status_code
             
     
     
