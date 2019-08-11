@@ -137,6 +137,7 @@ class Doujinshi:
         logger.verbose(f"Tags: {self.format_tags('tag')}")
         logger.verbose(f"Upload_date: {self.GetFormattedDate()}")
         logger.verbose(f"Total favorites : {self.num_favorites}")
+        print()
         
     
     def toJSON(self):

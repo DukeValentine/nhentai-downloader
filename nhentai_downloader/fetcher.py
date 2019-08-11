@@ -185,6 +185,10 @@ def search_doujinshi(options,session=None):
     If the download argument is true, it will download found doujinshi in the given directory.
     Overwrite: whether it will overwrite already existing images
     """
+    if(session is None):
+        session = requests
+    
+    
     page = options.initial_page
     
 
@@ -208,7 +212,7 @@ def search_doujinshi(options,session=None):
         
         logger.info("Getting doujinshi from {0}".format(constant.urls['SEARCH'] +  search_string) + "&page={0}".format(page))
         
-        id_list = fetch_search_page_ids(page,options.delay,options.retry,options.tags,logger)
+        id_list = fetch_search_page_ids(page,options.delay,options.retry,options.tags,logger,session)
         
         if(id_list is None):
             break
@@ -223,7 +227,10 @@ def search_doujinshi(options,session=None):
     return doujinshi_list
 
 
-def fetch_search_page_ids(page,delay,retry,tags,logger):
+def fetch_search_page_ids(page,delay,retry,tags,logger,session = None):
+    if(session is None):
+        session = requests
+    
     search_string = '+'.join(tags)
     
     href_regex = re.compile(r'[\d]+') #Doujinshi in the search page have as the only identification the href in the cover, which is in the format /g/[id]. This regex filters only the id, thrasing out the rest of the link
@@ -233,7 +240,7 @@ def fetch_search_page_ids(page,delay,retry,tags,logger):
     
     for attempt in range(1,retry+1):
         sleep(delay)
-        response = requests.get(search_url)
+        response = session.get(search_url)
         
     
         if response.status_code is not constant.ok_code:
