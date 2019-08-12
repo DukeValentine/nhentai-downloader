@@ -33,6 +33,8 @@ class DoujinshiThumbnail(QWidget,thumbnail_class):
         pic = QPixmap(path)
         self.label.setPixmap(pic)
         
+        #QStackedWidget().in
+        
         
     def mousePressEvent(self, event):
         self.checkBox.setChecked(not self.checkBox.isChecked())
@@ -262,6 +264,12 @@ class ThemeAction(QAction):
 
 def login_action():
     print("login")
+    
+
+
+
+def change_thumbnail_page(stacked_widget, num):
+    stacked_widget.setCurrentIndex(stacked_widget.currentIndex() + num)
 
 
         
@@ -290,25 +298,20 @@ class MyWindowClass(QMainWindow, form_class):
         self.location_directory.setText(self.settings.save_directory)
         
     
-        
+        self.next_thumbpage.clicked.connect(lambda :change_thumbnail_page(self.thumbnail_pages,1) )
+        self.previous_thumbpage.clicked.connect(lambda :change_thumbnail_page(self.thumbnail_pages,-1) )
         self.location_selection.clicked.connect(self.location_selection_click)
         self.select_tags_button.clicked.connect(self.tags_selection_click)
         self.login_button.clicked.connect(login_action)
         
+        
+     
         
         
         
         
         
         self.actionSettings.triggered.connect(self.settings_click)
-        #self.control_frame2.hide()
-        
-        #self.tableWidget.horizontalHeader().hide()
-        #self.tableWidget.verticalHeader().hide()
-        
-        
-        #self.tableWidget.setColumnCount(6)
-        #self.tableWidget.setRowCount(2)
         
         
         
@@ -316,8 +319,8 @@ class MyWindowClass(QMainWindow, form_class):
         
         for row in range(self.tableWidget.rowCount()):
             for column in range(self.tableWidget.columnCount()):
-                self.tableWidget.horizontalHeader().setSectionResizeMode(column,QHeaderView.ResizeToContents)
-                self.tableWidget.verticalHeader().setSectionResizeMode(row,QHeaderView.ResizeToContents)
+                self.tableWidget.resizeRowsToContents()
+                self.tableWidget.resizeColumnsToContents()
                 self.tableWidget.setCellWidget(row,column, DoujinshiThumbnail("/home/nelarus-pc/Pictures/photos.png"))
                 
                 
@@ -341,6 +344,10 @@ class MyWindowClass(QMainWindow, form_class):
         
         
         self.menuAppearance.addActions(available_styles_group.actions())
+        
+    
+    
+    
         
     def closeEvent(self, event):
 
