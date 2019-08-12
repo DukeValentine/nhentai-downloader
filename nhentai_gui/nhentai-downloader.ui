@@ -320,7 +320,7 @@
          <property name="currentIndex">
           <number>0</number>
          </property>
-         <widget class="QWidget" name="page_3">
+         <widget class="QWidget" name="page_1">
           <layout class="QGridLayout" name="gridLayout_4">
            <property name="sizeConstraint">
             <enum>QLayout::SetNoConstraint</enum>
@@ -364,21 +364,6 @@
             </widget>
            </item>
           </layout>
-         </widget>
-         <widget class="QWidget" name="page_4">
-          <widget class="QLabel" name="label">
-           <property name="geometry">
-            <rect>
-             <x>250</x>
-             <y>80</y>
-             <width>63</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
          </widget>
         </widget>
        </item>

@@ -270,6 +270,30 @@ def login_action():
 
 def change_thumbnail_page(stacked_widget, num):
     stacked_widget.setCurrentIndex(stacked_widget.currentIndex() + num)
+    
+    
+
+class ThumbnailTable(QTableWidget):
+    
+    
+    def __init__(self, parent = None):
+        QTableWidget.__init__(self,5,5,parent)
+        self.horizontalHeader().hide()
+        self.verticalHeader().hide()
+        self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.populate()
+        
+    def populate(self):
+        for row in range(self.rowCount()):
+            for column in range(self.columnCount()):
+                self.add_widget(row,column, DoujinshiThumbnail("/home/nelarus-pc/Pictures/photos.png"))
+                
+        
+    def add_widget(self,row,column,widget):
+        self.setCellWidget(row,column,widget)
+        self.resizeRowsToContents()
+        self.resizeColumnsToContents()
+        
 
 
         
@@ -305,9 +329,9 @@ class MyWindowClass(QMainWindow, form_class):
         self.login_button.clicked.connect(login_action)
         
         
-     
         
         
+       
         
         
         
@@ -327,7 +351,15 @@ class MyWindowClass(QMainWindow, form_class):
         
         
         
-        
+        for index in range(2,6):
+           
+            page_widget = QWidget()
+            page_widget.setObjectName(f"page_{index}")
+            grid_layout = QGridLayout(page_widget)
+            
+            table = ThumbnailTable(page_widget)
+            grid_layout.addWidget(table,0,0,1,1)
+            self.thumbnail_pages.addWidget(page_widget)
         
         
         
