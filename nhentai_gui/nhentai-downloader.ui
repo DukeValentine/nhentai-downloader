@@ -481,7 +481,7 @@
       <widget class="QPushButton" name="next_thumbpage">
        <property name="geometry">
         <rect>
-         <x>30</x>
+         <x>60</x>
          <y>130</y>
          <width>31</width>
          <height>16</height>
@@ -495,6 +495,19 @@
        </property>
        <property name="flat">
         <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QToolButton" name="toolButton">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>130</y>
+         <width>31</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>...</string>
        </property>
       </widget>
      </widget>
@@ -516,12 +529,13 @@
    <property name="defaultUp">
     <bool>false</bool>
    </property>
-   <widget class="QMenu" name="menuAbout">
+   <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>About</string>
+     <string>Help</string>
     </property>
     <addaction name="actionAbout_the_program"/>
     <addaction name="separator"/>
+    <addaction name="actionUpdate"/>
     <addaction name="actionGitlab_page"/>
     <addaction name="actionOpen_an_issue"/>
    </widget>
@@ -541,7 +555,7 @@
     <addaction name="actionSettings"/>
    </widget>
    <addaction name="menuEdit"/>
-   <addaction name="menuAbout"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSave_Location">
@@ -673,6 +687,11 @@
   <action name="actiona">
    <property name="text">
     <string>a</string>
+   </property>
+  </action>
+  <action name="actionUpdate">
+   <property name="text">
+    <string>Check for updates</string>
    </property>
   </action>
  </widget>

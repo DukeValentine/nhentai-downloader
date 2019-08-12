@@ -1,14 +1,15 @@
-from PyQt5.QtCore import Qt , pyqtSlot,pyqtSignal,QObject
-from PyQt5.QtGui import QPalette, QColor,QPixmap,QPainter
+from PyQt5.QtCore import Qt , pyqtSlot,pyqtSignal,QObject, QProcess
+from PyQt5.QtGui import QPalette, QColor,QPixmap,QPainter,QImage
 from PyQt5.QtWidgets import *
 import sys
 from platform import system
 from PyQt5 import uic
+import requests
 import os
 import webbrowser
 from enum import Enum
 
-
+QProcess().start()
 
 form_class = uic.loadUiType("nhentai-downloader.ui")[0]
 tag_dialog_class = uic.loadUiType("tags_selection.ui")[0]
@@ -27,11 +28,12 @@ AFTER_DOWNLOAD = Enum('action','Nothing .cbz .zip')
 
 
 class DoujinshiThumbnail(QWidget,thumbnail_class):
-    def __init__(self, path,parent=None):
+    def __init__(self, pic,parent=None):
         QWidget.__init__(self,parent)
         self.setupUi(self)
-        pic = QPixmap(path)
+        #pic = QPixmap(path)
         self.label.setPixmap(pic)
+        self.label.show()
         
         #QStackedWidget().in
         
@@ -41,12 +43,6 @@ class DoujinshiThumbnail(QWidget,thumbnail_class):
         
 
 
-class ImgWidget1(QLabel):
-
-    def __init__(self,path,parent=None):
-        super(ImgWidget1, self).__init__(parent)
-        pic = QPixmap(path)
-        self.setPixmap(pic)
 
 class NhentaiSettings(QObject):
     def __init__(self):
@@ -284,9 +280,15 @@ class ThumbnailTable(QTableWidget):
         self.populate()
         
     def populate(self):
+        response = requests.get("https://t.nhentai.net/galleries/1463132/thumb.jpg", stream=True)
+        print(response.status_code)
+        qimg = QImage.fromData(response.content)
+        pic = QPixmap(qimg)
+        #pic.fromImage(qimg)
+        
         for row in range(self.rowCount()):
-            for column in range(self.columnCount()):
-                self.add_widget(row,column, DoujinshiThumbnail("/home/nelarus-pc/Pictures/photos.png"))
+            for column in range(self.columnCount()): #"/home/nelarus-pc/Pictures/photos.png"
+                self.add_widget(row,column, DoujinshiThumbnail(pic))
                 
         
     def add_widget(self,row,column,widget):
@@ -329,7 +331,11 @@ class MyWindowClass(QMainWindow, form_class):
         self.login_button.clicked.connect(login_action)
         
         
-        
+        response = requests.get("https://t.nhentai.net/galleries/1463132/thumb.jpg", stream=True)
+        print(response.status_code)
+        qimg = QImage.fromData(response.content)
+        pic = QPixmap()
+        pic.fromImage(qimg)
         
        
         
@@ -345,7 +351,8 @@ class MyWindowClass(QMainWindow, form_class):
             for column in range(self.tableWidget.columnCount()):
                 self.tableWidget.resizeRowsToContents()
                 self.tableWidget.resizeColumnsToContents()
-                self.tableWidget.setCellWidget(row,column, DoujinshiThumbnail("/home/nelarus-pc/Pictures/photos.png"))
+                #pic "/home/nelarus-pc/Pictures/photos.png"
+                self.tableWidget.setCellWidget(row,column, DoujinshiThumbnail(pic))
                 
                 
         
