@@ -1,6 +1,7 @@
-from PyQt5.QtCore import Qt , pyqtSlot,pyqtSignal,QObject, QProcess
+from PyQt5.QtCore import Qt , pyqtSlot,pyqtSignal,QObject, QProcess, QUrl,QRunnable,QThreadPool,QThread
 from PyQt5.QtGui import QPalette, QColor,QPixmap,QPainter,QImage
 from PyQt5.QtWidgets import *
+from PyQt5 import QtNetwork
 import sys
 from platform import system
 from PyQt5 import uic
@@ -9,253 +10,49 @@ import os
 import webbrowser
 from enum import Enum
 
+from config_dialog import NhentaiSettings
+from config_dialog import ConfigDialog
+
+from tag_dialog import TagDialog
+from theme import ThemeAction
+
+
 QProcess().start()
 
 form_class = uic.loadUiType("nhentai-downloader.ui")[0]
-tag_dialog_class = uic.loadUiType("tags_selection.ui")[0]
-settings_dialog_class = uic.loadUiType("config_dialog.ui")[0]
 thumbnail_class = uic.loadUiType("doujinshi_thumbnail.ui")[0]
 
 
 
-ALL_LANGUAGES = ["english","japanese","chinese","translated"]
-
-COMMON_TAGS = ["incest","lolicon","ahegao","shotacon","sweat","blowjob","nakadashi","impregnation","dark skin","footjob","harem","stockings","paizuri"]
 
 
-DOWNLOAD_ACTION = Enum('action','search id favorite')
-AFTER_DOWNLOAD = Enum('action','Nothing .cbz .zip')
+
+
 
 
 class DoujinshiThumbnail(QWidget,thumbnail_class):
-    def __init__(self, pic,parent=None):
+    def __init__(self, pic,main_id = None, media_id = None ,parent=None):
         QWidget.__init__(self,parent)
         self.setupUi(self)
-        #pic = QPixmap(path)
-        self.label.setPixmap(pic)
+        
+        pixmap = QPixmap()
+        pixmap.loadFromData(pic)
+        
+        self.label.setPixmap( pixmap)
         self.label.show()
         
-        #QStackedWidget().in
+        self.main_id = main_id
+        self.media_id = media_id
+        
+        #qimg = QImage.fromData(response.content)
+        #pic = QPixmap()
+        #pic.fromImage(qimg)
         
         
     def mousePressEvent(self, event):
         self.checkBox.setChecked(not self.checkBox.isChecked())
         
 
-
-
-class NhentaiSettings(QObject):
-    def __init__(self):
-        QObject.__init__(self)
-        self.save_directory = os.getcwd()
-        self.log_directory = os.getcwd()
-        self.directory = self.save_directory
-        self.overwrite = False
-        self.download = True
-        self.torrent = False
-        self.remove_after = False
-        self.delay = 1.0
-        self.threads = 4
-        self.retry = 5
-        self.after_download = AFTER_DOWNLOAD.Nothing
-        self.initial_page = 1
-        self.max_page = 0
-        self.download_action = DOWNLOAD_ACTION.search
-        self.login = None
-        self.password = None
-        
-    
-
-    
-
-
-class ConfigDialog(QDialog, settings_dialog_class):
-    settingsChanged = pyqtSignal(NhentaiSettings)
-    #settingsChanged = pyqtSignal()
-    
-    
-    def __init__(self, parent=None,settings = NhentaiSettings()):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-        
-        #self.settings = settings
-        self.initial_config(settings)
-        
-        
-        
-        self.download_end_choice.currentIndexChanged.connect(self.download_choice_change)
-        self.download_image_checkbox.stateChanged.connect(self.download_image_check)
-        
-        self.location_selection_save_config_dialog.clicked.connect(self.location_save_click)
-        self.location_selection_log_config_dialog.clicked.connect(self.location_log_click)
-        
-       
-        
-        
-        self.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(self.apply_settings)
-        self.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked.connect(self.default_settings)
-        self.buttonBox.button(QDialogButtonBox.Help).clicked.connect(self.open_help)
-    
-    def initial_config(self,settings):
-        self.location_save_config_dialog.setText(settings.save_directory)
-        self.location_log_config_dialog.setText(settings.log_directory)
-        self.download_threads.setValue(settings.threads)
-        self.delay.setValue(settings.delay)
-        self.retry.setValue(settings.retry)
-        self.download_image_checkbox.setChecked(settings.download)
-        self.overwrite_checkbox.setChecked(settings.overwrite)
-        self.download_torrent_checkbox.setChecked(settings.torrent)
-        self.remove_after_checkbox.setChecked(settings.remove_after)
-        self.download_end_choice.setCurrentIndex(settings.after_download.value - 1)
-        self.username.setText(settings.login)
-        self.password.setText(settings.password)
-        
-        
-        
-        
-        
-        
-    def apply_settings(self):
-        new_settings = NhentaiSettings()
-        new_settings.save_directory = self.location_save_config_dialog.text()
-        new_settings.log_directory = self.location_log_config_dialog.text()
-        new_settings.threads = self.download_threads.value()
-        new_settings.delay = self.delay.value()
-        new_settings.retry = self.retry.value()
-        new_settings.download = self.download_image_checkbox.isChecked()
-        new_settings.overwrite =  self.overwrite_checkbox.isChecked()
-        new_settings.torrent = self.download_torrent_checkbox.isChecked()
-        new_settings.remove_after = self.remove_after_checkbox.isChecked()
-        new_settings.after_download = AFTER_DOWNLOAD(self.download_end_choice.currentIndex()+1)
-        new_settings.login = self.username.text()
-        new_settings.password = self.password.text()
-        
-        self.settingsChanged.emit(new_settings)
-    
-    def default_settings(self):
-        self.initial_config(NhentaiSettings())
-    
-    def open_help(self):
-        webbrowser.open("https://gitlab.com/DukeValentine/nhentai-downloader/issues")
-        
-        
-    def download_choice_change(self):
-        self.remove_after_checkbox.setEnabled(self.download_end_choice.currentIndex() > 0)
-        
-    def download_image_check(self):
-        self.overwrite_checkbox.setEnabled( self.download_image_checkbox.isChecked())
-        
-        if(self.overwrite_checkbox.isChecked()):
-            self.overwrite_checkbox.setChecked( self.download_image_checkbox.isChecked() == True)
-            
-    def location_save_click(self):
-        directory = QFileDialog.getExistingDirectory(self,"Select save location", "", options=QFileDialog.ShowDirsOnly)
-        self.location_save_config_dialog.setText(directory)
-        
-    def location_log_click(self):
-        directory = QFileDialog.getExistingDirectory(self,"Select log location", "", options=QFileDialog.ShowDirsOnly)
-        self.location_log_config_dialog.setText(directory)
-        
-        
-        
-    
-    
-
-
-
-class TagDialog(QDialog, tag_dialog_class):
-    
-    
-    def __init__(self, parent=None,columns = 8, languages = ALL_LANGUAGES):
-
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-        
-        
-        self.tableWidget.horizontalHeader().hide()
-        self.tableWidget.verticalHeader().hide()
-        
-        self.tableWidget.setColumnCount(columns)
-        self.tableWidget.setRowCount(5)
-        
-        self.tableWidget.setSpan(0,0,1,8)
-        self.tableWidget.setSpan(1,len(languages), 1, columns - len(languages))
-        
-        language_item = QTableWidgetItem("Languages")
-        language_item.setTextAlignment(Qt.AlignHCenter)
-        self.tableWidget.setItem(0,0,language_item)
-        
-        self.tableWidget.setSpan(2,0,1,8)
-        tag_item = QTableWidgetItem("Common tags")
-        tag_item.setTextAlignment(Qt.AlignHCenter)
-        self.tableWidget.setItem(2,0,tag_item)
-        
-        
-        self.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        
-        for column,language in enumerate(languages,0):
-            self.tableWidget.setCellWidget(1,column, QCheckBox(language))
-            
-        for index,tag in enumerate(COMMON_TAGS,0):
-           self.tableWidget.setCellWidget(3 + index/columns ,index%columns, QCheckBox(tag))
-            
-    
-    def retrieve_checked_cells(self):
-        tags = []
-        
-        for row in range(self.tableWidget.rowCount()):
-            for column in range(self.tableWidget.columnCount()):
-                try:
-                    if(self.tableWidget.cellWidget(row,column).isChecked()):
-                        tags.append(self.tableWidget.cellWidget(row,column).text())
-                        
-                except AttributeError:
-                    pass
-        
-        return tags
-        
-        
-        
-class ThemeAction(QAction):
-    App = None
-    
-    
-    def __init__(self,name,main_window,parent = None):
-        super().__init__(name,parent)
-        self.main_window = main_window
-        self.setCheckable(True)
-        self.triggered.connect(self.set_theme)
-        
-        
-    def set_theme(self):
-        print(f"new theme {self.text()}")
-        if(self.text() == "NhentaiDark"):
-            self.App.setStyle("Fusion")
-            self.App.setPalette(self.configure_pallete())
-            
-        else:
-            self.App.setStyle(self.text())
-        
-    def configure_pallete(self):
-        #dark theme
-        palette = QPalette()
-
-        palette.setColor(QPalette.Window, QColor(53, 53, 53))
-        palette.setColor(QPalette.WindowText, Qt.white)
-        palette.setColor(QPalette.Base, QColor(25, 25, 25))
-        palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-        palette.setColor(QPalette.ToolTipBase, Qt.white)
-        palette.setColor(QPalette.ToolTipText, Qt.white)
-        palette.setColor(QPalette.Text, Qt.white)
-        palette.setColor(QPalette.Button, QColor(53, 53, 53))
-        palette.setColor(QPalette.ButtonText, Qt.white)
-        palette.setColor(QPalette.BrightText, Qt.red)
-        palette.setColor(QPalette.Link, QColor(42, 130, 218))
-        palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-        palette.setColor(QPalette.HighlightedText, Qt.black)
-        
-        return palette
-    
 
 
 def login_action():
@@ -277,18 +74,13 @@ class ThumbnailTable(QTableWidget):
         self.horizontalHeader().hide()
         self.verticalHeader().hide()
         self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-        self.populate()
+        #self.populate()
         
-    def populate(self):
-        response = requests.get("https://t.nhentai.net/galleries/1463132/thumb.jpg", stream=True)
-        print(response.status_code)
-        qimg = QImage.fromData(response.content)
-        pic = QPixmap(qimg)
-        #pic.fromImage(qimg)
+    def populate(self,picture):
         
         for row in range(self.rowCount()):
             for column in range(self.columnCount()): #"/home/nelarus-pc/Pictures/photos.png"
-                self.add_widget(row,column, DoujinshiThumbnail(pic))
+                self.add_widget(row,column, DoujinshiThumbnail(picture))
                 
         
     def add_widget(self,row,column,widget):
@@ -298,16 +90,25 @@ class ThumbnailTable(QTableWidget):
         
 
 
+
+
+
+class DownloadWorker(QThread):
+    download_finished = pyqtSignal(object)
+    
+    
+    def __init__(self,url,path):
+        super(DownloadWorker, self).__init__()
+        self.url = url
+    
+   
+    def run(self):
+        print(f"run {self.url}")
         
-class ImgWidget2(QWidget):
-
-    def __init__(self, path,parent=None):
-        super(ImgWidget2, self).__init__(parent)
-        self.pic = QPixmap(path)
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.drawPixmap(0, 0, self.pic)
+        request = requests.get(self.url,stream = True)
+        self.download_finished.emit(request)
+        
+        
 
 
 class MyWindowClass(QMainWindow, form_class):
@@ -331,42 +132,51 @@ class MyWindowClass(QMainWindow, form_class):
         self.login_button.clicked.connect(login_action)
         
         
-        response = requests.get("https://t.nhentai.net/galleries/1463132/thumb.jpg", stream=True)
-        print(response.status_code)
-        qimg = QImage.fromData(response.content)
-        pic = QPixmap()
-        pic.fromImage(qimg)
+        #response = requests.get("https://t.nhentai.net/galleries/1463132/thumb.jpg", stream=True)
+        #print(response.status_code)
+        #qimg = QImage.fromData(response.content)
+        #pic = QPixmap()
+        #pic.fromImage(qimg)
         
        
-        
+        url = "https://t.nhentai.net/galleries/1463132/thumb.jpg"
+        request = QtNetwork.QNetworkRequest(QUrl(url))
+        self.net = QtNetwork.QNetworkAccessManager()
+        self.net.finished.connect(self.handle_response)
+        self.net.get(request)
         
         
         self.actionSettings.triggered.connect(self.settings_click)
         
+      
         
         
         
-        
-        for row in range(self.tableWidget.rowCount()):
-            for column in range(self.tableWidget.columnCount()):
-                self.tableWidget.resizeRowsToContents()
-                self.tableWidget.resizeColumnsToContents()
-                #pic "/home/nelarus-pc/Pictures/photos.png"
-                self.tableWidget.setCellWidget(row,column, DoujinshiThumbnail(pic))
+        #for row in range(self.tableWidget.rowCount()):
+            #for column in range(self.tableWidget.columnCount()):
+                #self.tableWidget.resizeRowsToContents()
+                #self.tableWidget.resizeColumnsToContents()
+                ##pic "/home/nelarus-pc/Pictures/photos.png"
+                #self.tableWidget.setCellWidget(row,column, DoujinshiThumbnail(pic))
                 
                 
-        
+        self.tables = []
         
         
         for index in range(2,6):
            
             page_widget = QWidget()
+            
+            
+            
             page_widget.setObjectName(f"page_{index}")
             grid_layout = QGridLayout(page_widget)
             
             table = ThumbnailTable(page_widget)
             grid_layout.addWidget(table,0,0,1,1)
             self.thumbnail_pages.addWidget(page_widget)
+            
+            self.tables.append(table)
         
         
         
@@ -384,8 +194,73 @@ class MyWindowClass(QMainWindow, form_class):
         
         self.menuAppearance.addActions(available_styles_group.actions())
         
+        self.workers = []
+        self.counter = 0
+        
     
+        
     
+    def multithread(self):
+        base_url = "https://i.nhentai.net/galleries/1463011/"
+        self.workers = []
+        
+        
+        for num in range(1,4):
+            worker = DownloadWorker(f"{base_url}{num}.jpg")
+            worker.download_finished.connect(self.down)
+            self.workers.append(worker)
+            worker.start()
+            
+    
+    def down(self, data):
+        self.counter+=1
+        print(f"downloading {self.counter}")
+        
+        with open(f"{self.counter}",'wb') as file:
+            file.write(data.content)
+            
+        print("done")    
+            
+    def print_output(self, s):
+        print(s)
+        
+        
+    
+        
+    def handle_response(self,reply):
+        
+        if(reply.error() != QtNetwork.QNetworkReply.NoError):
+            print(f"error{reply.errorString()}")
+            
+        else:
+            
+            data = reply.readAll()
+            
+            
+            
+            self.populate_all_pages(data)
+            
+            reply.deleteLater()
+            
+        
+        
+        
+        return
+        
+    
+    def populate_all_pages(self,pic):
+        #response = requests.get("https://t.nhentai.net/galleries/1463132/thumb.jpg", stream=True)
+        #print(response.status_code)
+        #qimg = QImage.fromData(response.content)
+        #pic = QPixmap(qimg)
+        
+        
+        for table in self.tables:
+            table.populate(pic)
+            
+        
+        
+        return
     
         
     def closeEvent(self, event):
@@ -457,5 +332,7 @@ ThemeAction.App = app
 myWindow = MyWindowClass(None)
 
 myWindow.show()
+
+myWindow.multithread()
 
 sys.exit(app.exec_())

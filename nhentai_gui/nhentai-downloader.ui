@@ -327,6 +327,9 @@
            </property>
            <item row="0" column="0">
             <widget class="QTableWidget" name="tableWidget">
+             <property name="lineWidth">
+              <number>0</number>
+             </property>
              <property name="sizeAdjustPolicy">
               <enum>QAbstractScrollArea::AdjustToContents</enum>
              </property>
