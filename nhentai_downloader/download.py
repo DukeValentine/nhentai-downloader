@@ -33,13 +33,13 @@ def torrent_pool_manager(logger,options,id_list,session):
     logger.debug("End torrent pool")
 
 
-def image_pool_manager(logger,options,doujinshi):
+def image_pool_manager(logger,options,doujinshi,progress_bar = None):
     """
     Create and manage a pool for downloading images
     Receives how many download threads there will be, along with the destination path and the url_list with all the images to download
     """
-    if(logger is None):
-        logger = logging.getLogger("NoneLogger")
+    #if(logger is None):
+        #logger = logging.getLogger("NoneLogger")
     
     logger.debug(doujinshi.page_ext)
     
@@ -47,7 +47,7 @@ def image_pool_manager(logger,options,doujinshi):
     doujinshi_path = doujinshi.get_path(options.directory)
     
     
-    io_utils.create_path(doujinshi_path)
+    io_utils.create_path(logger,doujinshi_path)
     
     if(doujinshi.get_estimated_size("M") > io_utils.get_freespace(doujinshi_path,"M")):
         logger.critical(f"No freespace available for {doujinshi.main_id}")
@@ -64,15 +64,27 @@ def image_pool_manager(logger,options,doujinshi):
     
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
         results = {executor.submit(download_worker,logger,doujinshi_path,options.overwrite,options.delay,options.retry,url) : url for url in url_list}
-        download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image",leave = False)
+        if(progress_bar is None):
+            download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image",leave = False)
+            
+        else:
+            progress_bar.setMaximum(total_images)
+            
+        
         
         
         for item in completed_threads(results):
-            download_progress_bar.update(1)
+            if(progress_bar is None):
+                download_progress_bar.update(1)
+                
+            else:
+                progress_bar.update_progress(1)
+                
+                
             downloaded_count +=1
             logger.debug(f"Downloaded {downloaded_count} of {total_images}")
         
-        download_progress_bar.close()
+        #download_progress_bar.close()
         logger.debug(f"Finished downloading doujinshi id[{doujinshi.main_id}]")
 
 
@@ -85,6 +97,7 @@ def download_worker (logger,path,overwrite,delay,retry,url):
     filename = io_utils.get_filename_from_url(url)
     fullpath = io_utils.get_fullpath(path,filename)
     
+   
     
     
     logger.debug(f"URL: {url}")
@@ -92,7 +105,7 @@ def download_worker (logger,path,overwrite,delay,retry,url):
     
     if (overwrite == False and os.path.isfile(fullpath) == True):
         logger.debug(f"File {filename} exists, overwriting disabled")
-        return False
+        return constant.ok_code
         
     
     for attempt in range(1,retry+1):

@@ -16,6 +16,12 @@ from config_dialog import ConfigDialog
 from tag_dialog import TagDialog
 from theme import ThemeAction
 
+from nhentai_downloader import download
+from nhentai_downloader.doujinshi import Doujinshi
+from nhentai_downloader.fetcher import get_doujinshi_data
+from nhentai_downloader.logger import logger,logger_config
+
+
 
 QProcess().start()
 
@@ -90,7 +96,20 @@ class ThumbnailTable(QTableWidget):
         
 
 
-
+class Worker(QThread):
+    worker_finished = pyqtSignal(object)
+    
+    
+    def __init__(self,function,options,doujinshi,pbar):
+        super(Worker, self).__init__()
+        self.function = function
+        self.options = options
+        self.doujinshi = doujinshi
+        self.pbar = pbar
+        
+    def run(self):
+        logger_config(10)
+        self.function(logger,self.options , self.doujinshi,self.pbar)
 
 
 class DownloadWorker(QThread):
@@ -109,7 +128,19 @@ class DownloadWorker(QThread):
         self.download_finished.emit(request)
         
         
-
+class pbar(QProgressBar):
+    update_value = pyqtSignal(int)
+    set_maximum_value = pyqtSignal(int)
+    
+    def __init__(self):
+        QObject.__init__(self)
+        
+    def update_progress(self,increment):
+        self.update_value.emit(increment)
+        
+    def setMaximum(self,value):
+        self.set_maximum_value.emit(value)
+        
 
 class MyWindowClass(QMainWindow, form_class):
 
@@ -198,18 +229,37 @@ class MyWindowClass(QMainWindow, form_class):
         self.counter = 0
         
     
+    def updatev(self,increment):
+        self.doujinshi_download_bar.setValue(self.doujinshi_download_bar.value()+increment)
+        
+    def maximum(self,value):
+        self.doujinshi_download_bar.setMaximum(value)
         
     
     def multithread(self):
         base_url = "https://i.nhentai.net/galleries/1463011/"
         self.workers = []
         
+        progress_bar = pbar()
+        progress_bar.update_value.connect(self.updatev)
+        progress_bar.set_maximum_value.connect(self.maximum)
         
-        for num in range(1,4):
-            worker = DownloadWorker(f"{base_url}{num}.jpg")
-            worker.download_finished.connect(self.down)
-            self.workers.append(worker)
-            worker.start()
+        doujinshi = get_doujinshi_data("280762",1,5)
+        worker = Worker(download.image_pool_manager,self.settings,doujinshi,progress_bar)
+        worker.finished.connect(self.done)
+        self.workers.append(worker)
+        
+        
+        
+        worker.start()
+        #download.image_pool_manager(None,self.settings,doujinshi)
+        
+        
+        #for num in range(1,4):
+            #worker = DownloadWorker(f"{base_url}{num}.jpg")
+            #worker.download_finished.connect(self.down)
+            #self.workers.append(worker)
+            #worker.start()
             
     
     def down(self, data):
@@ -219,7 +269,10 @@ class MyWindowClass(QMainWindow, form_class):
         with open(f"{self.counter}",'wb') as file:
             file.write(data.content)
             
-        print("done")    
+        print("done")
+        
+    def done(self):
+        print("done")
             
     def print_output(self, s):
         print(s)

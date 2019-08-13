@@ -10,6 +10,7 @@ VERBOSE_LEVEL = constant.VERBOSE_LEVEL
 
 logger = logging.getLogger('NHENTAI')
 
+
 def verbose(self, message, *args, **kws):
     if self.isEnabledFor(VERBOSE_LEVEL):
         # Yes, logger takes its '*args' as 'args'.
@@ -17,7 +18,11 @@ def verbose(self, message, *args, **kws):
         
 def add_verbose_level():
     logger.isEnabledFor()
-    return 
+    return
+
+
+logging.addLevelName(VERBOSE_LEVEL,"VERBOSE")
+logging.Logger.verbose = verbose
 
         
         
@@ -83,6 +88,8 @@ def logger_config(logging_level = logging.INFO):
         logger.addHandler(file_handle)
         logger.addHandler(stream_handler)
         #logger.addHandler(progress_bar_handler)
+        
+        #return logger
         
     
 

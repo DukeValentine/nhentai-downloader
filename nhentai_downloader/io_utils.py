@@ -1,6 +1,6 @@
 import os
 from . import constant
-from .logger import logger
+#from .logger import logger
 from .doujinshi import Doujinshi
 from .doujinshi import Tag_count
 import json
@@ -21,7 +21,7 @@ def get_fullpath(path,filename):
 def get_cbz_filename(directory):
     return directory + ".cbz"
 
-def cbz_file_already_exists(directory,doujinshi):
+def cbz_file_already_exists(logger,directory,doujinshi):
     fullpath = doujinshi.get_path(directory)
     
     exists = os.path.isfile(fullpath)
@@ -32,7 +32,7 @@ def cbz_file_already_exists(directory,doujinshi):
     return  exists
 
 
-def create_cbz(directory,doujinshi,remove_after=False):
+def create_cbz(logger,directory,doujinshi,remove_after=False):
     
     filepath = doujinshi.get_path(directory,".cbz")
     image_path = doujinshi.get_path(directory)
@@ -189,7 +189,7 @@ def write_output(directory,filename,dlist,json,debug=False):
                 id_list = (obj.main_id for obj in dlist)
                 write_idlist(directory,filename,id_list)
         
-def create_path(path,permissions=0o755):
+def create_path(logger,path,permissions=0o755):
     """
     Creates given path with given permissions
     The user must have permissions to create subdirectories in the given directory

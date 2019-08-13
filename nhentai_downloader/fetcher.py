@@ -34,6 +34,10 @@ def get_doujinshi_data (doujinshi_id,delay,retry):
     ID must be a string
     Check Doujinshi class to know more
     """
+    
+   
+    
+    
     try:
         if doujinshi_id is None or not isinstance(doujinshi_id,str):
             raise TypeError('Bad id format')
