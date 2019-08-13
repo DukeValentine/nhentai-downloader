@@ -1,6 +1,8 @@
 from . import constant
 from datetime import datetime
 from platform import system
+import requests
+from time import sleep
 import os
 import json
 from .logger import logger
@@ -40,6 +42,8 @@ class Doujinshi:
         else:    
             for tag in new_tags:
                 self.tags.append(tag)
+                
+    
         
     def FillInfo(self, json_data):
         """
@@ -119,8 +123,12 @@ class Doujinshi:
         return url_list
     
     def PrintDoujinshiInfo(self,verbose=False):
+        if(len(self.title) > 150):
+            extra_chr = "\n"
+        else:
+            extra_chr = ""
         
-        logger.info(f"Title: {self.title}")
+        logger.info(f"Title: {self.title}{extra_chr}")
         logger.verbose(f"Main id : {self.main_id}")
         logger.verbose(f"Media id : {self.media_id}")
         logger.verbose(f"Language: {self.format_tags('language')}")
@@ -133,6 +141,7 @@ class Doujinshi:
         logger.verbose(f"Tags: {self.format_tags('tag')}")
         logger.verbose(f"Upload_date: {self.GetFormattedDate()}")
         logger.verbose(f"Total favorites : {self.num_favorites}")
+        
         
     
     def toJSON(self):

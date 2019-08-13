@@ -49,8 +49,15 @@ def main():
     elif options.search:
         if not options.tags:
             logger.warning("No search tags were given, the program will search the entirety of nhentai")
+            
+            
+        nh_session = None    
+        if(options.login and options.password):
+            nh_session = auth.login(options.login,options.password)
+            
         
-        dlist = fetcher.search_doujinshi(options)
+        
+        dlist = fetcher.search_doujinshi(options,nh_session)
         
     else:
         if not options.login or not options.password:
@@ -67,9 +74,8 @@ def main():
         
         dlist = fetcher.fetch_favorites(nh_session,options)
         
-    io_utils.write_output(options.directory,options.output_filename,dlist,options.json)
     
-    logger.info("Finished")
+    io_utils.write_output(options.directory,options.output_filename,dlist,options.json)
         
 
 

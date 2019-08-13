@@ -62,7 +62,8 @@ def option_parser():
     debug.add_argument('-V','--verbose', action = "store_const", dest = "logging_level", const = constant.VERBOSE_LEVEL,default = logging.INFO, help = "Print aditional debug information")
     debug.add_argument('--debug', action = "store_const", dest = "logging_level", const = logging.DEBUG, help = "Enable debug information for http requests") 
 
-    search.add_argument ('--search', action = "store_true", default = False, help = "Sets whether it will get doujinshi from favorites or site-wide search")
+    search.add_argument ('--search', action = "store_true", default = False, help = "Site wide search")
+    search.add_argument('--favorites',action = "store_false", dest = "search", help = "Search from favorites")
     search.add_argument ('--id', nargs='*',default=[], help = "Fetch doujinshi from supplied ids")
     search.add_argument ('-t','--tags' , action="store", dest = "tags", nargs='*',default=[], help ='Narrow doujinshi down by tags')
     search.add_argument ('--page', action = "store", type=int, dest = "initial_page", default = 1, help = "Initial page")
