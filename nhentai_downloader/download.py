@@ -28,7 +28,7 @@ class ProgressBar(tqdm):
     def update_progress(self,increment):
         self.update(increment)
         
-    def setMaximum(self,max):
+    def set_maximum(self,max):
         pass
 
 
@@ -82,23 +82,22 @@ def image_pool_manager(logger,options,doujinshi,progress_bar = None):
     downloaded_count = 0
     total_images = len(url_list)
     
+    if(progress_bar is None):
+        progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image",leave = False)
+        
+        
+    
+    
     with ThreadPoolExecutor(max_workers=options.threads) as executor:
         results = {executor.submit(download_worker,logger,doujinshi_path,options.overwrite,options.delay,options.retry,url) : url for url in url_list}
-        if(progress_bar is None):
-            download_progress_bar = tqdm(total = total_images, desc = f"Downloading doujinshi id[{doujinshi.main_id}]", unit = "Image",leave = False)
-            
-        else:
-            progress_bar.setMaximum(total_images)
+        progress_bar.set_maximum(total_images)
+        progress_bar.setLabel(f"Downloading doujinshi id [{doujinshi.main_id}]")
             
         
         
         
         for item in completed_threads(results):
-            if(progress_bar is None):
-                download_progress_bar.update(1)
-                
-            else:
-                progress_bar.update_progress(1)
+            progress_bar.update_progress(1)
                 
                 
             downloaded_count +=1

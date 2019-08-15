@@ -14,132 +14,257 @@
    <string>Nhentai_downloader</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="1">
-     <widget class="QSplitter" name="progress_info">
+   <layout class="QGridLayout" name="gridLayout_6">
+    <item row="0" column="0">
+     <widget class="QFrame" name="option_frame">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="maximumSize">
+      <property name="minimumSize">
        <size>
-        <width>16777215</width>
-        <height>905</height>
+        <width>150</width>
+        <height>0</height>
        </size>
       </property>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
       </property>
-      <widget class="QLabel" name="fetch_label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <property name="styleSheet">
+       <string notr="true">#option_frame {border:0;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QSplitter" name="splitter_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>150</width>
+         <height>124</height>
+        </rect>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>200</height>
-        </size>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QFrame" name="frame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="initia_page_num"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="last_page_label">
+           <property name="text">
+            <string>Last Page</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="last_page_num"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="initial_page_label">
+           <property name="text">
+            <string>Initial Page</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QComboBox" name="search_type_selection">
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Id List</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Site wide search</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Favorites search</string>
+         </property>
+        </item>
+       </widget>
+      </widget>
+      <widget class="QPushButton" name="previous_thumbpage">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>130</y>
+         <width>31</width>
+         <height>16</height>
+        </rect>
        </property>
        <property name="text">
-        <string>Doujinshi info fetching</string>
+        <string>&lt;</string>
        </property>
       </widget>
-      <widget class="QProgressBar" name="fetch_bar">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="value">
-        <number>0</number>
-       </property>
-      </widget>
-      <widget class="QLabel" name="page_download_label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>200</height>
-        </size>
+      <widget class="QPushButton" name="next_thumbpage">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>130</y>
+         <width>31</width>
+         <height>16</height>
+        </rect>
        </property>
        <property name="text">
-        <string>Downloading [page x][id batch]</string>
+        <string>&gt;</string>
        </property>
-      </widget>
-      <widget class="QProgressBar" name="page_download_bar">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="accessibleName">
-        <string/>
-       </property>
-       <property name="autoFillBackground">
+       <property name="default">
         <bool>false</bool>
        </property>
-       <property name="value">
-        <number>0</number>
+       <property name="flat">
+        <bool>false</bool>
        </property>
       </widget>
-      <widget class="QLabel" name="doujinshi_download_label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>200</height>
-        </size>
+      <widget class="QToolButton" name="page_jump_button">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>130</y>
+         <width>31</width>
+         <height>16</height>
+        </rect>
        </property>
        <property name="text">
-        <string>Downloading doujinshi id [x]</string>
+        <string>...</string>
        </property>
       </widget>
-      <widget class="QProgressBar" name="doujinshi_download_bar">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="value">
-        <number>0</number>
-       </property>
-      </widget>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QFrame" name="progress_frame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QSplitter" name="progress_info">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QFrame" name="middle_frame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">#middle_frame {border:0;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <widget class="QStackedWidget" name="thumbnail_pages">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="page_1">
+          <layout class="QGridLayout" name="gridLayout_4">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetNoConstraint</enum>
+           </property>
+           <item row="0" column="0">
+            <widget class="QTableWidget" name="tableWidget">
+             <property name="lineWidth">
+              <number>0</number>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::ExtendedSelection</enum>
+             </property>
+             <property name="rowCount">
+              <number>5</number>
+             </property>
+             <property name="columnCount">
+              <number>5</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderCascadingSectionResizes">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderCascadingSectionResizes">
+              <bool>true</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+             <column/>
+             <column/>
+             <column/>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item row="2" column="0" colspan="2">
@@ -175,7 +300,7 @@
              <string notr="true"/>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="page">
              <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -295,224 +420,6 @@
         </widget>
        </item>
       </layout>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="2">
-     <widget class="QFrame" name="middle_frame">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>1</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">#middle_frame {border:0;}</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QStackedWidget" name="thumbnail_pages">
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
-         <widget class="QWidget" name="page_1">
-          <layout class="QGridLayout" name="gridLayout_4">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetNoConstraint</enum>
-           </property>
-           <item row="0" column="0">
-            <widget class="QTableWidget" name="tableWidget">
-             <property name="lineWidth">
-              <number>0</number>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::AdjustToContents</enum>
-             </property>
-             <property name="selectionMode">
-              <enum>QAbstractItemView::ExtendedSelection</enum>
-             </property>
-             <property name="rowCount">
-              <number>5</number>
-             </property>
-             <property name="columnCount">
-              <number>5</number>
-             </property>
-             <attribute name="horizontalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="horizontalHeaderCascadingSectionResizes">
-              <bool>true</bool>
-             </attribute>
-             <attribute name="verticalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="verticalHeaderCascadingSectionResizes">
-              <bool>true</bool>
-             </attribute>
-             <row/>
-             <row/>
-             <row/>
-             <row/>
-             <row/>
-             <column/>
-             <column/>
-             <column/>
-             <column/>
-             <column/>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QFrame" name="option_frame">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>200</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">#option_frame {border:0;}</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <widget class="QSplitter" name="splitter_2">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>150</width>
-         <height>124</height>
-        </rect>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <widget class="QFrame" name="frame">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="initia_page_num"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="last_page_label">
-           <property name="text">
-            <string>Last Page</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="last_page_num"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="initial_page_label">
-           <property name="text">
-            <string>Initial Page</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QComboBox" name="search_type_selection">
-        <item>
-         <property name="text">
-          <string>Id List</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Site wide search</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Favorites search</string>
-         </property>
-        </item>
-       </widget>
-      </widget>
-      <widget class="QPushButton" name="previous_thumbpage">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>130</y>
-         <width>31</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>&lt;</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="next_thumbpage">
-       <property name="geometry">
-        <rect>
-         <x>60</x>
-         <y>130</y>
-         <width>31</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>&gt;</string>
-       </property>
-       <property name="default">
-        <bool>false</bool>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="QToolButton" name="page_jump_button">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>130</y>
-         <width>31</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-      </widget>
      </widget>
     </item>
    </layout>

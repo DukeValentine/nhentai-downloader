@@ -14,8 +14,12 @@ class PageJumpDialog(QDialog, page_jump_class):
         self.setupUi(self)
         self.max_value = max_value
         self.min_value = min_value
+        self.spinBox.setMinimum(self.min_value)
+        self.spinBox.setMaximum(self.max_value)
+        
         self.label.setText(f"Jump to page : {self.min_value} - {self.max_value}")
-        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        #self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        
         
     
         

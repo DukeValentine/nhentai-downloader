@@ -129,30 +129,59 @@ class DownloadWorker(QThread):
         self.download_finished.emit(request)
         
         
-class pbar(QProgressBar):
+class ProgressBar(QProgressBar):
     update_value = pyqtSignal(int,object)
     set_maximum_value = pyqtSignal(int,object)
+    set_label = pyqtSignal(object,object)
     
-    def __init__(self,pbar):
-        QObject.__init__(self)
-        self.pbar = pbar
+    def __init__(self, parent = None, value = 0,max = 100, label = None):
+        QProgressBar.__init__(self,parent)
+        self.setValue(value)
+        self.setMaximum(max)
+        self.label = label
+        self.setTextVisible(True)
         
     def start(self):
         pass
         
     def update_progress(self,increment):
-        self.update_value.emit(increment,self.pbar)
+        self.update_value.emit(increment,self)
         
-    def setMaximum(self,value):
-        self.set_maximum_value.emit(value,self.pbar)
+    def set_maximum(self,value):
+        self.set_maximum_value.emit(value,self)
+        
+    def get_current_progress(self):
+        return self.value()/self.maximum()
+        
+    def setLabel(self,label):
+        if(self.label):
+            self.set_label.emit(label,self.label)
+        
+        
         
 
 class MyWindowClass(QMainWindow, form_class):
+    def setup_progress_info(self):
+        self.fetch_label = QLabel(self.progress_info)
+        self.fetch_label.setText("Fetching doujinshi")
+        self.fetch_bar = ProgressBar(self.progress_info,label=self.fetch_label)
+        
+        
+        self.page_download_label = QLabel(self.progress_info)
+        self.page_download_bar = ProgressBar(self.progress_info,label=self.page_download_label)
+        
+        self.doujinshi_download_label = QLabel(self.progress_info)
+        self.doujinshi_download_label.setText("Downloading doujinshi id xxxx")
+        self.doujinshi_download_bar = ProgressBar(self.progress_info,label= self.doujinshi_download_label)
+        return
+    
+    
 
     def __init__(self, parent=None):
 
         QMainWindow.__init__(self, parent)
         self.setupUi(self)
+        self.setup_progress_info()
         
         self.tag_dialog = None
         self.settings = NhentaiSettings()
@@ -238,21 +267,29 @@ class MyWindowClass(QMainWindow, form_class):
     
     def updatev(self,increment,progress_bar):
         progress_bar.setValue(progress_bar.value()+increment)
+        #progress_bar.setFormat(f"{progress_bar.minimum()} of {progress_bar.maximum()}")
         
     def maximum(self,value,progress_bar):
         progress_bar.setMaximum(value)
+        
+    def update_label(self,text,label):
+        label.setText(text)
         
     
     def multithread(self):
         base_url = "https://i.nhentai.net/galleries/1463011/"
         self.workers = []
         
-        progress_bar = pbar(self.doujinshi_download_bar)
-        progress_bar.update_value.connect(self.updatev)
-        progress_bar.set_maximum_value.connect(self.maximum)
+        self.doujinshi_download_bar.set_maximum_value.connect(self.maximum)
+        self.doujinshi_download_bar.update_value.connect(self.updatev)
+        self.doujinshi_download_bar.set_label.connect(self.update_label)
+        
+        #progress_bar = pbar(self.doujinshi_download_bar)
+        #progress_bar.update_value.connect(self.updatev)
+        #progress_bar.set_maximum_value.connect(self.maximum)
         
         doujinshi = get_doujinshi_data("280762",1,5)
-        worker = Worker(download.image_pool_manager,self.settings,doujinshi,progress_bar)
+        worker = Worker(download.image_pool_manager,self.settings,doujinshi,self.doujinshi_download_bar)
         worker.finished.connect(self.done)
         self.workers.append(worker)
         
