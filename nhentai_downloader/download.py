@@ -12,6 +12,26 @@ import os
 from tqdm import tqdm 
 
 
+class ProgressBar(tqdm):
+    def __init__(self,*args,**kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        
+        
+    def start(self):    
+        super(ProgressBar,self).__init__(*self.args,**self.kwargs)
+        
+        
+    def setLabel(self,label):
+        pass
+        
+    def update_progress(self,increment):
+        self.update(increment)
+        
+    def setMaximum(self,max):
+        pass
+
+
 def torrent_pool_manager(logger,options,id_list,session):
     if(logger is None):
         logger = logging.getLogger("NoneLogger")

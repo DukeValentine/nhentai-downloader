@@ -13,6 +13,7 @@ from enum import Enum
 from config_dialog import NhentaiSettings
 from config_dialog import ConfigDialog
 
+from main_dialogs import PageJumpDialog
 from tag_dialog import TagDialog
 from theme import ThemeAction
 
@@ -23,7 +24,7 @@ from nhentai_downloader.logger import logger,logger_config
 
 
 
-QProcess().start()
+
 
 form_class = uic.loadUiType("nhentai-downloader.ui")[0]
 thumbnail_class = uic.loadUiType("doujinshi_thumbnail.ui")[0]
@@ -129,17 +130,21 @@ class DownloadWorker(QThread):
         
         
 class pbar(QProgressBar):
-    update_value = pyqtSignal(int)
-    set_maximum_value = pyqtSignal(int)
+    update_value = pyqtSignal(int,object)
+    set_maximum_value = pyqtSignal(int,object)
     
-    def __init__(self):
+    def __init__(self,pbar):
         QObject.__init__(self)
+        self.pbar = pbar
+        
+    def start(self):
+        pass
         
     def update_progress(self,increment):
-        self.update_value.emit(increment)
+        self.update_value.emit(increment,self.pbar)
         
     def setMaximum(self,value):
-        self.set_maximum_value.emit(value)
+        self.set_maximum_value.emit(value,self.pbar)
         
 
 class MyWindowClass(QMainWindow, form_class):
@@ -158,6 +163,8 @@ class MyWindowClass(QMainWindow, form_class):
     
         self.next_thumbpage.clicked.connect(lambda :change_thumbnail_page(self.thumbnail_pages,1) )
         self.previous_thumbpage.clicked.connect(lambda :change_thumbnail_page(self.thumbnail_pages,-1) )
+        self.page_jump_button.clicked.connect(self.page_jump)
+        
         self.location_selection.clicked.connect(self.location_selection_click)
         self.select_tags_button.clicked.connect(self.tags_selection_click)
         self.login_button.clicked.connect(login_action)
@@ -229,18 +236,18 @@ class MyWindowClass(QMainWindow, form_class):
         self.counter = 0
         
     
-    def updatev(self,increment):
-        self.doujinshi_download_bar.setValue(self.doujinshi_download_bar.value()+increment)
+    def updatev(self,increment,progress_bar):
+        progress_bar.setValue(progress_bar.value()+increment)
         
-    def maximum(self,value):
-        self.doujinshi_download_bar.setMaximum(value)
+    def maximum(self,value,progress_bar):
+        progress_bar.setMaximum(value)
         
     
     def multithread(self):
         base_url = "https://i.nhentai.net/galleries/1463011/"
         self.workers = []
         
-        progress_bar = pbar()
+        progress_bar = pbar(self.doujinshi_download_bar)
         progress_bar.update_value.connect(self.updatev)
         progress_bar.set_maximum_value.connect(self.maximum)
         
@@ -327,6 +334,11 @@ class MyWindowClass(QMainWindow, form_class):
             self.config_dialog.close()
             
         event.accept()
+        
+    def page_jump(self):
+        page_jump_dialog = PageJumpDialog(1,10)
+        page_jump_dialog.show()
+        page_jump_dialog.exec_()
         
     def search_type_change(self):
         print(f"now it's {self.search_type_selection.currentIndex()}")

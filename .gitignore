@@ -1,6 +1,6 @@
 #nhentai specific
-
-/nhentai
+nhentai_gui/(C*
+nhentai/
 .idea
 *.kate-swp
 
