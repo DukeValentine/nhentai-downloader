@@ -67,6 +67,10 @@ class ConfigDialog(QDialog, settings_dialog_class):
         self.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(self.apply_settings)
         self.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked.connect(self.default_settings)
         self.buttonBox.button(QDialogButtonBox.Help).clicked.connect(self.open_help)
+        
+    def execute(self):
+        self.show()
+        self.exec_()
     
     def initial_config(self,settings):
         self.location_save_config_dialog.setText(settings.save_directory)

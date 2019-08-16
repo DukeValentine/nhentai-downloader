@@ -25,6 +25,10 @@ class PageJumpDialog(QDialog, page_jump_class):
         self.accepted.connect(self.send_page)
         #self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
         
+    def execute(self):
+        self.show()
+        self.exec_()
+        
     def send_page(self):
         self.get_selected_page.emit(self.spinBox.value())
         

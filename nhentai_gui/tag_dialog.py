@@ -17,6 +17,7 @@ tag_dialog_class = uic.loadUiType("tags_selection.ui")[0]
 
 
 class TagDialog(QDialog, tag_dialog_class):
+    retrieve_tags = pyqtSignal(object)
     
     
     def __init__(self, parent=None,columns = 8, languages = ALL_LANGUAGES):
@@ -51,6 +52,10 @@ class TagDialog(QDialog, tag_dialog_class):
             
         for index,tag in enumerate(COMMON_TAGS,0):
            self.tableWidget.setCellWidget(3 + index/columns ,index%columns, QCheckBox(tag))
+           
+    def execute(self):
+        self.show()
+        self.exec_()
             
     
     def retrieve_checked_cells(self):

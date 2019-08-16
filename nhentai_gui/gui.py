@@ -13,6 +13,8 @@ from enum import Enum
 from config_dialog import NhentaiSettings
 from config_dialog import ConfigDialog
 
+
+from download_gui import ProgressBar,Worker
 from main_dialogs import PageJumpDialog
 from tag_dialog import TagDialog
 from theme import ThemeAction
@@ -36,33 +38,6 @@ def login_action():
     print("login")
     
 
-
-
-def change_thumbnail_page(stacked_widget, num):
-    stacked_widget.setCurrentIndex(stacked_widget.currentIndex() + num)
-    
- 
-
-
-        
-
-
-class Worker(QThread):
-    worker_finished = pyqtSignal(object)
-    
-    
-    def __init__(self,function,options,doujinshi,pbar):
-        super(Worker, self).__init__()
-        self.function = function
-        self.options = options
-        self.doujinshi = doujinshi
-        self.pbar = pbar
-        
-    def run(self):
-        logger_config(10)
-        self.function(logger,self.options , self.doujinshi,self.pbar)
-
-
 class DownloadWorker(QThread):
     download_finished = pyqtSignal(object)
     
@@ -79,33 +54,7 @@ class DownloadWorker(QThread):
         self.download_finished.emit(request)
         
         
-class ProgressBar(QProgressBar):
-    update_value = pyqtSignal(int,object)
-    set_maximum_value = pyqtSignal(int,object)
-    set_label = pyqtSignal(object,object)
-    
-    def __init__(self, parent = None, value = 0,max = 100, label = None):
-        QProgressBar.__init__(self,parent)
-        self.setValue(value)
-        self.setMaximum(max)
-        self.label = label
-        self.setTextVisible(True)
-        
-    def start(self):
-        pass
-        
-    def update_progress(self,increment):
-        self.update_value.emit(increment,self)
-        
-    def set_maximum(self,value):
-        self.set_maximum_value.emit(value,self)
-        
-    def get_current_progress(self):
-        return self.value()/self.maximum()
-        
-    def setLabel(self,label):
-        if(self.label):
-            self.set_label.emit(label,self.label)
+
         
         
         
@@ -187,19 +136,6 @@ class MyWindowClass(QMainWindow, form_class):
         
         for index in range(2,6):
             self.thumbnail_pages.create_page()
-           
-            #page_widget = QWidget()
-            
-            
-            
-            #page_widget.setObjectName(f"page_{index}")
-            #grid_layout = QGridLayout(page_widget)
-            
-            #table = ThumbnailTable(page_widget)
-            #grid_layout.addWidget(table,0,0,1,1)
-            #self.thumbnail_pages.addWidget(page_widget)
-            
-            #self.tables.append(table)
         
         
         
@@ -318,9 +254,6 @@ class MyWindowClass(QMainWindow, form_class):
     
         
     def closeEvent(self, event):
-
-        print ("User has clicked the red x on the main window")
-         
         if(self.tag_dialog):
             self.tag_dialog.close()
             
@@ -332,8 +265,7 @@ class MyWindowClass(QMainWindow, form_class):
     def page_jump_dialog(self):
         page_jump_dialog = PageJumpDialog(1,len(self.thumbnail_pages.pages.keys()))
         page_jump_dialog.get_selected_page.connect(self.switch_page)
-        page_jump_dialog.show()
-        page_jump_dialog.exec_()
+        page_jump_dialog.execute()
         
     def switch_page(self,page):
         print(page)
@@ -352,8 +284,7 @@ class MyWindowClass(QMainWindow, form_class):
     def settings_click(self):
         self.config_dialog = ConfigDialog(None,self.settings)
         self.config_dialog.settingsChanged.connect(self.update_settings)
-        self.config_dialog.show()
-        self.config_dialog.exec_()
+        self.config_dialog.execute()
         
     def update_settings(self,new_settings):
         self.settings = new_settings
@@ -397,6 +328,6 @@ myWindow = MyWindowClass(None)
 
 myWindow.show()
 
-myWindow.multithread()
+#myWindow.multithread()
 
 sys.exit(app.exec_())
