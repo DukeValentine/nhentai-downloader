@@ -8,6 +8,9 @@ page_jump_class = uic.loadUiType("page_jump.ui")[0]
 
 
 class PageJumpDialog(QDialog, page_jump_class):
+    get_selected_page = pyqtSignal(int)
+    
+    
     
     def __init__(self, min_value,max_value,parent=None):
         QDialog.__init__(self, parent)
@@ -18,8 +21,12 @@ class PageJumpDialog(QDialog, page_jump_class):
         self.spinBox.setMaximum(self.max_value)
         
         self.label.setText(f"Jump to page : {self.min_value} - {self.max_value}")
+        
+        self.accepted.connect(self.send_page)
         #self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
         
+    def send_page(self):
+        self.get_selected_page.emit(self.spinBox.value())
         
     
         

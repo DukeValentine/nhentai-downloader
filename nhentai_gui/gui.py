@@ -16,6 +16,7 @@ from config_dialog import ConfigDialog
 from main_dialogs import PageJumpDialog
 from tag_dialog import TagDialog
 from theme import ThemeAction
+from thumbnails import ThumbnailPages
 
 from nhentai_downloader import download
 from nhentai_downloader.doujinshi import Doujinshi
@@ -27,37 +28,6 @@ from nhentai_downloader.logger import logger,logger_config
 
 
 form_class = uic.loadUiType("nhentai-downloader.ui")[0]
-thumbnail_class = uic.loadUiType("doujinshi_thumbnail.ui")[0]
-
-
-
-
-
-
-
-
-
-class DoujinshiThumbnail(QWidget,thumbnail_class):
-    def __init__(self, pic,main_id = None, media_id = None ,parent=None):
-        QWidget.__init__(self,parent)
-        self.setupUi(self)
-        
-        pixmap = QPixmap()
-        pixmap.loadFromData(pic)
-        
-        self.label.setPixmap( pixmap)
-        self.label.show()
-        
-        self.main_id = main_id
-        self.media_id = media_id
-        
-        #qimg = QImage.fromData(response.content)
-        #pic = QPixmap()
-        #pic.fromImage(qimg)
-        
-        
-    def mousePressEvent(self, event):
-        self.checkBox.setChecked(not self.checkBox.isChecked())
         
 
 
@@ -71,29 +41,9 @@ def login_action():
 def change_thumbnail_page(stacked_widget, num):
     stacked_widget.setCurrentIndex(stacked_widget.currentIndex() + num)
     
-    
+ 
 
-class ThumbnailTable(QTableWidget):
-    
-    
-    def __init__(self, parent = None):
-        QTableWidget.__init__(self,5,5,parent)
-        self.horizontalHeader().hide()
-        self.verticalHeader().hide()
-        self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-        #self.populate()
-        
-    def populate(self,picture):
-        
-        for row in range(self.rowCount()):
-            for column in range(self.columnCount()): #"/home/nelarus-pc/Pictures/photos.png"
-                self.add_widget(row,column, DoujinshiThumbnail(picture))
-                
-        
-    def add_widget(self,row,column,widget):
-        self.setCellWidget(row,column,widget)
-        self.resizeRowsToContents()
-        self.resizeColumnsToContents()
+
         
 
 
@@ -182,6 +132,11 @@ class MyWindowClass(QMainWindow, form_class):
         QMainWindow.__init__(self, parent)
         self.setupUi(self)
         self.setup_progress_info()
+        self.thumbnail_pages = ThumbnailPages(self.middle_frame)
+        self.grid_layout5 = QGridLayout(self.middle_frame)
+        self.grid_layout5.setObjectName("gridLayout_5")
+        self.grid_layout5.addWidget(self.thumbnail_pages, 0, 0, 1, 1)
+        
         
         self.tag_dialog = None
         self.settings = NhentaiSettings()
@@ -189,10 +144,10 @@ class MyWindowClass(QMainWindow, form_class):
         
         self.location_directory.setText(self.settings.save_directory)
         
-    
-        self.next_thumbpage.clicked.connect(lambda :change_thumbnail_page(self.thumbnail_pages,1) )
-        self.previous_thumbpage.clicked.connect(lambda :change_thumbnail_page(self.thumbnail_pages,-1) )
-        self.page_jump_button.clicked.connect(self.page_jump)
+        
+        self.next_thumbpage.clicked.connect(lambda :self.thumbnail_pages.switch_page(1) )
+        self.previous_thumbpage.clicked.connect(lambda :self.thumbnail_pages.switch_page(-1) )
+        self.page_jump_button.clicked.connect(self.page_jump_dialog)
         
         self.location_selection.clicked.connect(self.location_selection_click)
         self.select_tags_button.clicked.connect(self.tags_selection_click)
@@ -231,19 +186,20 @@ class MyWindowClass(QMainWindow, form_class):
         
         
         for index in range(2,6):
+            self.thumbnail_pages.create_page()
            
-            page_widget = QWidget()
+            #page_widget = QWidget()
             
             
             
-            page_widget.setObjectName(f"page_{index}")
-            grid_layout = QGridLayout(page_widget)
+            #page_widget.setObjectName(f"page_{index}")
+            #grid_layout = QGridLayout(page_widget)
             
-            table = ThumbnailTable(page_widget)
-            grid_layout.addWidget(table,0,0,1,1)
-            self.thumbnail_pages.addWidget(page_widget)
+            #table = ThumbnailTable(page_widget)
+            #grid_layout.addWidget(table,0,0,1,1)
+            #self.thumbnail_pages.addWidget(page_widget)
             
-            self.tables.append(table)
+            #self.tables.append(table)
         
         
         
@@ -352,8 +308,9 @@ class MyWindowClass(QMainWindow, form_class):
         #pic = QPixmap(qimg)
         
         
-        for table in self.tables:
-            table.populate(pic)
+        for key,table in self.thumbnail_pages.pages.items():
+            if(key%2):
+                table.populate(pic)
             
         
         
@@ -372,10 +329,15 @@ class MyWindowClass(QMainWindow, form_class):
             
         event.accept()
         
-    def page_jump(self):
-        page_jump_dialog = PageJumpDialog(1,10)
+    def page_jump_dialog(self):
+        page_jump_dialog = PageJumpDialog(1,len(self.thumbnail_pages.pages.keys()))
+        page_jump_dialog.get_selected_page.connect(self.switch_page)
         page_jump_dialog.show()
         page_jump_dialog.exec_()
+        
+    def switch_page(self,page):
+        print(page)
+        self.thumbnail_pages.setCurrentIndex(page)
         
     def search_type_change(self):
         print(f"now it's {self.search_type_selection.currentIndex()}")
