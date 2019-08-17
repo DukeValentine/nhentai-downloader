@@ -83,6 +83,7 @@ class MyWindowClass(QMainWindow, form_class):
         self.setup_progress_info()
         self.thumbnail_pages = ThumbnailPages(self.middle_frame)
         self.grid_layout5 = QGridLayout(self.middle_frame)
+        self.grid_layout5.setContentsMargins(0,6,0,6)
         self.grid_layout5.setObjectName("gridLayout_5")
         self.grid_layout5.addWidget(self.thumbnail_pages, 0, 0, 1, 1)
         
@@ -115,7 +116,7 @@ class MyWindowClass(QMainWindow, form_class):
         self.net = QtNetwork.QNetworkAccessManager()
         self.net.finished.connect(self.handle_response)
         self.net.get(request)
-        
+        print("starting download")
         
         self.actionSettings.triggered.connect(self.settings_click)
         
@@ -210,13 +211,15 @@ class MyWindowClass(QMainWindow, form_class):
     def done(self):
         print("done")
             
-    def print_output(self, s):
+    def print_output(self, s):
+
         print(s)
         
         
     
         
     def handle_response(self,reply):
+        print("response")
         
         if(reply.error() != QtNetwork.QNetworkReply.NoError):
             print(f"error{reply.errorString()}")
@@ -242,6 +245,7 @@ class MyWindowClass(QMainWindow, form_class):
         #print(response.status_code)
         #qimg = QImage.fromData(response.content)
         #pic = QPixmap(qimg)
+        print("populating")
         
         
         for key,table in self.thumbnail_pages.pages.items():
