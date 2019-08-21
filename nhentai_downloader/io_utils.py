@@ -1,6 +1,6 @@
 import os
 from . import constant
-#from .logger import logger
+from .logger import logger
 from .doujinshi import Doujinshi
 from .doujinshi import Tag_count
 import json

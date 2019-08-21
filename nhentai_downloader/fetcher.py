@@ -344,7 +344,7 @@ def fetch_id(options,id,session=None):
         if options.download:
             logger.debug(f"Downloading doujinshi id[{id_doujinshi.main_id}]")
             
-            if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(options.directory,id_doujinshi)):
+            if(options.cbz == True and options.overwrite == False and io_utils.cbz_file_already_exists(logger,options.directory,id_doujinshi)):
                 continue
         
             download.image_pool_manager(logger,options,id_doujinshi)

@@ -115,6 +115,9 @@ class ThumbnailTable(QTableWidget):
         
         for row in range(self.rowCount()):
             for column in range(self.columnCount()): #"/home/nelarus-pc/Pictures/photos.png"
+                if(column%2):
+                    continue
+                
                 dj = DoujinshiThumbnail(picture,parent=self)
                 dj.resize_(380,500)
                 self.add_widget(row,column, dj)
